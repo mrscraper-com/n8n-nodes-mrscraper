@@ -1,6 +1,7 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
 import { userDescription } from './resources/user';
 import { companyDescription } from './resources/company';
+import { rerunDescription } from './resources/rerun';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -40,11 +41,16 @@ export class Mrscraper implements INodeType {
 						name: 'Company',
 						value: 'company',
 					},
+					{
+						name: 'Rerun',
+						value: 'rerun',
+					},
 				],
 				default: 'user',
 			},
 			...userDescription,
 			...companyDescription,
+			...rerunDescription,
 		],
 	};
 }
