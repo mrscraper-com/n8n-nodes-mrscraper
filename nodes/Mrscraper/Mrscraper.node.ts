@@ -2,6 +2,7 @@ import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from '
 import { userDescription } from './resources/user';
 import { companyDescription } from './resources/company';
 import { rerunDescription } from './resources/rerun';
+import { resultDescription } from './resources/result';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -45,12 +46,17 @@ export class Mrscraper implements INodeType {
 						name: 'Rerun',
 						value: 'rerun',
 					},
+					{
+						name: 'Result',
+						value: 'result',
+					},
 				],
 				default: 'user',
 			},
 			...userDescription,
 			...companyDescription,
 			...rerunDescription,
+			...resultDescription,
 		],
 	};
 }
