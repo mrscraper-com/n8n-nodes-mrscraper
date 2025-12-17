@@ -41,8 +41,8 @@ export const rerunManualDescription: INodeProperties[] = [
     }, {
         displayName: 'Max Retry',
         name: 'maxRetry',
-        type: 'string',
-        default: '',
+        type: 'number',
+        default: 3,
         displayOptions: {
             show: showOnlyForRerunManual,
         },
