@@ -1,8 +1,11 @@
 # n8n-nodes-mrscraper
+![](./mrscraper.jpeg)
 
-This is an n8n community node. It lets you use _app/service name_ in your n8n workflows.
+This is an n8n community node. It lets you use **MrScraper** in your n8n workflows.
 
-_App/service name_ is _one or two sentences describing the service this node integrates with_.
+**MrScraper** is an AI-powered web scraping tool that allows users to extract structured data from websites without needing extensive coding skills. User can create scraper once via chatting with our agent and use the same logic on other URLs.
+
+Main page: https://mrscraper.com
 
 [n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
 
@@ -22,25 +25,41 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 _List the operations supported by your node._
 
+### Rerun
+Execute your MrScraper scraping agent that you've developed on our platform. We provide 4 different operations corresponding to the 4 agent types available:
+1. Manual Scraper: Step-by-step scraping agent
+2. General Agent Scraper: Retrieves URL HTML and converts it to a targeted JSON structure based on your prompt. Ideal for detail pages
+3. Listing Agent Scraper: Scrapes data from search results or listing pages with pagination, infinite scroll, or load more buttons
+4. Map Agent Scraper: Scrapes URLs from a starting URL until the specified number of unique URLs has been collected
+
+This operation provides parameters that match those in the MrScraper platform.
+
+### Result
+Retrieve scraping results from MrScraper database:
+1. Get Many: Returns results in table format with pagination (page number, page size), filters, and sorting options
+2. Get Latest: Returns N most recent scraping results based on scraper ID
+3. Get Detail: Returns detailed scraping results including data, screenshots, and HTML
+
 ## Credentials
 
-_If users need to authenticate with the app/service, provide details here. You should include prerequisites (such as signing up with the service), available authentication methods, and how to set them up._
+**MrScraper API Token**
+
+MrScraper API token is the only authentication method available for this node. You can find your API key in the MrScraper API Tokens page.
 
 ## Compatibility
 
-_State the minimum n8n version, as well as which versions you test against. You can also include any known version incompatibility issues._
+This node has been tested with the following versions of N8N:
+- N8N 2.0.3
 
 ## Usage
 
-_This is an optional section. Use it to help users with any difficult or confusing aspects of the node._
+1. Develop your scraping agent (manual/general/listing/map) through our [platform](https://mrscraper.com)
+2. Activate scraper API access
+3. Integrate the param into n8n rerun operation
+4. Retrieve scraping result with n8n result operation
 
-_By the time users are looking for community nodes, they probably already know n8n basics. But if you expect new users, you can link to the [Try it out](https://docs.n8n.io/try-it-out/) documentation to help them get started._
 
 ## Resources
 
 * [n8n community nodes documentation](https://docs.n8n.io/integrations/#community-nodes)
-* _Link to app/service documentation._
-
-## Version history
-
-_This is another optional section. If your node has multiple versions, include a short description of available versions and what changed, as well as any compatibility impact._
+* [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
