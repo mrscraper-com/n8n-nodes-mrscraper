@@ -1,14 +1,14 @@
-import type {
-	IAuthenticateGeneric,
-	ICredentialTestRequest,
-	ICredentialType,
-	INodeProperties,
+import {
+	type IAuthenticateGeneric,
+	type ICredentialTestRequest,
+	type ICredentialType,
+	type INodeProperties,
 } from 'n8n-workflow';
 
 export class MrscraperApi implements ICredentialType {
 	name = 'mrscraperApi';
 
-	displayName = 'Mrscraper API';
+	displayName = 'MrScraper API';
 
 	// Link to your community node's README
 	documentationUrl = 'https://github.com/org/-mrscraper?tab=readme-ov-file#credentials';
@@ -39,4 +39,6 @@ export class MrscraperApi implements ICredentialType {
 			url: '/v1/user',
 		},
 	};
+
+	icon = undefined;
 }

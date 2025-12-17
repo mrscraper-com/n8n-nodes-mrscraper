@@ -4,15 +4,15 @@ import { companyDescription } from './resources/company';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
-		displayName: 'Mrscraper',
+		displayName: 'MrScraper',
 		name: 'mrscraper',
 		icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
 		group: ['transform'],
 		version: 1,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
-		description: 'Interact with the Mrscraper API',
+		description: 'Interact with the MrScraper API',
 		defaults: {
-			name: 'Mrscraper',
+			name: 'MrScraper',
 		},
 		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
