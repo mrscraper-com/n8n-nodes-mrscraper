@@ -11,12 +11,12 @@ export class MrscraperApi implements ICredentialType {
 	displayName = 'MrScraper API';
 
 	// Link to your community node's README
-	documentationUrl = 'https://github.com/org/-mrscraper?tab=readme-ov-file#credentials';
+	documentationUrl = 'https://github.com/mrscraper-com/n8n-nodes-mrscraper?tab=readme-ov-file#credentials';
 
 	properties: INodeProperties[] = [
 		{
-			displayName: 'API Key',
-			name: 'apiKey',
+			displayName: 'API Token',
+			name: 'apiToken',
 			type: 'string',
 			typeOptions: { password: true },
 			required: true,
@@ -28,15 +28,15 @@ export class MrscraperApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
-				'x-api-key': '={{$credentials.apiKey}}',
+				'x-api-token': '={{$credentials.apiToken}}',
 			},
 		},
 	};
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://api.v3.app.mrscraper.com',
-			url: '/v1/user',
+			baseURL: 'https://api.mrscraper.com',
+			url: '/subscription-accounts',
 		},
 	};
 
