@@ -20,7 +20,7 @@ export class Mrscraper implements INodeType {
 		outputs: [NodeConnectionTypes.Main],
 		credentials: [{ name: 'mrscraperApi', required: true }],
 		requestDefaults: {
-			baseURL: 'https://api.v3.app.mrscraper.com',
+			baseURL: 'https://api.app.mrscraper.com',
 			headers: {
 				Accept: 'application/json',
 				'Content-Type': 'application/json',
