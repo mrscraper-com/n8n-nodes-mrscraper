@@ -24,7 +24,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         },
     },
     {
-        displayName: 'Message',
+        displayName: 'Prompt',
         name: 'message',
         type: 'string',
         default: '',
@@ -70,15 +70,16 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayName: 'Proxy Country',
         name: 'proxyCountry',
         type: 'string',
-        default: 'us',
+        default: '',
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Choose the proxy country (e.g. us, uk, sg), adjust it to match the website\'s country domain',
+        description: 'Input the proxy country (e.g. us, uk, sg)',
         routing: {
             send: {
                 type: 'body',
                 property: 'proxyCountry',
+                value: '={{ $value || undefined }}',
             },
         },
     },
