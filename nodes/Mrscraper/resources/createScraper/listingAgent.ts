@@ -48,7 +48,7 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
-        description: 'Choose the proxy country (e.g. us, uk, sg), adjust it to match the website\'s country domain.',
+        description: 'Choose the proxy country (e.g. us, uk, sg), adjust it to match the website\'s country domain',
         routing: {
             send: {
                 type: 'body',
