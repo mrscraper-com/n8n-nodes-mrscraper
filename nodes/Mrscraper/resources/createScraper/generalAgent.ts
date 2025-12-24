@@ -15,7 +15,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'URL for the scraper',
+        description: 'The URL to be scraped',
         routing: {
             send: {
                 type: 'body',
@@ -32,7 +32,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'The message to send to the agent',
+        description: 'The message to instruct the agent on what data to extract',
         routing: {
             send: {
                 type: 'body',
@@ -58,7 +58,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'The mode for the scraper',
+        description: 'Choose the scraping mode. Select "Cheap" if the website has weak security.',
         routing: {
             send: {
                 type: 'body',
@@ -74,27 +74,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Proxy country',
+        description: 'Choose the proxy country, e.g., adjust it to match the website\'s country domain.',
         routing: {
             send: {
                 type: 'body',
                 property: 'proxyCountry',
-            },
-        },
-    },
-    {
-        displayName: 'Is Screenshot',
-        name: 'isScreenshot',
-        type: 'boolean',
-        default: false,
-        displayOptions: {
-            show: showOnlyForAdvanceChatGeneralAgent,
-        },
-        description: 'Whether to take screenshot',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'isScreenshot',
             },
         },
     },

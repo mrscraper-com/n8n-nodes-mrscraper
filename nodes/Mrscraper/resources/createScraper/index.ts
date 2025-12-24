@@ -17,10 +17,10 @@ export const advanceChatDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create General agent',
+                name: 'Create General agent Scraper',
                 value: 'generalAgent',
                 action: 'Create general agent',
-                description: 'Run general agent chat',
+                description: 'Create a general agent scraper using input link and message',
                 routing: {
                     request: {
                         method: 'POST',
@@ -34,10 +34,10 @@ export const advanceChatDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Create Listing agent',
+                name: 'Create Listing agent Scraper',
                 value: 'listingAgent',
                 action: 'Create listing agent',
-                description: 'Run listing agent chat',
+                description: 'Create a listing agent scraper using input link and message',
                 routing: {
                     request: {
                         method: 'POST',

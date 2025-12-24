@@ -15,7 +15,7 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
-        description: 'URL for the scraper',
+        description: 'The URL to be scraped',
         routing: {
             send: {
                 type: 'body',
@@ -32,37 +32,11 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
-        description: 'The message to send to the agent',
+        description: 'The message to instruct the agent on what data to extract',
         routing: {
             send: {
                 type: 'body',
                 property: 'message',
-            },
-        },
-    },
-    {
-        displayName: 'Mode',
-        name: 'mode',
-        type: 'options',
-        options: [
-            {
-                name: 'Super',
-                value: 'Super',
-            },
-            {
-                name: 'Cheap',
-                value: 'Cheap',
-            },
-        ],
-        default: 'Super',
-        displayOptions: {
-            show: showOnlyForAdvanceChatListingAgent,
-        },
-        description: 'The mode for the scraper',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'mode',
             },
         },
     },
@@ -74,27 +48,11 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
-        description: 'Proxy country',
+        description: 'Choose the proxy country, e.g., adjust it to match the website\'s country domain.',
         routing: {
             send: {
                 type: 'body',
                 property: 'proxyCountry',
-            },
-        },
-    },
-    {
-        displayName: 'Is Screenshot',
-        name: 'isScreenshot',
-        type: 'boolean',
-        default: false,
-        displayOptions: {
-            show: showOnlyForAdvanceChatListingAgent,
-        },
-        description: 'Whether to take screenshot',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'isScreenshot',
             },
         },
     },
