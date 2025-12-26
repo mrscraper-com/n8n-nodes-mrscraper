@@ -9,7 +9,7 @@ export class Mrscraper implements INodeType {
 		name: 'mrscraper',
 		icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
 		group: ['transform'],
-		version: 1,
+		version: [1, 2],
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the MrScraper API',
 		defaults: {
