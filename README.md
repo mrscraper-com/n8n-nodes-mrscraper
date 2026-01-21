@@ -23,14 +23,20 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Operations
 
-_List the operations supported by your node._
+_List of operations supported:_
+
+### Create AI Scraper
+Create AI scraper programmatically. The nodes behave just like the code explained in this [docs](https://docs.mrscraper.com/docs/guides/programmatically#step-4-create-detail-scraper). There are 3 supported AI scrapers:
+1. General Agent Scraper: Retrieves URL HTML and converts it to a targeted JSON structure based on your prompt. Ideal for detail pages
+2. Listing Agent Scraper: Scrapes data from search results or listing pages with pagination, infinite scroll, or load more buttons
+3. Map Agent Scraper: Scrapes URLs from a starting URL until the specified number of unique URLs has been collected. Ideal for URL scraping on complex landing page.
 
 ### Rerun
-Execute your MrScraper scraping agent that you've developed on our platform. We provide 4 different operations corresponding to the 4 agent types available:
+Re-execute your MrScraper scraping agent that you've developed on our platform or from the create AI Scraper. We provide 4 different operations corresponding to the 4 agent types available (manual only available from platform):
 1. Manual Scraper: Step-by-step scraping agent
-2. General Agent Scraper: Retrieves URL HTML and converts it to a targeted JSON structure based on your prompt. Ideal for detail pages
-3. Listing Agent Scraper: Scrapes data from search results or listing pages with pagination, infinite scroll, or load more buttons
-4. Map Agent Scraper: Scrapes URLs from a starting URL until the specified number of unique URLs has been collected
+2. General Agent Scraper: Given a new URL, the agent retrieves its HTML and converts it to the same targeted JSON structure based on your previous prompt.
+3. Listing Agent Scraper: Given a new URL, the agent perform pagination clicking, infinite scroll, or load more buttons and scrape the data following the previous run when creating the scraper.
+4. Map Agent Scraper: Re-execute the map agent scraper.
 
 This operation provides parameters that match those in the MrScraper platform.
 

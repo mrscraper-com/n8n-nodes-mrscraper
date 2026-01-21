@@ -1,6 +1,7 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { advanceChatGeneralAgentDescription } from './generalAgent';
 import { advanceChatListingAgentDescription } from './listingAgent';
+import { advanceChatMapAgentDescription } from './mapAgent';
 
 const showOnlyForAdvanceChat = {
     resource: ['createScraper'],
@@ -29,7 +30,7 @@ export const advanceChatDescription: INodeProperties[] = [
                     send: {
                         type: 'body',
                         property: 'graph',
-                        value: 'ScrapeGPT_MrBrowser',
+                        value: 'general',
                     },
                 },
             },
@@ -46,7 +47,24 @@ export const advanceChatDescription: INodeProperties[] = [
                     send: {
                         type: 'body',
                         property: 'graph',
-                        value: 'ScrapeGPT_CBC_Booking_v2',
+                        value: 'listing',
+                    },
+                },
+            },
+            {
+                name: 'Create Map Agent Scraper',
+                value: 'mapAgent',
+                action: 'Create map agent',
+                description: 'Create a map agent scraper using input link and message',
+                routing: {
+                    request: {
+                        method: 'POST',
+                        url: '/api/v1/scrapers-ai',
+                    },
+                    send: {
+                        type: 'body',
+                        property: 'graph',
+                        value: 'map',
                     },
                 },
             },
@@ -55,4 +73,5 @@ export const advanceChatDescription: INodeProperties[] = [
     },
     ...advanceChatGeneralAgentDescription,
     ...advanceChatListingAgentDescription,
+    ...advanceChatMapAgentDescription,
 ];
