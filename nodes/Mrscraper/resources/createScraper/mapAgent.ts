@@ -1,65 +1,35 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForRerunMapAgent = {
+const showOnlyForAdvanceChatMapAgent = {
     operation: ['mapAgent'],
-    resource: ['rerun'],
+    resource: ['createScraper'],
 };
 
-export const rerunMapAgentDescription: INodeProperties[] = [
+export const advanceChatMapAgentDescription: INodeProperties[] = [
     {
-        displayName: 'Scraper ID',
-        name: 'scraperId',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-            show: showOnlyForRerunMapAgent,
-        },
-        description: 'The ID of the scraper to rerun',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'scraperId',
-            },
-        },
-    }, {
         displayName: 'URL',
         name: 'url',
         type: 'string',
         default: '',
         required: true,
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
-        description: 'URL for the scraper to rerun',
+        description: 'The URL to be scraped',
         routing: {
             send: {
                 type: 'body',
                 property: 'url',
             },
         },
-    }, {
-        displayName: 'Max Retry',
-        name: 'maxRetry',
-        type: 'number',
-        default: 3,
-        displayOptions: {
-            show: showOnlyForRerunMapAgent,
-        },
-        description: 'Maximum number of retries for the scraper',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'maxRetry',
-            },
-        },
-    }, {
+    },
+    {
         displayName: 'Max Depth',
         name: 'maxDepth',
         type: 'number',
         default: 2,
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
         description: 'Maximum depth of pages for the scraper to crawl for URL discovery',
         routing: {
@@ -74,7 +44,7 @@ export const rerunMapAgentDescription: INodeProperties[] = [
         type: 'number',
         default: 50,
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
         description: 'Maximum pages for the scraper to evaluate for URL discovery',
         routing: {
@@ -92,7 +62,7 @@ export const rerunMapAgentDescription: INodeProperties[] = [
         },
         default: 50,
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
         description: 'Max number of results to return',
         routing: {
@@ -107,7 +77,7 @@ export const rerunMapAgentDescription: INodeProperties[] = [
         type: 'string',
         default: '',
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
         description: 'Include patterns (regex) for filtering URLs ("|" separated)',
         routing: {
@@ -122,7 +92,7 @@ export const rerunMapAgentDescription: INodeProperties[] = [
         type: 'string',
         default: '',
         displayOptions: {
-            show: showOnlyForRerunMapAgent,
+            show: showOnlyForAdvanceChatMapAgent,
         },
         description: 'Exclude patterns (regex) for filtering URLs ("|" separated)',
         routing: {
@@ -132,4 +102,5 @@ export const rerunMapAgentDescription: INodeProperties[] = [
             },
         },
     },
+
 ];
