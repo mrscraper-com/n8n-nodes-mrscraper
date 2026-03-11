@@ -59,7 +59,7 @@ export const scrapingDescription: INodeProperties[] = [
             {
                 name: 'Scrape Listing or Search Page Returns Structured Data (AI)',
                 value: 'listingAgent',
-                action: 'Scrape listing or search page returns structured data ai',
+                action: 'Scrape listing or search page returns structured data (AI)',
                 description: 'Rerun a Listing Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
@@ -71,7 +71,7 @@ export const scrapingDescription: INodeProperties[] = [
             {
                 name: 'Scrape Website Returns Structured Data (AI)',
                 value: 'generalAgent',
-                action: 'Scrape website returns structured data ai',
+                action: 'Scrape website returns structured data (AI)',
                 description: 'Rerun a General Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {

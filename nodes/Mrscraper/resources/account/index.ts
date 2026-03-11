@@ -1,5 +1,4 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { accountInformation } from './accountInformation';
 
 const showOnlyForAccount = {
 	resource: ['account'],
@@ -30,5 +29,4 @@ export const accountDescription: INodeProperties[] = [
 		],
 		default: 'accountInformation',
 	},
-	...accountInformation,
 ];

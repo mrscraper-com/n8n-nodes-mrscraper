@@ -18,10 +18,10 @@ export const resultDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Get Many',
+                name: 'Get Many Results by Scraper ID',
                 value: 'getMany',
-                action: 'Get results',
-                description: 'Get results based on given page number, page size, filters, and sorting',
+                action: 'Get many results by scraper ID',
+                description: 'Get results based on given page number, page size, filters, and sorting by scraper ID',
                 routing: {
                     request: {
                         method: 'GET',
@@ -30,10 +30,10 @@ export const resultDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Get Latest',
+                name: 'Get Latest Results by Scraper ID',
                 value: 'getLatest',
-                action: 'Get latest results',
-                description: 'Get N latest results',
+                action: 'Get latest results by scraper ID',
+                description: 'Get N latest results by scraper ID',
                 routing: {
                     request: {
                         method: 'GET',
@@ -42,10 +42,10 @@ export const resultDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Get Detail',
+                name: 'Get Result Detail by Result ID',
                 value: 'get',
-                action: 'Get result detail',
-                description: 'Get a result detail by its ID',
+                action: 'Get result detail by result ID',
+                description: 'Get a result detail by its result ID',
                 routing: {
                     request: {
                         method: 'GET',
