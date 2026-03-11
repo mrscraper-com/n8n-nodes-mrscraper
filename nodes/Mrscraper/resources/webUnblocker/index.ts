@@ -18,7 +18,7 @@ export const webUnblockerDescription: INodeProperties[] = [
 			{
 				name: 'Fetch HTML',
 				value: 'fetchHTML',
-				action: 'Fetch rendered HTML',
+				action: 'Fetch HTML',
 				description: 'Fetch the rendered HTML of a page via the MrScraper stealth browser (JavaScript, bot evasion, optional geo proxy)',
 				routing: {
 					request: {

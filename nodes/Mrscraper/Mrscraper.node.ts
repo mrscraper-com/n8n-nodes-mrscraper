@@ -50,12 +50,12 @@ export class Mrscraper implements INodeType {
 						value: 'createScraper',
 					},
 					{
-						name: 'Rerun',
-						value: 'rerun',
+						name: 'Get Result',
+						value: 'result',
 					},
 					{
-						name: 'Result',
-						value: 'result',
+						name: 'Rerun Scraper',
+						value: 'rerun',
 					},
 					{
 						name: 'Scraping',
