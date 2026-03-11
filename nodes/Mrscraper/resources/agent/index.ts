@@ -1,26 +1,26 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { advanceChatGeneralAgentDescription } from './generalAgent';
-import { advanceChatListingAgentDescription } from './listingAgent';
-import { advanceChatMapAgentDescription } from './mapAgent';
+import { GeneralAgentDescription } from './generalAgent';
+import { ListingAgentDescription } from './listingAgent';
+import { MapAgentDescription } from './mapAgent';
 
-const showOnlyForAdvanceChat = {
-    resource: ['createScraper'],
+const showOnlyForAgent = {
+    resource: ['agent'],
 };
 
-export const advanceChatDescription: INodeProperties[] = [
+export const agentDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',
         type: 'options',
         noDataExpression: true,
         displayOptions: {
-            show: showOnlyForAdvanceChat,
+            show: showOnlyForAgent,
         },
         options: [
             {
-                name: 'Create General Agent Scraper',
+                name: 'General Agent - AI-Powered Web Data Extraction',
                 value: 'generalAgent',
-                action: 'Create general agent',
+                action: 'General agent ai powered web data extraction',
                 description: 'Create a general agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
@@ -35,9 +35,9 @@ export const advanceChatDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Create Listing Agent Scraper',
+                name: 'Listing Agent - AI-Powered Listing Data Extraction',
                 value: 'listingAgent',
-                action: 'Create listing agent',
+                action: 'Listing agent ai powered listing data extraction',
                 description: 'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
@@ -52,9 +52,9 @@ export const advanceChatDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Create Map Agent Scraper',
+                name: 'Map Agent - Web Crawling',
                 value: 'mapAgent',
-                action: 'Create map agent',
+                action: 'Map agent web crawling',
                 description: 'Create a map agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
@@ -71,7 +71,7 @@ export const advanceChatDescription: INodeProperties[] = [
         ],
         default: 'generalAgent',
     },
-    ...advanceChatGeneralAgentDescription,
-    ...advanceChatListingAgentDescription,
-    ...advanceChatMapAgentDescription,
+    ...GeneralAgentDescription,
+    ...ListingAgentDescription,
+    ...MapAgentDescription,
 ];

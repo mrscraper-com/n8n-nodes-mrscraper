@@ -2,6 +2,10 @@ import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from '
 import { rerunDescription } from './resources/rerun';
 import { resultDescription } from './resources/result';
 import { advanceChatDescription } from './resources/createScraper';
+import { accountDescription } from './resources/account';
+import { agentDescription } from './resources/agent';
+import { scrapingDescription } from './resources/scraping';
+import { webUnblockerDescription } from './resources/webUnblocker';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -34,6 +38,18 @@ export class Mrscraper implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
+						name: 'Account',
+						value: 'account',
+					},
+					{
+						name: 'Agent',
+						value: 'agent',
+					},
+					{
+						name: 'Create Scraper',
+						value: 'createScraper',
+					},
+					{
 						name: 'Rerun',
 						value: 'rerun',
 					},
@@ -42,8 +58,12 @@ export class Mrscraper implements INodeType {
 						value: 'result',
 					},
 					{
-						name: 'Create Scraper',
-						value: 'createScraper',
+						name: 'Scraping',
+						value: 'scraping',
+					},
+					{
+						name: 'Web Unblocker',
+						value: 'webUnblocker',
 					},
 				],
 				default: 'rerun',
@@ -51,6 +71,10 @@ export class Mrscraper implements INodeType {
 			...rerunDescription,
 			...resultDescription,
 			...advanceChatDescription,
+			...accountDescription,
+			...agentDescription,
+			...scrapingDescription,
+			...webUnblockerDescription,
 		],
 	};
 }
