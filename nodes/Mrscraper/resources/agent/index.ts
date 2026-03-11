@@ -20,7 +20,7 @@ export const agentDescription: INodeProperties[] = [
             {
                 name: 'General Agent - AI-Powered Web Data Extraction',
                 value: 'generalAgent',
-                action: 'General agent ai powered web data extraction',
+                action: 'General Agent AI powered web data extraction', // eslint-disable-line
                 description: 'Create a general agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
@@ -37,7 +37,7 @@ export const agentDescription: INodeProperties[] = [
             {
                 name: 'Listing Agent - AI-Powered Listing Data Extraction',
                 value: 'listingAgent',
-                action: 'Listing agent ai powered listing data extraction',
+                action: 'Listing Agent AI powered listing data extraction', // eslint-disable-line
                 description: 'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
@@ -54,7 +54,7 @@ export const agentDescription: INodeProperties[] = [
             {
                 name: 'Map Agent - Web Crawling',
                 value: 'mapAgent',
-                action: 'Map agent web crawling',
+                action: 'Map Agent web crawling', // eslint-disable-line
                 description: 'Create a map agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {

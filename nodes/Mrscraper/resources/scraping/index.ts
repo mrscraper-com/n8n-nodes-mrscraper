@@ -23,7 +23,7 @@ export const scrapingDescription: INodeProperties[] = [
             {
                 name: 'Batch Scrape Multiple URLs (AI)',
                 value: 'bulkAIScrape',
-                action: 'Batch scrape multiple ur ls ai',
+                action: 'Batch scrape multiple URLs (AI)', // eslint-disable-line
                 description: 'Use an AI scraper you created in the app. Input a list of URLs; all are run in one batch (parallel on the server). Provide scraper ID and URLs.',
                 routing: {
                     request: {
@@ -35,7 +35,7 @@ export const scrapingDescription: INodeProperties[] = [
             {
                 name: 'Batch Scrape Multiple URLs (Manual)',
                 value: 'bulkManualScrape',
-                action: 'Batch scrape multiple ur ls manual',
+                action: 'Batch scrape multiple URLs (Manual)', // eslint-disable-line
                 description: 'Use a manual scraper you created in the app. Input a list of URLs; all are run in one batch (parallel on the server). Provide scraper ID and URLs.',
                 routing: {
                     request: {
@@ -47,7 +47,7 @@ export const scrapingDescription: INodeProperties[] = [
             {
                 name: 'Crawl Website Sitemap',
                 value: 'mapAgent',
-                action: 'Crawl website sitemap',
+                action: 'Crawl website sitemap',  
                 description: 'Rerun a Map Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
@@ -57,9 +57,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Listing or Search Page Returns Structured Data (AI)',
+                name: 'Scrape Listing or Search Page Return Structured Data (AI)',
                 value: 'listingAgent',
-                action: 'Scrape listing or search page returns structured data (AI)',
+                action: 'Scrape listing or search page return structured data (AI)',  
                 description: 'Rerun a Listing Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
@@ -69,9 +69,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Website Returns Structured Data (AI)',
+                name: 'Scrape Website Return Structured Data (AI)',
                 value: 'generalAgent',
-                action: 'Scrape website returns structured data (AI)',
+                action: 'Scrape website return structured data (AI)',  
                 description: 'Rerun a General Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
@@ -81,9 +81,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Website Returns Structured Data (Manual)',
+                name: 'Scrape Website Return Structured Data (Manual)',
                 value: 'manual',
-                action: 'Scrape website returns structured data manual',
+                action: 'Scrape website return structured data (Manual)', // eslint-disable-line
                 description: 'Rerun a manual scraper you already created (e.g. at app.mrscraper.com/scrapers/form?mode=manual). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
