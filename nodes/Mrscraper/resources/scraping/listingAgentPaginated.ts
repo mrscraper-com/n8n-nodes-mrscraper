@@ -25,35 +25,34 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
     },
     {
         displayName: 'Prompt',
-        name: 'message',
+        name: 'prompt',
         type: 'string',
-        default: '',
+        default: 'Get all data for each property listing',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
-        description: 'The message to instruct the agent on what data to extract',
+        description: 'Instructions for what to extract from each listing page',
         routing: {
             send: {
                 type: 'body',
-                property: 'message',
+                property: 'prompt',
             },
         },
     },
     {
-        displayName: 'Proxy Country',
-        name: 'proxyCountry',
-        type: 'string',
-        default: '',
+        displayName: 'Agent',
+        name: 'listingPaginatedAgent',
+        type: 'hidden',
+        default: 'listing',
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
-        description: 'Input the proxy country (e.g. us, uk, sg)',
         routing: {
             send: {
                 type: 'body',
-                property: 'proxyCountry',
-                value: '={{ $value || undefined }}',
+                property: 'agent',
+                value: 'listing',
             },
         },
     },
@@ -62,6 +61,9 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         name: 'maxPages',
         type: 'number',
         default: 1,
+        typeOptions: {
+            minValue: 1,
+        },
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
@@ -72,6 +74,5 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
                 property: 'maxPages',
             },
         },
-    }
-
+    },
 ];

@@ -56,29 +56,31 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
+                name: 'Scrape Paginated Content',
+                value: 'listingAgentPaginated',
+                action: 'Scrape paginated content',
+                description:
+                    'Listing agent on api.mrscraper.com: send URL, prompt, agent listing, and maxPages for paginated scrape',
+                routing: {
+                    request: {
+                        method: 'POST',
+                        baseURL: 'https://api.mrscraper.com',
+                        url: '/',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        qs: {
+                            token: '={{$credentials.apiToken}}',
+                        },
+                    },
+                },
+            },
+            {
                 name: 'Scrape Search Results',
                 value: 'listingAgent',
                 action: 'Scrape search results',
                 description:
                     'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
-                routing: {
-                    request: {
-                        method: 'POST',
-                        url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'listing',
-                    },
-                },
-            },
-            {
-                name: 'Scrape Paginated Content',
-                value: 'listingAgentPaginated',
-                action: 'Scrape paginated content',
-                description:
-                    'Create a listing agent (AI) scraper at Mrscraper that scrapes paginated content with max pages to scrape',
                 routing: {
                     request: {
                         method: 'POST',
