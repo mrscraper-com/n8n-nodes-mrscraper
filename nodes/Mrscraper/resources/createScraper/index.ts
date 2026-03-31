@@ -20,8 +20,8 @@ export const advanceChatDescription: INodeProperties[] = [
             {
                 name: 'Create General Agent Scraper',
                 value: 'generalAgent',
-                action: 'Create general agent',
-                description: 'Create a general agent scraper using input link and message',
+                action: 'Create General Agent', // eslint-disable-line
+                description: 'Create a General Agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
                         method: 'POST',
@@ -37,8 +37,8 @@ export const advanceChatDescription: INodeProperties[] = [
             {
                 name: 'Create Listing Agent Scraper',
                 value: 'listingAgent',
-                action: 'Create listing agent',
-                description: 'Create a listing agent scraper using input link and message',
+                action: 'Create Listing Agent', // eslint-disable-line
+                description: 'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
                         method: 'POST',
@@ -54,8 +54,8 @@ export const advanceChatDescription: INodeProperties[] = [
             {
                 name: 'Create Map Agent Scraper',
                 value: 'mapAgent',
-                action: 'Create map agent',
-                description: 'Create a map agent scraper using input link and message',
+                action: 'Create Map Agent', // eslint-disable-line
+                description: 'Create a map agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
                         method: 'POST',

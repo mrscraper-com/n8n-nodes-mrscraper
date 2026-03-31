@@ -2,6 +2,11 @@ import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from '
 import { rerunDescription } from './resources/rerun';
 import { resultDescription } from './resources/result';
 import { advanceChatDescription } from './resources/createScraper';
+import { accountDescription } from './resources/account';
+import { agentDescription } from './resources/agent';
+import { scrapingDescription } from './resources/scraping';
+import { webUnblockerDescription } from './resources/webUnblocker';
+import { batchOperationDescription } from './resources/batchOperation';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -9,7 +14,7 @@ export class Mrscraper implements INodeType {
 		name: 'mrscraper',
 		icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
 		group: ['transform'],
-		version: [1, 1.1],
+		version: [2, 0],
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the MrScraper API',
 		defaults: {
@@ -34,16 +39,36 @@ export class Mrscraper implements INodeType {
 				noDataExpression: true,
 				options: [
 					{
-						name: 'Rerun',
-						value: 'rerun',
+						name: 'Account',
+						value: 'account',
 					},
 					{
-						name: 'Result',
-						value: 'result',
+						name: 'Agent',
+						value: 'agent',
+					},
+					{
+						name: 'Batch Operation',
+						value: 'batchOperation',
 					},
 					{
 						name: 'Create Scraper',
 						value: 'createScraper',
+					},
+					{
+						name: 'Get Result',
+						value: 'result',
+					},
+					{
+						name: 'Rerun Scraper',
+						value: 'rerun',
+					},
+					{
+						name: 'Scraping',
+						value: 'scraping',
+					},
+					{
+						name: 'Web Unblocker',
+						value: 'webUnblocker',
 					},
 				],
 				default: 'rerun',
@@ -51,6 +76,11 @@ export class Mrscraper implements INodeType {
 			...rerunDescription,
 			...resultDescription,
 			...advanceChatDescription,
+			...accountDescription,
+			...agentDescription,
+			...batchOperationDescription,
+			...scrapingDescription,
+			...webUnblockerDescription,
 		],
 	};
 }

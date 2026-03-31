@@ -22,7 +22,7 @@ export const rerunDescription: INodeProperties[] = [
                 name: 'Run Manual Scraper',
                 value: 'manual',
                 action: 'Run manual scraper',
-                description: 'Run manual scraper given a Scraper ID and get the result',
+                description: 'Rerun a manual scraper you already created (e.g. at app.mrscraper.com/scrapers/form?mode=manual). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
                         method: 'POST',
@@ -34,7 +34,7 @@ export const rerunDescription: INodeProperties[] = [
                 name: 'Run General Agent Scraper',
                 value: 'generalAgent',
                 action: 'Run general agent scraper',
-                description: 'Run general agent scraper given a Scraper ID and get the result',
+                description: 'Rerun a General Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
                         method: 'POST',
@@ -46,7 +46,7 @@ export const rerunDescription: INodeProperties[] = [
                 name: 'Run Listing Agent Scraper',
                 value: 'listingAgent',
                 action: 'Run listing agent scraper',
-                description: 'Run listing agent scraper given a Scraper ID and get the result',
+                description: 'Rerun a Listing Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
                         method: 'POST',
@@ -58,7 +58,7 @@ export const rerunDescription: INodeProperties[] = [
                 name: 'Run Map Agent Scraper',
                 value: 'mapAgent',
                 action: 'Run map agent scraper',
-                description: 'Run map agent scraper given a Scraper ID and get the result',
+                description: 'Rerun a Map Agent scraper you created (e.g at app.mrscraper.com/scrapers/form). Provide the scraper ID and one URL to get the result.',
                 routing: {
                     request: {
                         method: 'POST',
