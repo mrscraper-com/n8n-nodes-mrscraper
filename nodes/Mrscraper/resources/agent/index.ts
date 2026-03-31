@@ -25,7 +25,7 @@ export const agentDescription: INodeProperties[] = [
             {
                 name: 'AI Agent',
                 value: 'aiAgent',
-                action: 'Create AI Agent Scraper',
+                action: 'Create AI Agent Scraper',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
                 description:
                     'Create an AI agent scraper on the Mrscraper platform. Choose General, Listing, or Map agent type.',
                 routing: {

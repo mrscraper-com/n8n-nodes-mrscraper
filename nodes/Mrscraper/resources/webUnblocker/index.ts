@@ -18,7 +18,7 @@ export const webUnblockerDescription: INodeProperties[] = [
 			{
 				name: 'Fetch Rendered HTML',
 				value: 'fetchHTML',
-				action: 'Fetch Rendered HTML',
+				action: 'Fetch Rendered HTML',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
 				description: 'Fetch the rendered HTML of a page via the MrScraper stealth browser (JavaScript, bot evasion, optional geo proxy)',
 				routing: {
 					request: {
