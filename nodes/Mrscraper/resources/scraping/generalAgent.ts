@@ -1,56 +1,85 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForScrapingGeneralAgent = {
+const showOnlyForAdvanceChatGeneralAgent = {
     operation: ['generalAgent'],
     resource: ['scraping'],
 };
 
-export const scrapingGeneralAgentDescription: INodeProperties[] = [
+export const advanceChatGeneralAgentDescription: INodeProperties[] = [
     {
-        displayName: 'Scraper ID',
-        name: 'scraperId',
-        type: 'string',
-        default: '',
-        required: true,
-        displayOptions: {
-            show: showOnlyForScrapingGeneralAgent,
-        },
-        description: 'The ID of the scraper to rerun',
-        routing: {
-            send: {
-                type: 'body',
-                property: 'scraperId',
-            },
-        },
-    }, {
         displayName: 'URL',
         name: 'url',
         type: 'string',
         default: '',
         required: true,
         displayOptions: {
-            show: showOnlyForScrapingGeneralAgent,
+            show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'URL for the scraper to rerun',
+        description: 'The URL to be scraped',
         routing: {
             send: {
                 type: 'body',
                 property: 'url',
             },
         },
-    }, {
-        displayName: 'Max Retry',
-        name: 'maxRetry',
-        type: 'number',
-        default: 3,
+    },
+    {
+        displayName: 'Prompt',
+        name: 'message',
+        type: 'string',
+        default: '',
+        required: true,
         displayOptions: {
-            show: showOnlyForScrapingGeneralAgent,
+            show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Maximum number of retries for the scraper',
+        description: 'The message to instruct the agent on what data to extract',
         routing: {
             send: {
                 type: 'body',
-                property: 'maxRetry',
+                property: 'message',
+            },
+        },
+    },
+    {
+        displayName: 'Mode',
+        name: 'mode',
+        type: 'options',
+        options: [
+            {
+                name: 'Super',
+                value: 'Super',
+            },
+            {
+                name: 'Cheap',
+                value: 'Cheap',
+            },
+        ],
+        default: 'Super',
+        displayOptions: {
+            show: showOnlyForAdvanceChatGeneralAgent,
+        },
+        description: 'Choose the scraping mode. Select "Cheap" if the website has weak security.',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'mode',
+            },
+        },
+    },
+    {
+        displayName: 'Proxy Country',
+        name: 'proxyCountry',
+        type: 'string',
+        default: '',
+        displayOptions: {
+            show: showOnlyForAdvanceChatGeneralAgent,
+        },
+        description: 'Input the proxy country (e.g. us, uk, sg)',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'proxyCountry',
+                value: '={{ $value || undefined }}',
             },
         },
     },

@@ -6,6 +6,7 @@ import { accountDescription } from './resources/account';
 import { agentDescription } from './resources/agent';
 import { scrapingDescription } from './resources/scraping';
 import { webUnblockerDescription } from './resources/webUnblocker';
+import { batchOperationDescription } from './resources/batchOperation';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -46,6 +47,10 @@ export class Mrscraper implements INodeType {
 						value: 'agent',
 					},
 					{
+						name: 'Batch Operation',
+						value: 'batchOperation',
+					},
+					{
 						name: 'Create Scraper',
 						value: 'createScraper',
 					},
@@ -73,6 +78,7 @@ export class Mrscraper implements INodeType {
 			...advanceChatDescription,
 			...accountDescription,
 			...agentDescription,
+			...batchOperationDescription,
 			...scrapingDescription,
 			...webUnblockerDescription,
 		],

@@ -18,9 +18,9 @@ export const resultDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Get Many Results by Scraper ID',
+                name: 'Get Results',
                 value: 'getMany',
-                action: 'Get many results by scraper ID',
+                action: 'Get Results',
                 description: 'Get results based on given page number, page size, filters, and sorting by scraper ID',
                 routing: {
                     request: {
@@ -30,9 +30,9 @@ export const resultDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Get Latest Results by Scraper ID',
+                name: 'Get Latest Results',
                 value: 'getLatest',
-                action: 'Get latest results by scraper ID',
+                action: 'Get Latest Results',
                 description: 'Get N latest results by scraper ID',
                 routing: {
                     request: {
@@ -42,9 +42,9 @@ export const resultDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Get Result Detail by Result ID',
+                name: 'Get Result Detail',
                 value: 'get',
-                action: 'Get result detail by result ID',
+                action: 'Get Result Detail',
                 description: 'Get a result detail by its result ID',
                 routing: {
                     request: {

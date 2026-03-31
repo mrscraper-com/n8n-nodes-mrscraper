@@ -7,6 +7,11 @@ const showOnlyForAgent = {
     resource: ['agent'],
 };
 
+const showForAiAgent = {
+    resource: ['agent'],
+    operation: ['aiAgent'],
+};
+
 export const agentDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
@@ -18,58 +23,57 @@ export const agentDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'General Agent - AI-Powered Web Data Extraction',
-                value: 'generalAgent',
-                action: 'General Agent AI powered web data extraction', // eslint-disable-line
-                description: 'Create a general agent (AI) scraper at Mrscraper platform using input link and message',
+                name: 'AI Agent',
+                value: 'aiAgent',
+                action: 'Create AI Agent Scraper',
+                description:
+                    'Create an AI agent scraper on the Mrscraper platform. Choose General, Listing, or Map agent type.',
                 routing: {
                     request: {
                         method: 'POST',
                         url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'general',
-                    },
-                },
-            },
-            {
-                name: 'Listing Agent - AI-Powered Listing Data Extraction',
-                value: 'listingAgent',
-                action: 'Listing Agent AI powered listing data extraction', // eslint-disable-line
-                description: 'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
-                routing: {
-                    request: {
-                        method: 'POST',
-                        url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'listing',
-                    },
-                },
-            },
-            {
-                name: 'Map Agent - Web Crawling',
-                value: 'mapAgent',
-                action: 'Map Agent web crawling', // eslint-disable-line
-                description: 'Create a map agent (AI) scraper at Mrscraper platform using input link and message',
-                routing: {
-                    request: {
-                        method: 'POST',
-                        url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'map',
                     },
                 },
             },
         ],
-        default: 'generalAgent',
+        default: 'aiAgent',
+    },
+    {
+        displayName: 'Agent Type',
+        name: 'agentType',
+        type: 'options',
+        noDataExpression: true,
+        displayOptions: {
+            show: showForAiAgent,
+        },
+        options: [
+            {
+                name: 'General Agent - AI-Powered Web Data Extraction',
+                value: 'general',
+                description:
+                    'Create a general agent (AI) scraper using input link and message',
+            },
+            {
+                name: 'Listing Agent - AI-Powered Listing Data Extraction',
+                value: 'listing',
+                description:
+                    'Create a listing agent (AI) scraper using input link and message',
+            },
+            {
+                name: 'Map Agent - Web Crawling',
+                value: 'map',
+                description: 'Create a map agent (AI) scraper for URL discovery and crawling',
+            },
+        ],
+        default: 'general',
+        description: 'Which AI agent graph to use',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'graph',
+                value: '={{ $value }}',
+            },
+        },
     },
     ...GeneralAgentDescription,
     ...ListingAgentDescription,

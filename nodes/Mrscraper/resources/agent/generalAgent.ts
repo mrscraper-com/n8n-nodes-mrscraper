@@ -1,8 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForGeneralAgent = {
-    operation: ['generalAgent'],
+    operation: ['aiAgent'],
     resource: ['agent'],
+    agentType: ['general'],
 };
 
 export const GeneralAgentDescription: INodeProperties[] = [

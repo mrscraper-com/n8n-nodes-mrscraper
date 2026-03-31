@@ -1,8 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForListingAgent = {
-    operation: ['listingAgent'],
+    operation: ['aiAgent'],
     resource: ['agent'],
+    agentType: ['listing'],
 };
 
 export const ListingAgentDescription: INodeProperties[] = [

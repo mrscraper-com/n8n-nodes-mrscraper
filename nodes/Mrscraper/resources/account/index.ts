@@ -15,9 +15,9 @@ export const accountDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Get Account Information',
+				name: 'Get Account Info',
 				value: 'accountInformation',
-				action: 'Get account information',
+				action: 'Get Account Info',
 				description: 'Get account details including token usage and token limits',
 				routing: {
 					request: {

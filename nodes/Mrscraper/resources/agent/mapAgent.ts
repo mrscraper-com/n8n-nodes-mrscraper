@@ -1,8 +1,9 @@
 import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForMapAgent = {
-    operation: ['mapAgent'],
+    operation: ['aiAgent'],
     resource: ['agent'],
+    agentType: ['map'],
 };
 
 export const MapAgentDescription: INodeProperties[] = [
