@@ -3,7 +3,7 @@
 
 This is an n8n community node. It lets you use **MrScraper** in your n8n workflows.
 
-**MrScraper** is an AI-powered web scraping platform. Create scrapers once (via the app or this node), then run them on any URL. Supports manual step-by-step scrapers, AI agents for detail/listing/map pages, batch scraping, and a stealth HTML fetcher.
+**MrScraper** is an AI-powered web scraping platform. Create scrapers once (via the app or this node), then run them on any URL. Supports manual step-by-step scrapers, AI agents for detail/listing/map pages, preset structured-data extraction, paginated listing scrapes, batch reruns, and a stealth HTML fetcher.
 
 - **Main site:** https://mrscraper.com  
 - **API docs:** https://docs.mrscraper.com/docs/getting-started/overview
@@ -17,9 +17,10 @@ This is an n8n community node. It lets you use **MrScraper** in your n8n workflo
 - [Resources & operations](#resources--operations)
   - [Account](#account)
   - [Agent](#agent)
+  - [Batch Operation](#batch-operation)
   - [Create Scraper](#create-scraper)
-  - [Rerun](#rerun)
-  - [Result](#result)
+  - [Rerun Scraper](#rerun-scraper)
+  - [Get Result](#get-result)
   - [Scraping](#scraping)
   - [Web Unblocker](#web-unblocker)
 - [Usage](#usage)
@@ -37,7 +38,9 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Resources & operations
 
-The node exposes **7 resources**. Pick a resource, then choose an operation.
+The node exposes **8 resources**. Pick a resource, then choose an operation.
+
+Most calls use the app API (`api.app.mrscraper.com`). Some operations (paginated listing scrape and stealth HTML) use `api.mrscraper.com` with your token in the query string, as in the MrScraper API.
 
 ### Account
 
@@ -50,6 +53,12 @@ Create AI scrapers directly from n8n (they appear in your MrScraper account):
 - **General Agent** – AI-powered extraction from a single page (detail pages). Sends URL + instructions to build a targeted JSON schema.
 - **Listing Agent** – AI-powered extraction from listing/search pages with pagination, infinite scroll, or “load more”.
 - **Map Agent** – Crawls from a start URL and collects URLs up to a limit (sitemap-style crawling).
+
+### Batch Operation
+
+Run many URLs against a scraper you already created in the app (parallel server-side dispatch):
+
+- **Batch Scrape URLs** – Choose **AI** or **Manual** mode, provide the scraper ID and a list of URLs. Calls the bulk rerun endpoints (`/api/v1/scrapers-ai-rerun/bulk` or `/api/v1/scrapers-manual-rerun/bulk`).
 
 ### Create Scraper
 
@@ -74,27 +83,28 @@ Read scraping results from MrScraper:
 
 ### Scraping
 
-Single-URL and batch scraping with the same scraper types as Rerun, with names aligned to use case:
+Single-step flows that create or run AI scrapers and helpers. Operations are named for what you do in the UI:
 
-- **Scrape Website Returns Structured Data (Manual)** – One URL, manual scraper.
-- **Scrape Website Returns Structured Data (AI)** – One URL, General Agent.
-- **Scrape Listing or Search Page Returns Structured Data (AI)** – One URL, Listing Agent.
-- **Crawl Website Sitemap** – One URL, Map Agent.
-- **Batch Scrape Multiple URLs (Manual)** – Many URLs in one request, manual scraper.
-- **Batch Scrape Multiple URLs (AI)** – Many URLs in one request, AI scraper.
+- **Crawl Website Sitemap** – Map Agent: from a start URL, collect URLs up to a limit (`graph: map`).
+- **Scrape Dynamic Content by Prompt** – General Agent: URL + prompt to define what to extract (`graph: general`).
+- **Scrape Search Results** – Listing Agent: URL + message for listing/search pages (`graph: listing`), via the app AI scrapers API.
+- **Scrape Paginated Content** – Listing-style scrape with explicit pagination controls (URL, prompt, `maxPages`, etc.) via `api.mrscraper.com` (token in query).
+- **Scrape Structured Data** – General Agent with a **preset schema by category** (Article, Product, Hotel, Job Posting, Property, Restaurant, and others). The prompt is selected from the chosen category.
+- **Scrape Web Page** – Returns rendered HTML via the MrScraper stealth browser on `api.mrscraper.com` (JavaScript, bot evasion, optional geo proxy, resource blocking). Same family of behavior as **Web Unblocker → Fetch Rendered HTML**, exposed here under Scraping for convenience.
 
 ### Web Unblocker
 
-- **Fetch HTML** – Returns the rendered HTML of a URL using the MrScraper stealth browser (JavaScript execution, bot evasion, optional geo proxy). Uses a separate API base (`api.mrscraper.com`). Options: URL, timeout, geo code, and whether to block images/CSS/fonts for faster loads.
+- **Fetch Rendered HTML** – Fetch the rendered HTML of a URL using the MrScraper stealth browser (`api.mrscraper.com`). Options include URL, timeout, geo code, and whether to block images/CSS/fonts for faster loads.
 
 ## Usage
 
 1. Create scrapers on the [MrScraper platform](https://app.mrscraper.com) (manual or AI) or create them from n8n via **Agent** or **Create Scraper**.
 2. Enable API access for the scraper (platform or API).
-3. In n8n, use **Rerun** or **Scraping** to run scrapers (single or batch).
-4. Use **Result** to fetch results (Get Many, Get Latest, or Get Detail).
-5. Use **Web Unblocker → Fetch HTML** when you only need rendered HTML without scraping logic.
-6. Use **Account** to check token usage and limits.
+3. In n8n, use **Rerun Scraper** for one URL per run, or **Batch Operation** to send many URLs to an existing scraper in one request.
+4. Use **Scraping** for single-shot AI creation/scrape flows (dynamic prompt, structured categories, paginated listing API, sitemap crawl, or stealth HTML).
+5. Use **Get Result** to fetch results (Get Many, Get Latest, or Get Detail).
+6. Use **Web Unblocker → Fetch Rendered HTML** (or **Scraping → Scrape Web Page**) when you only need rendered HTML without scraper definitions.
+7. Use **Account** to check token usage and limits.
 
 ## Compatibility
 
@@ -110,11 +120,12 @@ Node package version: **2.0.0**.
 
 - **Account** resource: Get Account Information.
 - **Agent** resource: Create General, Listing, and Map Agent scrapers from n8n.
+- **Batch Operation** resource: Batch Scrape URLs (AI or manual bulk rerun).
 - **Create Scraper** resource: Programmatic creation of General, Listing, and Map Agent scrapers.
-- **Rerun** resource: Run Manual, General Agent, Listing Agent, and Map Agent scrapers (single URL).
-- **Result** resource: Get Many, Get Latest, Get Detail.
-- **Scraping** resource: Single-URL and batch operations (Manual, AI, Listing, Map, bulk).
-- **Web Unblocker** resource: Fetch HTML (stealth browser, geo, block resources).
+- **Rerun Scraper** resource: Run Manual, General Agent, Listing Agent, and Map Agent scrapers (single URL).
+- **Get Result** resource: Get Many, Get Latest, Get Detail.
+- **Scraping** resource: Crawl Website Sitemap; Scrape Dynamic Content by Prompt; Scrape Search Results; Scrape Paginated Content; Scrape Structured Data (preset categories); Scrape Web Page (stealth HTML).
+- **Web Unblocker** resource: Fetch Rendered HTML (stealth browser, geo, block resources).
 - Node version set to `[2, 0]` for n8n.
 
 ## Resources
