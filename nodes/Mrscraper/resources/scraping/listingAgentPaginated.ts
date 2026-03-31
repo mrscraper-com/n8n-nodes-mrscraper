@@ -1,11 +1,11 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-const showOnlyForAdvanceChatListingAgent = {
-    operation: ['listingAgent'],
+const showOnlyForAdvanceChatListingAgentPaginated = {
+    operation: ['listingAgentPaginated'],
     resource: ['scraping'],
 };
 
-export const advanceChatListingAgentDescription: INodeProperties[] = [
+export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
@@ -13,7 +13,7 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         default: '',
         required: true,
         displayOptions: {
-            show: showOnlyForAdvanceChatListingAgent,
+            show: showOnlyForAdvanceChatListingAgentPaginated,
         },
         description: 'The URL to be scraped',
         routing: {
@@ -30,7 +30,7 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         default: '',
         required: true,
         displayOptions: {
-            show: showOnlyForAdvanceChatListingAgent,
+            show: showOnlyForAdvanceChatListingAgentPaginated,
         },
         description: 'The message to instruct the agent on what data to extract',
         routing: {
@@ -46,7 +46,7 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         type: 'string',
         default: '',
         displayOptions: {
-            show: showOnlyForAdvanceChatListingAgent,
+            show: showOnlyForAdvanceChatListingAgentPaginated,
         },
         description: 'Input the proxy country (e.g. us, uk, sg)',
         routing: {
@@ -57,5 +57,21 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
             },
         },
     },
+    {
+        displayName: 'Max Pages',
+        name: 'maxPages',
+        type: 'number',
+        default: 1,
+        displayOptions: {
+            show: showOnlyForAdvanceChatListingAgentPaginated,
+        },
+        description: 'Maximum number of pages to scrape for listing agent scraper',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'maxPages',
+            },
+        },
+    }
 
 ];

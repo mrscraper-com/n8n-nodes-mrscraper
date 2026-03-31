@@ -4,6 +4,7 @@ import { advanceChatListingAgentDescription } from './listingAgent';
 import { advanceChatMapAgentDescription } from './mapAgent';
 import { webUnblockerFetchHTMLDescription } from './fetchHTML';
 import { scrapingStructuredDataDescription } from './structuredData';
+import { advanceChatListingAgentPaginatedDescription } from './listingAgentPaginated';
 
 const showOnlyForScraping = {
     resource: ['scraping'],
@@ -55,11 +56,11 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Paginated Content',
-                value: 'listingPaginated',
-                action: 'Scrape paginated content',
+                name: 'Scrape Search Results',
+                value: 'listingAgent',
+                action: 'Scrape search results',
                 description:
-                    'Create a listing agent (AI) scraper at Mrscraper that scrapes paginated content with max pages to scrape',
+                    'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
                 routing: {
                     request: {
                         method: 'POST',
@@ -73,11 +74,11 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Search Results',
-                value: 'listingAgent',
-                action: 'Scrape search results',
+                name: 'Scrape Paginated Content',
+                value: 'listingAgentPaginated',
+                action: 'Scrape paginated content',
                 description:
-                    'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
+                    'Create a listing agent (AI) scraper at Mrscraper that scrapes paginated content with max pages to scrape',
                 routing: {
                     request: {
                         method: 'POST',
@@ -135,7 +136,7 @@ export const scrapingDescription: INodeProperties[] = [
     ...advanceChatMapAgentDescription,
     ...advanceChatGeneralAgentDescription,
     ...advanceChatListingAgentDescription,
-    ...advanceChatListingAgentDescription,
+    ...advanceChatListingAgentPaginatedDescription,
     ...scrapingStructuredDataDescription,
     ...webUnblockerFetchHTMLDescription,
 ];
