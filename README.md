@@ -22,6 +22,7 @@ This is an n8n community node. It lets you use **MrScraper** in your n8n workflo
   - [Rerun Scraper](#rerun-scraper)
   - [Get Result](#get-result)
   - [Scraping](#scraping)
+  - [SERP](#serp)
   - [Web Unblocker](#web-unblocker)
 - [Usage](#usage)
 - [Compatibility](#compatibility)
@@ -38,7 +39,7 @@ Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes
 
 ## Resources & operations
 
-The node exposes **8 resources**. Pick a resource, then choose an operation.
+The node exposes **9 resources**. Pick a resource, then choose an operation.
 
 Most calls use the app API (`api.app.mrscraper.com`). Some operations (paginated listing scrape and stealth HTML) use `api.mrscraper.com` with your token in the query string, as in the MrScraper API.
 
@@ -91,6 +92,10 @@ Single-step flows that create or run AI scrapers and helpers. Operations are nam
 - **Scrape Paginated Content** – Listing-style scrape with explicit pagination controls (URL, prompt, `maxPages`, etc.) via `api.mrscraper.com` (token in query).
 - **Scrape Structured Data** – General Agent with a **preset schema by category** (Article, Product, Hotel, Job Posting, Property, Restaurant, and others). The prompt is selected from the chosen category.
 - **Scrape Web Page** – Returns rendered HTML via the MrScraper stealth browser on `api.mrscraper.com` (JavaScript, bot evasion, optional geo proxy, resource blocking). Same family of behavior as **Web Unblocker → Fetch Rendered HTML**, exposed here under Scraping for convenience.
+
+### SERP
+
+- **Scrape Google SERP** – Fetch Google search results synchronously via `sync.scraper.mrscraper.com` (`POST /api/google/serp/sync`). Provide a Google search URL and optionally request raw HTML (`raw: true` by default).
 
 ### Web Unblocker
 
