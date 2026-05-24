@@ -101,6 +101,16 @@ Single-step flows that create or run AI scrapers and helpers. Operations are nam
 
 - **Fetch Rendered HTML** – Fetch the rendered HTML of a URL using the MrScraper stealth browser (`api.mrscraper.com`). Options include URL, timeout, geo code, and whether to block images/CSS/fonts for faster loads.
 
+## Security and compliance notice
+
+When using Manual Scrapers, you may need to automate login flows by entering usernames, passwords, API keys, or other sensitive values into website input fields.
+
+Only use credentials that you are authorized to use, and only scrape websites where you have the legal right or permission to access and extract data. You are responsible for complying with the target website’s terms of service, privacy policy, robots.txt rules where applicable, and all relevant laws and regulations.
+
+For security, avoid hardcoding passwords or tokens directly in workflow fields. Use n8n Credentials, environment variables, or another secure secret-management method whenever possible. Do not store third-party website credentials in plain text unless you understand the risks.
+
+MrScraper and this n8n community node do not grant permission to access restricted websites, bypass access controls, or collect data in violation of applicable rules.
+
 ## Usage
 
 1. Create scrapers on the [MrScraper platform](https://app.mrscraper.com) (manual or AI) or create them from n8n via **Agent** or **Create Scraper**.
