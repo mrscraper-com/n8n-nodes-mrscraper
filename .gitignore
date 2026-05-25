@@ -1,2 +1,6 @@
 node_modules/
 dist/
+
+# Use npm only (CI runs `npm ci`). Ignore other package managers' lockfiles.
+pnpm-lock.yaml
+yarn.lock
