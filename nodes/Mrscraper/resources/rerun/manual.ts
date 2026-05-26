@@ -15,7 +15,7 @@ export const rerunManualDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForRerunManual,
         },
-        description: 'The ID of the scraper to rerun',
+        description: "The ID of the scraper to rerun (Warning: Scraping login-protected pages may violate the target website's Terms of Service and expose users to legal risk)",
         routing: {
             send: {
                 type: 'body',
