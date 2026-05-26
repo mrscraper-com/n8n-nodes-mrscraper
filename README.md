@@ -100,9 +100,7 @@ Single-step flows that create or run AI scrapers and helpers. Operations are nam
 ### Web Unblocker
 
 - **Fetch Rendered HTML** – Fetch the rendered HTML of a URL using the MrScraper stealth browser (`api.mrscraper.com`). Options include URL, timeout, geo code, and whether to block images/CSS/fonts for faster loads.
-## Compliance & Legal Risk
-> WARNING
-> **Scraping login-protected pages carries serious legal and compliance risks.** Many websites explicitly prohibit automated access in their Terms of Service, and bypassing authentication to scrape content may expose you to legal action including lawsuits, account termination, and financial penalties. By proceeding on scraping login-protected pages, you confirm that you have read and understood the target website's Terms of Service, and you **fully accept all legal, financial, and ethical responsibility** for your actions.
+
 ## Usage
 
 1. Create scrapers on the [MrScraper platform](https://app.mrscraper.com) (manual or AI) or create them from n8n via **Agent** or **Create Scraper**.
@@ -113,27 +111,9 @@ Single-step flows that create or run AI scrapers and helpers. Operations are nam
 6. Use **Web Unblocker → Fetch Rendered HTML** (or **Scraping → Scrape Web Page**) when you only need rendered HTML without scraper definitions.
 7. Use **Account** to check token usage and limits.
 
-## Compatibility
-
-Tested with:
-
-- n8n 2.x (e.g. 2.0.3)
-
-Node package version: **2.0.0**.
-
-## Version history
-
-### 2.0.0
-
-- **Account** resource: Get Account Information.
-- **Agent** resource: Create General, Listing, and Map Agent scrapers from n8n.
-- **Batch Operation** resource: Batch Scrape URLs (AI or manual bulk rerun).
-- **Create Scraper** resource: Programmatic creation of General, Listing, and Map Agent scrapers.
-- **Rerun Scraper** resource: Run Manual, General Agent, Listing Agent, and Map Agent scrapers (single URL).
-- **Get Result** resource: Get Many, Get Latest, Get Detail.
-- **Scraping** resource: Crawl Website Sitemap; Scrape Dynamic Content by Prompt; Scrape Search Results; Scrape Paginated Content; Scrape Structured Data (preset categories); Scrape Web Page (stealth HTML).
-- **Web Unblocker** resource: Fetch Rendered HTML (stealth browser, geo, block resources).
-- Node version set to `[2, 0]` for n8n.
+## Compliance & Legal Risk
+> **WARNING**
+> Scraping login-protected pages carries serious legal and compliance risks. Many websites explicitly prohibit automated access in their Terms of Service, and bypassing authentication to scrape content may expose you to legal action including lawsuits, account termination, and financial penalties. By proceeding on scraping login-protected pages, you confirm that you have read and understood the target website's Terms of Service, and you fully accept all legal, financial, and ethical responsibility for your actions.
 
 ## Resources
 
