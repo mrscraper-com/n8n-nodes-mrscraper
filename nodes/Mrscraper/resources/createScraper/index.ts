@@ -18,10 +18,10 @@ export const advanceChatDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Create General Agent Scraper',
+                name: 'Create Prompt-Based Scraper',
                 value: 'generalAgent',
-                action: 'Create General Agent', // eslint-disable-line
-                description: 'Create a General Agent (AI) scraper at Mrscraper platform using input link and message',
+                action: 'Create prompt based scraper',
+                description: 'Create an AI scraper from a URL, extraction prompt, and expected JSON output schema',
                 routing: {
                     request: {
                         method: 'POST',
@@ -35,10 +35,10 @@ export const advanceChatDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Create Listing Agent Scraper',
+                name: 'Create Listing Scraper',
                 value: 'listingAgent',
-                action: 'Create Listing Agent', // eslint-disable-line
-                description: 'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
+                action: 'Create listing scraper',
+                description: 'Create an AI scraper for repeated listing data using a prompt and expected JSON output schema',
                 routing: {
                     request: {
                         method: 'POST',
@@ -52,10 +52,10 @@ export const advanceChatDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Create Map Agent Scraper',
+                name: 'Create Website Crawl Scraper',
                 value: 'mapAgent',
-                action: 'Create Map Agent', // eslint-disable-line
-                description: 'Create a map agent (AI) scraper at Mrscraper platform using input link and message',
+                action: 'Create website crawl scraper',
+                description: 'Create a scraper that discovers URLs by crawling a website',
                 routing: {
                     request: {
                         method: 'POST',

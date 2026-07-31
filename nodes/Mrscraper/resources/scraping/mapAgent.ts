@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForAdvanceChatMapAgent = {
     operation: ['mapAgent'],
-    resource: ['scraping'],
+    resource: ['serp'],
 };
 
 export const advanceChatMapAgentDescription: INodeProperties[] = [

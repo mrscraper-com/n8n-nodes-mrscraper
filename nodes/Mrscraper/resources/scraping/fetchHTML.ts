@@ -17,6 +17,7 @@ export const webUnblockerFetchHTMLDescription: INodeProperties[] = [
 		name: 'url',
 		type: 'string',
 		default: '',
+		placeholder: 'https://example.com/products/123',
 		required: true,
 		displayOptions: {
 			show: showOnlyForFetchHTML,
@@ -31,13 +32,14 @@ export const webUnblockerFetchHTMLDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForFetchHTML,
 		},
-		description: 'Maximum seconds to wait for the page to load',
+		description: 'Maximum seconds to wait for the page to load, for example 120',
 	},
 	{
 		displayName: 'Geo Code',
 		name: 'geoCode',
 		type: 'string',
 		default: 'US',
+		placeholder: 'e.g. ID',
 		displayOptions: {
 			show: showOnlyForFetchHTML,
 		},

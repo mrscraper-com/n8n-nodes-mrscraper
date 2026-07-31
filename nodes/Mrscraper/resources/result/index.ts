@@ -25,7 +25,7 @@ export const resultDescription: INodeProperties[] = [
                 routing: {
                     request: {
                         method: 'GET',
-                        url: '=/api/v1/results?filters[scraperId]={{$parameter.scraperId}}&page={{$parameter.page}}&pageSize={{$parameter.pageSize}}&sort={{$parameter.sort}}&sortOrder={{$parameter.sortOrder}}',
+                        url: '=/api/v1/results?filters[scraperId]={{$parameter.scraperId}}&page={{$parameter.page}}&pageSize={{$parameter.pageSize}}&sort={{$parameter.sortBy}}&sortOrder={{$parameter.sortOrder}}',
                     },
                 },
             },

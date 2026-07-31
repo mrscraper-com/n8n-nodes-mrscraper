@@ -11,6 +11,7 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://example.com/properties?page=1',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
@@ -27,7 +28,11 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         displayName: 'Prompt',
         name: 'prompt',
         type: 'string',
+        typeOptions: {
+            rows: 4,
+        },
         default: 'Get all data for each property listing',
+        placeholder: 'Extract each property name, price, location, detail URL, and image',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
@@ -67,7 +72,7 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
-        description: 'Maximum number of pages to scrape for listing agent scraper',
+        description: 'Maximum pagination pages to scrape, for example 5',
         routing: {
             send: {
                 type: 'body',

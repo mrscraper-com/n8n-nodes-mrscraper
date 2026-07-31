@@ -1,7 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
 import { advanceChatGeneralAgentDescription } from './generalAgent';
-import { advanceChatListingAgentDescription } from './listingAgent';
-import { advanceChatMapAgentDescription } from './mapAgent';
 import { webUnblockerFetchHTMLDescription } from './fetchHTML';
 import { scrapingStructuredDataDescription } from './structuredData';
 import { advanceChatListingAgentPaginatedDescription } from './listingAgentPaginated';
@@ -21,26 +19,9 @@ export const scrapingDescription: INodeProperties[] = [
         },
         options: [
             {
-                name: 'Crawl Website Sitemap',
-                value: 'mapAgent',
-                action: 'Crawl website sitemap',
-                description: 'Crawl a website sitemap and extract all URLs up to a limit',
-                routing: {
-                    request: {
-                        method: 'POST',
-                        url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'map',
-                    },
-                },
-            },
-            {
-                name: 'Scrape Dynamic Content by Prompt',
+                name: 'Extract Page by Prompt',
                 value: 'generalAgent',
-                action: 'Scrape dynamic content by prompt',
+                action: 'Extract page by prompt',
                 description:
                     'Create a General Agent (AI) scraper at Mrscraper platform using input link and Prompt to instruct the agent on what data to extract',
                 routing: {
@@ -56,9 +37,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Paginated Content',
+                name: 'Extract Listings and Paginated Content',
                 value: 'listingAgentPaginated',
-                action: 'Scrape paginated content',
+                action: 'Extract listings and paginated content',
                 description:
                     'Listing agent on api.mrscraper.com: send URL, prompt, agent listing, and maxPages for paginated scrape',
                 routing: {
@@ -76,27 +57,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Search Results',
-                value: 'listingAgent',
-                action: 'Scrape search results',
-                description:
-                    'Create a listing agent (AI) scraper at Mrscraper platform using input link and message',
-                routing: {
-                    request: {
-                        method: 'POST',
-                        url: '/api/v1/scrapers-ai',
-                    },
-                    send: {
-                        type: 'body',
-                        property: 'graph',
-                        value: 'listing',
-                    },
-                },
-            },
-            {
-                name: 'Scrape Structured Data',
+                name: 'Extract Structured Data',
                 value: 'scrapeStructuredData',
-                action: 'Scrape structured data',
+                action: 'Extract structured data',
                 description:
                     'Create a General Agent (AI) scraper with a preset schema by category (article, product, hotel, etc.). The prompt is chosen from the selected category.',
                 routing: {
@@ -112,9 +75,9 @@ export const scrapingDescription: INodeProperties[] = [
                 },
             },
             {
-                name: 'Scrape Web Page',
+                name: 'Fetch Rendered HTML',
                 value: 'fetchHTML',
-                action: 'Scrape web page',
+                action: 'Fetch rendered HTML',
                 description:
                     'Fetch the rendered HTML of a page via the MrScraper stealth browser (JavaScript, bot evasion, optional geo proxy)',
                 routing: {
@@ -135,9 +98,7 @@ export const scrapingDescription: INodeProperties[] = [
         ],
         default: 'fetchHTML',
     },
-    ...advanceChatMapAgentDescription,
     ...advanceChatGeneralAgentDescription,
-    ...advanceChatListingAgentDescription,
     ...advanceChatListingAgentPaginatedDescription,
     ...scrapingStructuredDataDescription,
     ...webUnblockerFetchHTMLDescription,

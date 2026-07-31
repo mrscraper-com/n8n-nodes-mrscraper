@@ -15,7 +15,8 @@ export const resultGetLatestDescription: INodeProperties[] = [
         },
         required: true,
         default: '',
-        description: 'Scraper ID to of which the results are to be fetched',
+        placeholder: 'e.g. cm123abc456',
+        description: 'ID of the scraper whose latest results should be fetched',
     }, {
         displayName: 'N',
         name: 'pageSize',
@@ -25,6 +26,6 @@ export const resultGetLatestDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForResultGetLatest,
         },
-        description: 'Number of latest results to fetch',
+        description: 'Number of latest results to fetch, for example 10',
     },
 ];

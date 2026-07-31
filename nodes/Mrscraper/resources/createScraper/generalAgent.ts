@@ -11,6 +11,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://example.com/products/123',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
@@ -27,7 +28,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayName: 'Prompt',
         name: 'message',
         type: 'string',
+        typeOptions: {
+            rows: 4,
+        },
         default: '',
+        placeholder: 'Extract the product name, current price, availability, and main image URL',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
@@ -37,8 +42,27 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
             send: {
                 type: 'body',
                 property: 'message',
+                value:
+                    '={{ $value + "\\n\\nReturn the output as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) }}',
             },
         },
+    },
+    {
+        displayName: 'Expected Output Schema',
+        name: 'outputSchema',
+        type: 'json',
+        typeOptions: {
+            rows: 10,
+        },
+        default:
+            '{\n  "type": "object",\n  "properties": {\n    "name": { "type": "string" },\n    "price": { "type": "number" },\n    "inStock": { "type": "boolean" }\n  },\n  "required": ["name", "price"]\n}',
+        placeholder: '{"name":"string","price":"number","inStock":"boolean"}',
+        required: true,
+        displayOptions: {
+            show: showOnlyForAdvanceChatGeneralAgent,
+        },
+        description:
+            'Valid JSON describing the expected API output. It is stringified and appended to the prompt before the request is sent.',
     },
     {
         displayName: 'Mode',
@@ -71,10 +95,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         name: 'proxyCountry',
         type: 'string',
         default: '',
+        placeholder: 'e.g. US',
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Input the proxy country (e.g. us, uk, sg)',
+        description: 'ISO country code for the proxy, for example US, GB, ID, or SG',
         routing: {
             send: {
                 type: 'body',

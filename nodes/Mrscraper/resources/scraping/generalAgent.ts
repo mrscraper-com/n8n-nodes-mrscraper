@@ -11,6 +11,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://example.com/products/123',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
@@ -27,7 +28,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayName: 'Prompt',
         name: 'message',
         type: 'string',
+        typeOptions: {
+            rows: 4,
+        },
         default: '',
+        placeholder: 'Extract the product name, price, availability, and image URL',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
@@ -71,10 +76,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         name: 'proxyCountry',
         type: 'string',
         default: '',
+        placeholder: 'e.g. ID',
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Input the proxy country (e.g. us, uk, sg)',
+        description: 'ISO country code for the proxy, for example US, GB, ID, or SG',
         routing: {
             send: {
                 type: 'body',
