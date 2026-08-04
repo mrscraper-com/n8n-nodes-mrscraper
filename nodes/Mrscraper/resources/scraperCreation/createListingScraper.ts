@@ -5,7 +5,7 @@ const showOnlyForAdvanceChatListingAgent = {
     resource: ['createScraper'],
 };
 
-export const advanceChatListingAgentDescription: INodeProperties[] = [
+export const createListingScraperDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
@@ -33,7 +33,6 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
         },
         default: '',
         placeholder: 'Extract every listing with its title, price, detail URL, and rating',
-        required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
@@ -43,26 +42,48 @@ export const advanceChatListingAgentDescription: INodeProperties[] = [
                 type: 'body',
                 property: 'message',
                 value:
-                    '={{ $value + "\\n\\nReturn each item as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) }}',
+                    '={{ [$value, $parameter.outputSchema ? "Return each item as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) : ""].filter(Boolean).join("\\n\\n") || undefined }}',
             },
         },
     },
     {
-        displayName: 'Expected Item Schema',
+        displayName: 'Expected Output Schema',
         name: 'outputSchema',
         type: 'json',
         typeOptions: {
             rows: 10,
         },
-        default:
-            '{\n  "type": "object",\n  "properties": {\n    "title": { "type": "string" },\n    "price": { "type": "number" },\n    "url": { "type": "string" }\n  },\n  "required": ["title", "url"]\n}',
-        placeholder: '{"title":"string","price":"number","url":"string"}',
-        required: true,
+        default: '',
+        placeholder: `{
+  "title": "string",
+  "price": "number",
+  "url": "string",
+  "imageUrl": "string"
+}`,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgent,
         },
         description:
-            'Valid JSON describing each expected listing item. It is stringified and appended to the prompt before the request is sent.',
+            'Optional JSON describing each expected listing item, for example {"title":"string","price":"number"}. It is stringified and appended to the prompt.',
+    },
+    {
+        displayName: 'Max Pages',
+        name: 'maxPages',
+        type: 'number',
+        default: 1,
+        typeOptions: {
+            minValue: 1,
+        },
+        displayOptions: {
+            show: showOnlyForAdvanceChatListingAgent,
+        },
+        description: 'Maximum pagination pages to scrape, for example 5',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'maxPages',
+            },
+        },
     },
     {
         displayName: 'Proxy Country',

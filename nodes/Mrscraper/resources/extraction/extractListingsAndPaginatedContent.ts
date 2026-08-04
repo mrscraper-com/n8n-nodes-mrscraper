@@ -5,7 +5,7 @@ const showOnlyForAdvanceChatListingAgentPaginated = {
     resource: ['scraping'],
 };
 
-export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
+export const extractListingsAndPaginatedContentDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
@@ -31,9 +31,8 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         typeOptions: {
             rows: 4,
         },
-        default: 'Get all data for each property listing',
+        default: '',
         placeholder: 'Extract each property name, price, location, detail URL, and image',
-        required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
@@ -41,25 +40,31 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
         routing: {
             send: {
                 type: 'body',
-                property: 'prompt',
+                property: 'message',
+                value:
+                    '={{ [$value, $parameter.outputSchema ? "Return each item as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) : ""].filter(Boolean).join("\\n\\n") || undefined }}',
             },
         },
     },
     {
-        displayName: 'Agent',
-        name: 'listingPaginatedAgent',
-        type: 'hidden',
-        default: 'listing',
+        displayName: 'Expected Output Schema',
+        name: 'outputSchema',
+        type: 'json',
+        typeOptions: {
+            rows: 10,
+        },
+        default: '',
+        placeholder: `{
+  "title": "string",
+  "price": "number",
+  "url": "string",
+  "imageUrl": "string"
+}`,
         displayOptions: {
             show: showOnlyForAdvanceChatListingAgentPaginated,
         },
-        routing: {
-            send: {
-                type: 'body',
-                property: 'agent',
-                value: 'listing',
-            },
-        },
+        description:
+            'Optional JSON describing each expected listing item, for example {"title":"string","price":"number"}. It is stringified and appended to the prompt.',
     },
     {
         displayName: 'Max Pages',
@@ -77,6 +82,24 @@ export const advanceChatListingAgentPaginatedDescription: INodeProperties[] = [
             send: {
                 type: 'body',
                 property: 'maxPages',
+            },
+        },
+    },
+    {
+        displayName: 'Proxy Country',
+        name: 'proxyCountry',
+        type: 'string',
+        default: '',
+        placeholder: 'e.g. US',
+        displayOptions: {
+            show: showOnlyForAdvanceChatListingAgentPaginated,
+        },
+        description: 'ISO country code for the proxy, for example US, GB, ID, or SG',
+        routing: {
+            send: {
+                type: 'body',
+                property: 'proxyCountry',
+                value: '={{ $value || undefined }}',
             },
         },
     },

@@ -10,7 +10,7 @@ const showOnlyForStructuredData = {
 
 const messageRoutingValue = `={{ JSON.parse(${JSON.stringify(promptsJson)})[$parameter.structuredDataCategory] }}`;
 
-export const scrapingStructuredDataDescription: INodeProperties[] = [
+export const extractStructuredDataDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',

@@ -1,13 +1,13 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { advanceChatGeneralAgentDescription } from './generalAgent';
-import { advanceChatListingAgentDescription } from './listingAgent';
-import { advanceChatMapAgentDescription } from './mapAgent';
+import { createPromptBasedScraperDescription } from './createPromptBasedScraper';
+import { createListingScraperDescription } from './createListingScraper';
+import { createWebsiteCrawlScraperDescription } from './createWebsiteCrawlScraper';
 
 const showOnlyForAdvanceChat = {
     resource: ['createScraper'],
 };
 
-export const advanceChatDescription: INodeProperties[] = [
+export const scraperCreationDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',
@@ -71,7 +71,7 @@ export const advanceChatDescription: INodeProperties[] = [
         ],
         default: 'generalAgent',
     },
-    ...advanceChatGeneralAgentDescription,
-    ...advanceChatListingAgentDescription,
-    ...advanceChatMapAgentDescription,
+    ...createPromptBasedScraperDescription,
+    ...createListingScraperDescription,
+    ...createWebsiteCrawlScraperDescription,
 ];

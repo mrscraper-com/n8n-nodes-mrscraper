@@ -1,13 +1,13 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { resultGetManyDescription } from './getMany';
-import { resultGetLatestDescription } from './getLatest';
-import { resultGetDescription } from './get';
+import { resultGetManyDescription } from './getResults';
+import { resultGetLatestDescription } from './getLatestResults';
+import { resultGetDescription } from './getResultDetail';
 
 const showOnlyForResult = {
     resource: ['result'],
 };
 
-export const resultDescription: INodeProperties[] = [
+export const resultsDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',

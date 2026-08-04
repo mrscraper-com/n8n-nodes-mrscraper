@@ -1,12 +1,12 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { advanceChatMapAgentDescription } from '../scraping/mapAgent';
-import { serpSyncDescription } from './sync';
+import { crawlWebsiteUrlsDescription } from './crawlWebsiteUrls';
+import { searchGoogleSerpDescription } from './searchGoogleSerp';
 
 const showOnlyForSerp = {
 	resource: ['serp'],
 };
 
-export const serpDescription: INodeProperties[] = [
+export const discoveryDescription: INodeProperties[] = [
 	{
 		displayName: 'Operation',
 		name: 'operation',
@@ -53,6 +53,6 @@ export const serpDescription: INodeProperties[] = [
 		],
 		default: 'mapAgent',
 	},
-	...advanceChatMapAgentDescription,
-	...serpSyncDescription,
+	...crawlWebsiteUrlsDescription,
+	...searchGoogleSerpDescription,
 ];

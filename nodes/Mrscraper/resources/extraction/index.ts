@@ -1,14 +1,14 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { advanceChatGeneralAgentDescription } from './generalAgent';
-import { webUnblockerFetchHTMLDescription } from './fetchHTML';
-import { scrapingStructuredDataDescription } from './structuredData';
-import { advanceChatListingAgentPaginatedDescription } from './listingAgentPaginated';
+import { extractPageByPromptDescription } from './extractPageByPrompt';
+import { fetchRenderedHtmlDescription } from './fetchRenderedHtml';
+import { extractStructuredDataDescription } from './extractStructuredData';
+import { extractListingsAndPaginatedContentDescription } from './extractListingsAndPaginatedContent';
 
 const showOnlyForScraping = {
     resource: ['scraping'],
 };
 
-export const scrapingDescription: INodeProperties[] = [
+export const extractionDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',
@@ -41,18 +41,16 @@ export const scrapingDescription: INodeProperties[] = [
                 value: 'listingAgentPaginated',
                 action: 'Extract listings and paginated content',
                 description:
-                    'Listing agent on api.mrscraper.com: send URL, prompt, agent listing, and maxPages for paginated scrape',
+                    'Create a listing scraper through the same AI scraper API used by Create Listing Scraper, with an optional page limit',
                 routing: {
                     request: {
                         method: 'POST',
-                        baseURL: 'https://api.mrscraper.com',
-                        url: '/',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        qs: {
-                            token: '={{$credentials.apiToken}}',
-                        },
+                        url: '/api/v1/scrapers-ai',
+                    },
+                    send: {
+                        type: 'body',
+                        property: 'graph',
+                        value: 'listing',
                     },
                 },
             },
@@ -82,15 +80,22 @@ export const scrapingDescription: INodeProperties[] = [
                     'Fetch the rendered HTML of a page via the MrScraper stealth browser (JavaScript, bot evasion, optional geo proxy)',
                 routing: {
                     request: {
-                        method: 'GET',
+                        method: 'POST',
                         baseURL: 'https://api.mrscraper.com',
                         url: '/',
                         qs: {
                             token: '={{$credentials.apiToken}}',
-                            url: '={{$parameter.url}}',
-                            timeout: '={{$parameter.timeout ?? 120}}',
-                            geoCode: '={{$parameter.geoCode ?? "US"}}',
                             blockResources: '={{$parameter.blockResources ? "true" : "false"}}',
+                            browserRendering: '={{$parameter.browserRendering ? "true" : "false"}}',
+                            waitUntil: '={{$parameter.waitUntil ?? "domcontentloaded"}}',
+                            timeout: '={{$parameter.timeout ?? 300}}',
+                            geoCode: '={{$parameter.geoCode ?? "us"}}',
+                            html: '={{$parameter.html ? "true" : "false"}}',
+                            markdown: '={{$parameter.markdown ? "true" : "false"}}',
+                            screenshot: '={{$parameter.screenshot ?? "full"}}',
+                            super: '={{$parameter.super ? "true" : "false"}}',
+                            returnCookie: '={{$parameter.returnCookie ? "true" : "false"}}',
+                            proxyCountry: '={{$parameter.proxyCountry ?? "us"}}',
                         },
                     },
                 },
@@ -98,8 +103,8 @@ export const scrapingDescription: INodeProperties[] = [
         ],
         default: 'fetchHTML',
     },
-    ...advanceChatGeneralAgentDescription,
-    ...advanceChatListingAgentPaginatedDescription,
-    ...scrapingStructuredDataDescription,
-    ...webUnblockerFetchHTMLDescription,
+    ...extractPageByPromptDescription,
+    ...extractListingsAndPaginatedContentDescription,
+    ...extractStructuredDataDescription,
+    ...fetchRenderedHtmlDescription,
 ];

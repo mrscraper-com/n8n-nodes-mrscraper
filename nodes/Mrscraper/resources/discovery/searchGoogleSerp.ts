@@ -5,18 +5,18 @@ const showOnlyForSyncSerp = {
 	resource: ['serp'],
 };
 
-export const serpSyncDescription: INodeProperties[] = [
+export const searchGoogleSerpDescription: INodeProperties[] = [
 	{
 		displayName: 'Search Query',
 		name: 'query',
 		type: 'string',
 		default: '',
-		placeholder: 'coffee bandung',
+		placeholder: 'best hotels in New York',
 		required: true,
 		displayOptions: {
 			show: showOnlyForSyncSerp,
 		},
-		description: 'Google search terms, for example coffee bandung',
+		description: 'Google search terms, for example best hotels in New York',
 		routing: {
 			send: {
 				type: 'body',
@@ -28,13 +28,13 @@ export const serpSyncDescription: INodeProperties[] = [
 		displayName: 'Region',
 		name: 'region',
 		type: 'string',
-		default: 'id',
-		placeholder: 'e.g. id', // eslint-disable-line n8n-nodes-base/node-param-placeholder-miscased-id
+		default: 'us',
+		placeholder: 'e.g. us',
 		required: true,
 		displayOptions: {
 			show: showOnlyForSyncSerp,
 		},
-		description: 'Two-letter country or region code used for localized results, for example id or us', // eslint-disable-line n8n-nodes-base/node-param-description-miscased-id
+		description: 'Two-letter country or region code used for localized results, for example us or gb',
 		routing: {
 			send: {
 				type: 'body',
@@ -65,6 +65,7 @@ export const serpSyncDescription: INodeProperties[] = [
 		name: 'page',
 		type: 'number',
 		default: 1,
+		placeholder: 'e.g. 1',
 		required: true,
 		typeOptions: {
 			minValue: 1,

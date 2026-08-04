@@ -5,7 +5,7 @@ const showOnlyForAdvanceChatGeneralAgent = {
     resource: ['scraping'],
 };
 
-export const advanceChatGeneralAgentDescription: INodeProperties[] = [
+export const extractPageByPromptDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
@@ -33,7 +33,6 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         },
         default: '',
         placeholder: 'Extract the product name, price, availability, and image URL',
-        required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
@@ -42,8 +41,30 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
             send: {
                 type: 'body',
                 property: 'message',
+                value:
+                    '={{ [$value, $parameter.outputSchema ? "Return the output as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) : ""].filter(Boolean).join("\\n\\n") || undefined }}',
             },
         },
+    },
+    {
+        displayName: 'Expected Output Schema',
+        name: 'outputSchema',
+        type: 'json',
+        typeOptions: {
+            rows: 10,
+        },
+        default: '',
+        placeholder: `{
+  "name": "string",
+  "price": "number",
+  "inStock": "boolean",
+  "imageUrl": "string"
+}`,
+        displayOptions: {
+            show: showOnlyForAdvanceChatGeneralAgent,
+        },
+        description:
+            'Optional JSON describing the expected API output, for example {"name":"string","price":"number"}. It is stringified and appended to the prompt.',
     },
     {
         displayName: 'Mode',

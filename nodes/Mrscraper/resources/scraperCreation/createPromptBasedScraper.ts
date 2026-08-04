@@ -5,7 +5,7 @@ const showOnlyForAdvanceChatGeneralAgent = {
     resource: ['createScraper'],
 };
 
-export const advanceChatGeneralAgentDescription: INodeProperties[] = [
+export const createPromptBasedScraperDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
@@ -33,7 +33,6 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         },
         default: '',
         placeholder: 'Extract the product name, current price, availability, and main image URL',
-        required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
@@ -43,7 +42,7 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
                 type: 'body',
                 property: 'message',
                 value:
-                    '={{ $value + "\\n\\nReturn the output as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) }}',
+                    '={{ [$value, $parameter.outputSchema ? "Return the output as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) : ""].filter(Boolean).join("\\n\\n") || undefined }}',
             },
         },
     },
@@ -54,15 +53,18 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         typeOptions: {
             rows: 10,
         },
-        default:
-            '{\n  "type": "object",\n  "properties": {\n    "name": { "type": "string" },\n    "price": { "type": "number" },\n    "inStock": { "type": "boolean" }\n  },\n  "required": ["name", "price"]\n}',
-        placeholder: '{"name":"string","price":"number","inStock":"boolean"}',
-        required: true,
+        default: '',
+        placeholder: `{
+  "name": "string",
+  "price": "number",
+  "inStock": "boolean",
+  "imageUrl": "string"
+}`,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
         description:
-            'Valid JSON describing the expected API output. It is stringified and appended to the prompt before the request is sent.',
+            'Optional JSON describing the expected API output, for example {"name":"string","price":"number"}. It is stringified and appended to the prompt.',
     },
     {
         displayName: 'Mode',

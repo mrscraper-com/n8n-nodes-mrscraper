@@ -1,10 +1,10 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { rerunDescription } from './resources/rerun';
-import { resultDescription } from './resources/result';
-import { advanceChatDescription } from './resources/createScraper';
+import { scraperRunsDescription } from './resources/scraperRuns';
+import { resultsDescription } from './resources/results';
+import { scraperCreationDescription } from './resources/scraperCreation';
 import { accountDescription } from './resources/account';
-import { scrapingDescription } from './resources/scraping';
-import { serpDescription } from './resources/serp';
+import { extractionDescription } from './resources/extraction';
+import { discoveryDescription } from './resources/discovery';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -63,12 +63,12 @@ export class Mrscraper implements INodeType {
 				],
 				default: 'rerun',
 			},
-			...rerunDescription,
-			...resultDescription,
-			...advanceChatDescription,
+			...scraperRunsDescription,
+			...resultsDescription,
+			...scraperCreationDescription,
 			...accountDescription,
-			...scrapingDescription,
-			...serpDescription,
+			...extractionDescription,
+			...discoveryDescription,
 		],
 	};
 }

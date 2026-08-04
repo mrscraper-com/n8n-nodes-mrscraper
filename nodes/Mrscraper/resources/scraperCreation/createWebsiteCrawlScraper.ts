@@ -5,7 +5,7 @@ const showOnlyForAdvanceChatMapAgent = {
     resource: ['createScraper'],
 };
 
-export const advanceChatMapAgentDescription: INodeProperties[] = [
+export const createWebsiteCrawlScraperDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
