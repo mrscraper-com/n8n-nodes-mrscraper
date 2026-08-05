@@ -1,123 +1,189 @@
 # n8n-nodes-mrscraper
-![](./mrscraper.jpeg)
 
-This is an n8n community node. It lets you use **MrScraper** in your n8n workflows.
+![MrScraper](./mrscraper.jpeg)
 
-**MrScraper** is an AI-powered web scraping platform. Create scrapers once (via the app or this node), then run them on any URL. Supports manual step-by-step scrapers, AI agents for detail/listing/map pages, preset structured-data extraction, paginated listing scrapes, batch reruns, and a stealth HTML fetcher.
+Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run AI or manual scrapers, extract structured content, discover URLs, search Google, and retrieve results.
 
-- **Main site:** https://mrscraper.com  
-- **API docs:** https://docs.mrscraper.com/docs/getting-started/overview
+This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
 
-[n8n](https://n8n.io/) is a [fair-code licensed](https://docs.n8n.io/sustainable-use-license/) workflow automation platform.
+## Version 3.0.0
+
+Version 3.0.0 reorganizes the node around six task-based resources and removes duplicated operations.
+
+- New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
+- One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
+- Dedicated creation flows for prompt-based, listing, and website crawl scrapers
+- Expected JSON output schemas for prompt-based and listing extraction
+- Updated Google SERP v2 inputs: query, region, language, page, response format, and JavaScript rendering
+- Expanded rendered-page controls, including HTML, Markdown, screenshots, cookies, proxy country, and browser rendering
+- More run options for General, Listing, Map, and Manual scrapers
+
+Version 3.0.0 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
 
 ## Table of contents
 
 - [Installation](#installation)
 - [Credentials](#credentials)
-- [Resources & operations](#resources--operations)
+- [Resources and operations](#resources-and-operations)
   - [Account](#account)
-  - [Agent](#agent)
-  - [Batch Operation](#batch-operation)
-  - [Create Scraper](#create-scraper)
-  - [Rerun Scraper](#rerun-scraper)
-  - [Get Result](#get-result)
-  - [Scraping](#scraping)
-  - [SERP](#serp)
-  - [Web Unblocker](#web-unblocker)
-- [Usage](#usage)
+  - [Discovery](#discovery)
+  - [Extraction](#extraction)
+  - [Results](#results)
+  - [Scraper Creation](#scraper-creation)
+  - [Scraper Runs](#scraper-runs)
+- [Usage examples](#usage-examples)
+- [Migrating from 2.x](#migrating-from-2x)
 - [Compatibility](#compatibility)
-- [Resources & links](#resources--links)
-- [Version history](#version-history)
+- [Compliance and legal risk](#compliance-and-legal-risk)
+- [Resources](#resources)
 
 ## Installation
 
-Follow the [installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) in the n8n community nodes documentation.
+Install `n8n-nodes-mrscraper` from **Settings > Community Nodes** in n8n. For other installation methods, follow the [n8n community node installation guide](https://docs.n8n.io/integrations/community-nodes/installation/).
 
 ## Credentials
 
-**MrScraper API** credentials are required. Use your API token from the [MrScraper API Tokens](https://app.mrscraper.com) page.
+The node requires a **MrScraper API** credential.
 
-## Resources & operations
+1. Sign in to the [MrScraper app](https://app.mrscraper.com).
+2. Create or copy an API token from your account.
+3. In n8n, create a **MrScraper API** credential and enter the token in **API Token**.
+4. Select the credential in your MrScraper node.
 
-The node exposes **9 resources**. Pick a resource, then choose an operation.
+Keep the token private. Do not place it directly in workflow fields or commit it to source control.
 
-Most calls use the app API (`api.app.mrscraper.com`). Some operations (paginated listing scrape and stealth HTML) use `api.mrscraper.com` with your token in the query string, as in the MrScraper API.
+## Resources and operations
+
+Version 3.0.0 exposes six resources. Choose a resource, then select one of its operations.
 
 ### Account
 
-- **Get Account Information** – Returns account details, token usage, and token limits.
+- **Get Account Info** — Get account details, token usage, and token limits.
 
-### Agent
+### Discovery
 
-Create AI scrapers directly from n8n (they appear in your MrScraper account):
+- **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
+- **Search Google SERP** — Search Google through the synchronous SERP v2 API. Configure the query, region, language, page, JSON or HTML response format, and optional JavaScript rendering.
 
-- **General Agent** – AI-powered extraction from a single page (detail pages). Sends URL + instructions to build a targeted JSON schema.
-- **Listing Agent** – AI-powered extraction from listing/search pages with pagination, infinite scroll, or “load more”.
-- **Map Agent** – Crawls from a start URL and collects URLs up to a limit (sitemap-style crawling).
+### Extraction
 
-### Batch Operation
+- **Extract Page by Prompt** — Extract data from one page using a natural-language prompt and an optional expected JSON output schema. Supports Super or Cheap mode and an optional proxy country.
+- **Extract Listings and Paginated Content** — Extract repeated listing data with a prompt, optional item schema, page limit, and proxy country.
+- **Extract Structured Data** — Use a preset extraction schema for Article, Forum Thread, Hotel, Job Posting, Post, Product, Property, Restaurant, Social Media Profile, or Tour / Attraction content.
+- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser. The operation can return HTML, Markdown, a screenshot, and cookies, with controls for browser rendering, blocked resources, retries, timeout, lifecycle wait condition, geolocation, and proxy country.
 
-Run many URLs against a scraper you already created in the app (parallel server-side dispatch):
+### Results
 
-- **Batch Scrape URLs** – Choose **AI** or **Manual** mode, provide the scraper ID and a list of URLs. Calls the bulk rerun endpoints (`/api/v1/scrapers-ai-rerun/bulk` or `/api/v1/scrapers-manual-rerun/bulk`).
+- **Get Results** — Get paginated results for a scraper ID with page size and created-date sort order.
+- **Get Latest Results** — Get the latest N results for a scraper ID.
+- **Get Result Detail** — Get one complete result by result ID.
 
-### Create Scraper
+### Scraper Creation
 
-Same as Agent but under the “Create Scraper” resource: create General, Listing, or Map Agent scrapers. Matches the [programmatic creation docs](https://docs.mrscraper.com/docs/guides/programmatically#step-4-create-detail-scraper).
+- **Create Prompt-Based Scraper** — Create a General AI scraper from a URL, prompt, optional expected JSON schema, mode, and proxy country.
+- **Create Listing Scraper** — Create a Listing AI scraper from a URL, prompt, optional item schema, maximum page count, and proxy country.
+- **Create Website Crawl Scraper** — Create a Map AI scraper with crawl depth, maximum pages, result limit, and optional URL include or exclude patterns.
 
-### Rerun Scraper
+Created scrapers are available in your MrScraper account and can be reused with **Scraper Runs**.
 
-Re-run existing scrapers (one URL per run). Parameters match the MrScraper platform.
+### Scraper Runs
 
-- **Run Manual Scraper** – Run a manual (step-by-step) scraper created in the app on a new URL.
-- **Run General Agent Scraper** – Run a General Agent scraper on a new URL.
-- **Run Listing Agent Scraper** – Run a Listing Agent scraper on a new URL.
-- **Run Map Agent Scraper** – Run a Map Agent scraper on a new URL.
+- **Run Existing Scraper** — Run one URL with an existing AI or manual scraper.
+- **Run Existing Scraper in Batch** — Run multiple URLs with an existing AI or manual scraper.
 
-### Get Result
+For a single AI run, choose the agent type:
 
-Read scraping results from MrScraper:
+- **General** — Prompt-based page extraction, with optional HTML, Markdown, screenshot, cookies, JavaScript rendering, selector wait, and home-page visit settings.
+- **Listing** — Listing and pagination extraction, with page and timeout limits plus optional streaming and rendering settings.
+- **Map** — Website URL discovery with crawl limits and URL filtering patterns.
 
-- **Get Many** – Paginated list with filters and sorting (e.g. by scraper ID, date).
-- **Get Latest** – N most recent results for a scraper.
-- **Get Detail** – Full result by ID (data, screenshots, HTML if available).
+Manual runs support browser, proxy, cookie, paginator, recording, output, timeout, and token-cap options. Batch runs accept URLs as a JSON array or a comma/newline-separated list.
 
-### Scraping
+## Usage examples
 
-Single-step flows that create or run AI scrapers and helpers. Operations are named for what you do in the UI:
+### Extract data with a JSON shape
 
-- **Crawl Website Sitemap** – Map Agent: from a start URL, collect URLs up to a limit (`graph: map`).
-- **Scrape Dynamic Content by Prompt** – General Agent: URL + prompt to define what to extract (`graph: general`).
-- **Scrape Search Results** – Listing Agent: URL + message for listing/search pages (`graph: listing`), via the app AI scrapers API.
-- **Scrape Paginated Content** – Listing-style scrape with explicit pagination controls (URL, prompt, `maxPages`, etc.) via `api.mrscraper.com` (token in query).
-- **Scrape Structured Data** – General Agent with a **preset schema by category** (Article, Product, Hotel, Job Posting, Property, Restaurant, and others). The prompt is selected from the chosen category.
-- **Scrape Web Page** – Returns rendered HTML via the MrScraper stealth browser on `api.mrscraper.com` (JavaScript, bot evasion, optional geo proxy, resource blocking). Same family of behavior as **Web Unblocker → Fetch Rendered HTML**, exposed here under Scraping for convenience.
+1. Select **Extraction > Extract Page by Prompt**.
+2. Enter the page URL.
+3. Enter a prompt such as `Extract the product name, price, availability, and image URL`.
+4. Optionally enter an expected output schema:
 
-### SERP
+```json
+{
+	"name": "string",
+	"price": "number",
+	"inStock": "boolean",
+	"imageUrl": "string"
+}
+```
 
-- **Scrape Google SERP** – Fetch Google search results synchronously via `sync.scraper.mrscraper.com` (`POST /api/google/serp/sync`). Provide a Google search URL and optionally request raw HTML (`raw: true` by default).
+5. Select **Super** for stronger scraping capabilities or **Cheap** for sites with weaker protection, then run the node.
 
-### Web Unblocker
+### Run an existing scraper in batch
 
-- **Fetch Rendered HTML** – Fetch the rendered HTML of a URL using the MrScraper stealth browser (`api.mrscraper.com`). Options include URL, timeout, geo code, and whether to block images/CSS/fonts for faster loads.
+1. Select **Scraper Runs > Run Existing Scraper in Batch**.
+2. Choose **AI** or **Manual** and enter the scraper ID.
+3. Enter the URLs as a JSON array:
 
-## Usage
+```json
+["https://example.com/page-1", "https://example.com/page-2"]
+```
 
-1. Create scrapers on the [MrScraper platform](https://app.mrscraper.com) (manual or AI) or create them from n8n via **Agent** or **Create Scraper**.
-2. Enable API access for the scraper (platform or API).
-3. In n8n, use **Rerun Scraper** for one URL per run, or **Batch Operation** to send many URLs to an existing scraper in one request.
-4. Use **Scraping** for single-shot AI creation/scrape flows (dynamic prompt, structured categories, paginated listing API, sitemap crawl, or stealth HTML).
-5. Use **Get Result** to fetch results (Get Many, Get Latest, or Get Detail).
-6. Use **Web Unblocker → Fetch Rendered HTML** (or **Scraping → Scrape Web Page**) when you only need rendered HTML without scraper definitions.
-7. Use **Account** to check token usage and limits.
+You can also use comma-separated or newline-separated URLs.
 
-## Compliance & Legal Risk
-> **WARNING**
-> Scraping login-protected pages carries serious legal and compliance risks. Many websites explicitly prohibit automated access in their Terms of Service, and bypassing authentication to scrape content may expose you to legal action including lawsuits, account termination, and financial penalties. By proceeding on scraping login-protected pages, you confirm that you have read and understood the target website's Terms of Service, and you fully accept all legal, financial, and ethical responsibility for your actions.
+### Retrieve completed results
+
+Use **Results > Get Latest Results** with the scraper ID, or use **Get Result Detail** when you already have a result ID.
+
+## Migrating from 2.x
+
+After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
+
+| 2.x selection                                       | 3.0.0 selection                                                             |
+| --------------------------------------------------- | --------------------------------------------------------------------------- |
+| Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
+| Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
+| Agent > Map Agent                                   | Scraper Creation > Create Website Crawl Scraper                             |
+| Batch Operation > Batch Scrape URLs                 | Scraper Runs > Run Existing Scraper in Batch                                |
+| Rerun Scraper > Manual or AI agent operation        | Scraper Runs > Run Existing Scraper, then select the scraper and agent type |
+| Get Result > Get Many                               | Results > Get Results                                                       |
+| Get Result > Get Latest                             | Results > Get Latest Results                                                |
+| Get Result > Get Detail                             | Results > Get Result Detail                                                 |
+| Scraping > prompt, listing, or structured operation | Extraction > matching extraction operation                                  |
+| SERP > Scrape Google SERP                           | Discovery > Search Google SERP                                              |
+| Web Unblocker > Fetch Rendered HTML                 | Extraction > Fetch Rendered HTML                                            |
+
+Also review these field changes:
+
+- Google SERP now accepts a search query instead of a complete Google search URL and uses the v2 synchronous endpoint.
+- Single and batch reruns now share **Scraper Runs**. Select **AI** or **Manual** explicitly.
+- AI single runs expose agent-specific fields after selecting General, Listing, or Map.
+- Batch URLs can be a JSON array string or a comma/newline-separated list.
+- Prompt-based and listing operations can append an expected JSON schema to the extraction prompt.
+
+Test migrated workflows before enabling them in production.
+
+## Compatibility
+
+- `n8n-nodes-mrscraper` version: **3.0.0**
+- Node.js: **22 or newer**
+- Package manager used by this project: **npm**
+
+## Compliance and legal risk
+
+> [!WARNING]
+> Scraping login-protected pages carries serious legal and compliance risks. Many websites prohibit automated access in their terms of service. Only scrape content you are authorized to access, review the target website's terms and applicable laws, and accept responsibility for how you use this node.
 
 ## Resources
 
-- [n8n community nodes](https://docs.n8n.io/integrations/#community-nodes)
+- [MrScraper](https://mrscraper.com)
+- [MrScraper app](https://app.mrscraper.com)
 - [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
 - [MrScraper programmatic guide](https://docs.mrscraper.com/docs/guides/programmatically)
-- [Mrscraper Description & Template](https://n8n.io/integrations/mrscraper/)
+- [MrScraper n8n integration](https://n8n.io/integrations/mrscraper/)
+- [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
+- [Changelog](./CHANGELOG.md)
+
+## License
+
+This package is released under the MIT License.
