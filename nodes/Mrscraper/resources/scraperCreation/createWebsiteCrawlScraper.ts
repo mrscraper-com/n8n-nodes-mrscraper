@@ -2,15 +2,16 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForAdvanceChatMapAgent = {
     operation: ['mapAgent'],
-    resource: ['scraping'],
+    resource: ['createScraper'],
 };
 
-export const advanceChatMapAgentDescription: INodeProperties[] = [
+export const createWebsiteCrawlScraperDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://docs.example.com',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatMapAgent,
@@ -31,7 +32,7 @@ export const advanceChatMapAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatMapAgent,
         },
-        description: 'Maximum depth of pages for the scraper to crawl for URL discovery',
+        description: 'Maximum link depth to crawl from the starting URL, for example 2',
         routing: {
             send: {
                 type: 'body',
@@ -46,7 +47,7 @@ export const advanceChatMapAgentDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForAdvanceChatMapAgent,
         },
-        description: 'Maximum pages for the scraper to evaluate for URL discovery',
+        description: 'Maximum pages to evaluate during discovery, for example 50',
         routing: {
             send: {
                 type: 'body',
@@ -76,6 +77,7 @@ export const advanceChatMapAgentDescription: INodeProperties[] = [
         name: 'includePatterns',
         type: 'string',
         default: '',
+        placeholder: '^https://docs\\.example\\.com/guides/|^https://docs\\.example\\.com/api/',
         displayOptions: {
             show: showOnlyForAdvanceChatMapAgent,
         },
@@ -91,6 +93,7 @@ export const advanceChatMapAgentDescription: INodeProperties[] = [
         name: 'excludePatterns',
         type: 'string',
         default: '',
+        placeholder: '/login|/admin|\\?preview=true',
         displayOptions: {
             show: showOnlyForAdvanceChatMapAgent,
         },

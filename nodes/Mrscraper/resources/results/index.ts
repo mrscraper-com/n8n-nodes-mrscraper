@@ -1,13 +1,13 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { resultGetManyDescription } from './getMany';
-import { resultGetLatestDescription } from './getLatest';
-import { resultGetDescription } from './get';
+import { resultGetManyDescription } from './getResults';
+import { resultGetLatestDescription } from './getLatestResults';
+import { resultGetDescription } from './getResultDetail';
 
 const showOnlyForResult = {
     resource: ['result'],
 };
 
-export const resultDescription: INodeProperties[] = [
+export const resultsDescription: INodeProperties[] = [
     {
         displayName: 'Operation',
         name: 'operation',
@@ -25,7 +25,7 @@ export const resultDescription: INodeProperties[] = [
                 routing: {
                     request: {
                         method: 'GET',
-                        url: '=/api/v1/results?filters[scraperId]={{$parameter.scraperId}}&page={{$parameter.page}}&pageSize={{$parameter.pageSize}}&sort={{$parameter.sort}}&sortOrder={{$parameter.sortOrder}}',
+                        url: '=/api/v1/results?filters[scraperId]={{$parameter.scraperId}}&page={{$parameter.page}}&pageSize={{$parameter.pageSize}}&sort={{$parameter.sortBy}}&sortOrder={{$parameter.sortOrder}}',
                     },
                 },
             },

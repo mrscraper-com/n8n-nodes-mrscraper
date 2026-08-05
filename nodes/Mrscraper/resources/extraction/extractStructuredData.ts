@@ -10,12 +10,13 @@ const showOnlyForStructuredData = {
 
 const messageRoutingValue = `={{ JSON.parse(${JSON.stringify(promptsJson)})[$parameter.structuredDataCategory] }}`;
 
-export const scrapingStructuredDataDescription: INodeProperties[] = [
+export const extractStructuredDataDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://example.com/articles/how-to-start',
         required: true,
         displayOptions: {
             show: showOnlyForStructuredData,
@@ -91,10 +92,11 @@ export const scrapingStructuredDataDescription: INodeProperties[] = [
         name: 'proxyCountry',
         type: 'string',
         default: '',
+        placeholder: 'e.g. SG',
         displayOptions: {
             show: showOnlyForStructuredData,
         },
-        description: 'Input the proxy country (e.g. us, uk, sg)',
+        description: 'ISO country code for the proxy, for example US, GB, ID, or SG',
         routing: {
             send: {
                 type: 'body',

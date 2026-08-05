@@ -2,15 +2,16 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForAdvanceChatGeneralAgent = {
     operation: ['generalAgent'],
-    resource: ['createScraper'],
+    resource: ['scraping'],
 };
 
-export const advanceChatGeneralAgentDescription: INodeProperties[] = [
+export const extractPageByPromptDescription: INodeProperties[] = [
     {
         displayName: 'URL',
         name: 'url',
         type: 'string',
         default: '',
+        placeholder: 'https://example.com/products/123',
         required: true,
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
@@ -27,8 +28,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         displayName: 'Prompt',
         name: 'message',
         type: 'string',
+        typeOptions: {
+            rows: 4,
+        },
         default: '',
-        required: true,
+        placeholder: 'Extract the product name, price, availability, and image URL',
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
@@ -37,8 +41,30 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
             send: {
                 type: 'body',
                 property: 'message',
+                value:
+                    '={{ [$value, $parameter.outputSchema ? "Return the output as JSON matching this schema:\\n" + JSON.stringify(typeof $parameter.outputSchema === "string" ? JSON.parse($parameter.outputSchema) : $parameter.outputSchema) : ""].filter(Boolean).join("\\n\\n") || undefined }}',
             },
         },
+    },
+    {
+        displayName: 'Expected Output Schema',
+        name: 'outputSchema',
+        type: 'json',
+        typeOptions: {
+            rows: 10,
+        },
+        default: '',
+        placeholder: `{
+  "name": "string",
+  "price": "number",
+  "inStock": "boolean",
+  "imageUrl": "string"
+}`,
+        displayOptions: {
+            show: showOnlyForAdvanceChatGeneralAgent,
+        },
+        description:
+            'Optional JSON describing the expected API output, for example {"name":"string","price":"number"}. It is stringified and appended to the prompt.',
     },
     {
         displayName: 'Mode',
@@ -71,10 +97,11 @@ export const advanceChatGeneralAgentDescription: INodeProperties[] = [
         name: 'proxyCountry',
         type: 'string',
         default: '',
+        placeholder: 'e.g. ID',
         displayOptions: {
             show: showOnlyForAdvanceChatGeneralAgent,
         },
-        description: 'Input the proxy country (e.g. us, uk, sg)',
+        description: 'ISO country code for the proxy, for example US, GB, ID, or SG',
         routing: {
             send: {
                 type: 'body',

@@ -15,7 +15,8 @@ export const resultGetManyDescription: INodeProperties[] = [
         },
         required: true,
         default: '',
-        description: 'Scraper ID to of which the results are to be fetched',
+        placeholder: 'e.g. cm123abc456',
+        description: 'ID of the scraper whose results should be fetched',
     }, {
         displayName: 'Page',
         name: 'page',
@@ -25,7 +26,7 @@ export const resultGetManyDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForResultGetMany,
         },
-        description: 'Page number for pagination',
+        description: 'Page number for pagination, for example 1',
     }, {
         displayName: 'Page Size',
         name: 'pageSize',
@@ -35,7 +36,7 @@ export const resultGetManyDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForResultGetMany,
         },
-        description: 'Size for one page for pagination',
+        description: 'Number of results per page, for example 10',
     }, {
         displayName: 'Sort By',
         name: 'sortBy',
@@ -48,7 +49,7 @@ export const resultGetManyDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForResultGetMany,
         },
-        description: 'Size for one page for pagination',
+        description: 'Field used to sort results, for example Created At',
     }, {
         displayName: 'Sort Order',
         name: 'sortOrder',
@@ -62,6 +63,6 @@ export const resultGetManyDescription: INodeProperties[] = [
         displayOptions: {
             show: showOnlyForResultGetMany,
         },
-        description: 'Size for one page for pagination',
+        description: 'Direction used to sort results, for example Descending',
     },
 ];

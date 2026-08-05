@@ -15,6 +15,7 @@ export const resultGetDescription: INodeProperties[] = [
         },
         required: true,
         default: '',
+        placeholder: 'e.g. result_01JABCDEF123456',
         description: 'Result ID to be fetched',
     },
 ];

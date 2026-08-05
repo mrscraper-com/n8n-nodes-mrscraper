@@ -1,13 +1,10 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { rerunDescription } from './resources/rerun';
-import { resultDescription } from './resources/result';
-import { advanceChatDescription } from './resources/createScraper';
+import { scraperRunsDescription } from './resources/scraperRuns';
+import { resultsDescription } from './resources/results';
+import { scraperCreationDescription } from './resources/scraperCreation';
 import { accountDescription } from './resources/account';
-import { agentDescription } from './resources/agent';
-import { scrapingDescription } from './resources/scraping';
-import { webUnblockerDescription } from './resources/webUnblocker';
-import { batchOperationDescription } from './resources/batchOperation';
-import { serpDescription } from './resources/serp';
+import { extractionDescription } from './resources/extraction';
+import { discoveryDescription } from './resources/discovery';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -44,49 +41,34 @@ export class Mrscraper implements INodeType {
 						value: 'account',
 					},
 					{
-						name: 'Agent',
-						value: 'agent',
-					},
-					{
-						name: 'Batch Operation',
-						value: 'batchOperation',
-					},
-					{
-						name: 'Create Scraper',
-						value: 'createScraper',
-					},
-					{
-						name: 'Get Result',
-						value: 'result',
-					},
-					{
-						name: 'Rerun Scraper',
-						value: 'rerun',
-					},
-					{
-						name: 'Scraping',
-						value: 'scraping',
-					},
-					{
-						name: 'SERP',
+						name: 'Discovery',
 						value: 'serp',
 					},
 					{
-						name: 'Web Unblocker',
-						value: 'webUnblocker',
+						name: 'Extraction',
+						value: 'scraping',
+					},
+					{
+						name: 'Results', // eslint-disable-line n8n-nodes-base/node-param-resource-with-plural-option
+						value: 'result',
+					},
+					{
+						name: 'Scraper Creation',
+						value: 'createScraper',
+					},
+					{
+						name: 'Scraper Runs',
+						value: 'rerun',
 					},
 				],
 				default: 'rerun',
 			},
-			...rerunDescription,
-			...resultDescription,
-			...advanceChatDescription,
+			...scraperRunsDescription,
+			...resultsDescription,
+			...scraperCreationDescription,
 			...accountDescription,
-			...agentDescription,
-			...batchOperationDescription,
-			...scrapingDescription,
-			...serpDescription,
-			...webUnblockerDescription,
+			...extractionDescription,
+			...discoveryDescription,
 		],
 	};
 }
