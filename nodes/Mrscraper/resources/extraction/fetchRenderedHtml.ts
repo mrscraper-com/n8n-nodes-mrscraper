@@ -119,7 +119,7 @@ export const fetchRenderedHtmlDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForFetchHTML,
 		},
-		description: 'Country code used for geolocation, for example us, gb, id, or sg', // eslint-disable-line n8n-nodes-base/node-param-description-miscased-id
+		description: 'Country code used for geolocation, for example us, gb, or sg',
 	},
 	{
 		displayName: 'Return HTML',
@@ -181,6 +181,6 @@ export const fetchRenderedHtmlDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForFetchHTML,
 		},
-		description: 'Country code for the proxy location, for example us, gb, id, or sg', // eslint-disable-line n8n-nodes-base/node-param-description-miscased-id
+		description: 'Country code for the proxy location, for example us, gb, or sg',
 	},
 ];

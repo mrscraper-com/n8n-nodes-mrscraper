@@ -49,7 +49,7 @@ export class Mrscraper implements INodeType {
 						value: 'scraping',
 					},
 					{
-						name: 'Results', // eslint-disable-line n8n-nodes-base/node-param-resource-with-plural-option
+						name: 'Result',
 						value: 'result',
 					},
 					{
@@ -57,7 +57,7 @@ export class Mrscraper implements INodeType {
 						value: 'createScraper',
 					},
 					{
-						name: 'Scraper Runs',
+						name: 'Scraper Run',
 						value: 'rerun',
 					},
 				],

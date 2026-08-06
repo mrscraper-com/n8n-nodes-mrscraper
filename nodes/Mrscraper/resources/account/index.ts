@@ -17,7 +17,7 @@ export const accountDescription: INodeProperties[] = [
 			{
 				name: 'Get Account Info',
 				value: 'accountInformation',
-				action: 'Get Account Info',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
+				action: 'Get account info',
 				description: 'Get account details including token usage and token limits',
 				routing: {
 					request: {
