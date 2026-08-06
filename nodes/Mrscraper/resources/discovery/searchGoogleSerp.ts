@@ -52,7 +52,7 @@ export const searchGoogleSerpDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForSyncSerp,
 		},
-		description: 'Two-letter result language code, for example en or id', // eslint-disable-line n8n-nodes-base/node-param-description-miscased-id
+		description: 'Two-letter result language code, for example en or fr',
 		routing: {
 			send: {
 				type: 'body',

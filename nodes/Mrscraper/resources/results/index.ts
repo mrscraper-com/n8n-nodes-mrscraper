@@ -20,7 +20,7 @@ export const resultsDescription: INodeProperties[] = [
             {
                 name: 'Get Results',
                 value: 'getMany',
-                action: 'Get Results',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
+                action: 'Get results',
                 description: 'Get results based on given page number, page size, filters, and sorting by scraper ID',
                 routing: {
                     request: {
@@ -32,7 +32,7 @@ export const resultsDescription: INodeProperties[] = [
             {
                 name: 'Get Latest Results',
                 value: 'getLatest',
-                action: 'Get Latest Results',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
+                action: 'Get latest results',
                 description: 'Get N latest results by scraper ID',
                 routing: {
                     request: {
@@ -44,7 +44,7 @@ export const resultsDescription: INodeProperties[] = [
             {
                 name: 'Get Result Detail',
                 value: 'get',
-                action: 'Get Result Detail',  // eslint-disable-line n8n-nodes-base/node-param-operation-option-action-miscased
+                action: 'Get result detail',
                 description: 'Get a result detail by its result ID',
                 routing: {
                     request: {
