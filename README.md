@@ -6,9 +6,9 @@ Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run A
 
 This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
 
-## Version 3.0.0
+## Version 3.0.3
 
-Version 3.0.0 reorganizes the node around six task-based resources and removes duplicated operations.
+Version 3.0.3 reorganizes the node around six task-based resources and removes duplicated operations.
 
 - New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
 - One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
@@ -18,7 +18,7 @@ Version 3.0.0 reorganizes the node around six task-based resources and removes d
 - Expanded rendered-page controls, including HTML, Markdown, screenshots, cookies, proxy country, and browser rendering
 - More run options for General, Listing, Map, and Manual scrapers
 
-Version 3.0.0 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
+Version 3.0.3 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
 
 ## Table of contents
 
@@ -54,7 +54,7 @@ Keep the token private. Do not place it directly in workflow fields or commit it
 
 ## Resources and operations
 
-Version 3.0.0 exposes six resources. Choose a resource, then select one of its operations.
+Version 3.0.3 exposes six resources. Choose a resource, then select one of its operations.
 
 ### Account
 
@@ -139,7 +139,7 @@ Use **Results > Get Latest Results** with the scraper ID, or use **Get Result De
 
 After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
 
-| 2.x selection                                       | 3.0.0 selection                                                             |
+| 2.x selection                                       | 3.0.3 selection                                                             |
 | --------------------------------------------------- | --------------------------------------------------------------------------- |
 | Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
 | Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
@@ -165,7 +165,7 @@ Test migrated workflows before enabling them in production.
 
 ## Compatibility
 
-- `n8n-nodes-mrscraper` version: **3.0.0**
+- `n8n-nodes-mrscraper` version: **3.0.3**
 - Node.js: **22 or newer**
 - Package manager used by this project: **npm**
 
