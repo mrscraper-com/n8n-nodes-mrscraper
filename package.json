@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-mrscraper",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "n8n community nodes package for MrScraper",
   "license": "MIT",
   "homepage": "https://docs.mrscraper.com/docs/integrations/n8n",
