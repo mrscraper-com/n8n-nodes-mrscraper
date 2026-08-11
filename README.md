@@ -70,7 +70,9 @@ Version 3.0.0 exposes six resources. Choose a resource, then select one of its o
 - **Extract Page by Prompt** — Extract data from one page using a natural-language prompt and an optional expected JSON output schema. Supports Super or Cheap mode and an optional proxy country.
 - **Extract Listings and Paginated Content** — Extract repeated listing data with a prompt, optional item schema, page limit, and proxy country.
 - **Extract Structured Data** — Use a preset extraction schema for Article, Forum Thread, Hotel, Job Posting, Post, Product, Property, Restaurant, Social Media Profile, or Tour / Attraction content.
-- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser. The operation can return HTML, Markdown, a screenshot, and cookies, with controls for browser rendering, blocked resources, retries, timeout, lifecycle wait condition, geolocation, and proxy country.
+- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser. Its basic fields configure the URL, retries, timeout, geolocation, proxy country, HTML output, Markdown output, and screenshots. HTML output is enabled by default; Markdown and screenshots are disabled by default. Enabling **Screenshot** reveals a **Screenshot Mode** selector for `full` or `top` capture.
+
+The **Fetch Rendered HTML** Advanced Options include token cap, selector and lifecycle waits, resource blocking, browser rendering, home-page navigation, cookie output, and Super mode. An advanced parameter is sent to the API only after it has been selected with **Add Option**. Enable **Home Page** to visit the site's home page before navigating to the target URL.
 
 ### Results
 
