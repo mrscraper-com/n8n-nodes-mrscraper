@@ -6,9 +6,9 @@ Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run A
 
 This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
 
-## Version 3.0.3
+## Version 3.0.5
 
-Version 3.0.3 reorganizes the node around six task-based resources and removes duplicated operations.
+Version 3.0.5 reorganizes the node around six task-based resources and removes duplicated operations.
 
 - New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
 - One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
@@ -19,7 +19,7 @@ Version 3.0.3 reorganizes the node around six task-based resources and removes d
 - Rendered HTML requests now consistently use the MrScraper API's `POST` method
 - More run options for General, Listing, Map, and Manual scrapers
 
-Version 3.0.3 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
+Version 3.0.5 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
 
 ## Table of contents
 
@@ -55,7 +55,7 @@ Keep the token private. Do not place it directly in workflow fields or commit it
 
 ## Resources and operations
 
-Version 3.0.3 exposes six resources. Choose a resource, then select one of its operations.
+Version 3.0.5 exposes six resources. Choose a resource, then select one of its operations.
 
 ### Account
 
@@ -71,7 +71,7 @@ Version 3.0.3 exposes six resources. Choose a resource, then select one of its o
 - **Extract Page by Prompt** — Extract data from one page using a natural-language prompt and an optional expected JSON output schema. Supports Super or Cheap mode and an optional proxy country.
 - **Extract Listings and Paginated Content** — Extract repeated listing data with a prompt, optional item schema, page limit, and proxy country.
 - **Extract Structured Data** — Use a preset extraction schema for Article, Forum Thread, Hotel, Job Posting, Post, Product, Property, Restaurant, Social Media Profile, or Tour / Attraction content.
-- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser with browser rendering always enabled. HTML is returned by default; Markdown and screenshots are opt-in. A screenshot can cover the full page or only the top. The primary fields configure retries, timeout, geolocation, and proxy country, while **Advanced Options** contains the token cap, CSS selector wait, lifecycle wait condition, resource blocking, home-page navigation, cookies, and Super mode.
+- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser with a rendered JavaScript page. HTML is returned by default; Markdown and screenshots are opt-in. A screenshot can cover the full page or only the top. The primary fields configure retries, timeout, geolocation, and proxy country, while **Advanced Options** contains the token cap, CSS selector wait, lifecycle wait condition, resource blocking, home-page navigation, cookies, and Super mode.
 
 ### Results
 
@@ -149,7 +149,7 @@ Use **Results > Get Latest Results** with the scraper ID, or use **Get Result De
 
 After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
 
-| 2.x selection                                       | 3.0.3 selection                                                             |
+| 2.x selection                                       | 3.0.5 selection                                                             |
 | --------------------------------------------------- | --------------------------------------------------------------------------- |
 | Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
 | Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
@@ -178,7 +178,7 @@ Test migrated workflows before enabling them in production.
 
 ## Compatibility
 
-- `n8n-nodes-mrscraper` version: **3.0.3**
+- `n8n-nodes-mrscraper` version: **3.0.5**
 - Node.js: **22 or newer**
 - Package manager used by this project: **npm**
 
