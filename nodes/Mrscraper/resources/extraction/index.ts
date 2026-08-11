@@ -1,4 +1,4 @@
-import type { INodeProperties } from 'n8n-workflow';
+import type { INodeProperties, PreSendAction } from 'n8n-workflow';
 import { extractPageByPromptDescription } from './extractPageByPrompt';
 import { fetchRenderedHtmlDescription } from './fetchRenderedHtml';
 import { extractStructuredDataDescription } from './extractStructuredData';
@@ -6,6 +6,11 @@ import { extractListingsAndPaginatedContentDescription } from './extractListings
 
 const showOnlyForScraping = {
     resource: ['scraping'],
+};
+
+const forcePostMethod: PreSendAction = async function (requestOptions) {
+    requestOptions.method = 'POST';
+    return requestOptions;
 };
 
 export const extractionDescription: INodeProperties[] = [
@@ -85,18 +90,17 @@ export const extractionDescription: INodeProperties[] = [
                         url: '/',
                         qs: {
                             token: '={{$credentials.apiToken}}',
-                            blockResources: '={{$parameter.blockResources ? "true" : "false"}}',
-                            browserRendering: '={{$parameter.browserRendering ? "true" : "false"}}',
-                            waitUntil: '={{$parameter.waitUntil ?? "domcontentloaded"}}',
+                            browserRendering: 'true',
                             timeout: '={{$parameter.timeout ?? 300}}',
                             geoCode: '={{$parameter.geoCode ?? "us"}}',
                             html: '={{$parameter.html ? "true" : "false"}}',
                             markdown: '={{$parameter.markdown ? "true" : "false"}}',
-                            screenshot: '={{$parameter.screenshot ?? "full"}}',
-                            super: '={{$parameter.super ? "true" : "false"}}',
-                            returnCookie: '={{$parameter.returnCookie ? "true" : "false"}}',
+                            screenshot: '={{$parameter.screenshot ? ($parameter.screenshotMode ?? "full") : undefined}}',
                             proxyCountry: '={{$parameter.proxyCountry ?? "us"}}',
                         },
+                    },
+                    send: {
+                        preSend: [forcePostMethod],
                     },
                 },
             },
