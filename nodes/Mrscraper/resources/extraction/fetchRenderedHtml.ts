@@ -142,9 +142,63 @@ export const fetchRenderedHtmlDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForFetchHTML,
 		},
-		// Keep input fields above toggles to make the form easier to scan.
-		// eslint-disable-next-line n8n-nodes-base/node-param-collection-type-unsorted-items
 		options: [
+			{
+				displayName: 'Block Resources',
+				name: 'blockResources',
+				type: 'boolean',
+				default: true,
+				description:
+					'Whether to block images, fonts, and stylesheets from loading. Speeds up scraping and reduces bandwidth usage.',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'blockResources',
+						value: '={{ $value ? "true" : "false" }}',
+					},
+				},
+			},
+			{
+				displayName: 'Home Page',
+				name: 'homePage',
+				type: 'boolean',
+				default: false,
+				description: 'Whether to navigate via the site home page first before the target URL',
+				routing: {
+					send: {
+						type: 'body',
+						property: 'homePage',
+					},
+				},
+			},
+			{
+				displayName: 'Return Cookie',
+				name: 'returnCookie',
+				type: 'boolean',
+				default: true,
+				description: 'Whether to include browser cookies in the response',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'returnCookie',
+						value: '={{ $value ? "true" : "false" }}',
+					},
+				},
+			},
+			{
+				displayName: 'Super',
+				name: 'super',
+				type: 'boolean',
+				default: true,
+				description: 'Whether to use a real device for websites that require stronger scraping capabilities',
+				routing: {
+					send: {
+						type: 'query',
+						property: 'super',
+						value: '={{ $value ? "true" : "false" }}',
+					},
+				},
+			},
 			{
 				displayName: 'Token Cap',
 				name: 'tokenCap',
@@ -201,62 +255,6 @@ export const fetchRenderedHtmlDescription: INodeProperties[] = [
 					send: {
 						type: 'query',
 						property: 'waitUntil',
-					},
-				},
-			},
-			{
-				displayName: 'Block Resources',
-				name: 'blockResources',
-				type: 'boolean',
-				default: true,
-				description:
-					'Whether to block images, fonts, and stylesheets from loading. Speeds up scraping and reduces bandwidth usage.',
-				routing: {
-					send: {
-						type: 'query',
-						property: 'blockResources',
-						value: '={{ $value ? "true" : "false" }}',
-					},
-				},
-			},
-			{
-				displayName: 'Home Page',
-				name: 'homePage',
-				type: 'boolean',
-				default: false,
-				description: 'Whether to navigate via the site home page first before the target URL',
-				routing: {
-					send: {
-						type: 'body',
-						property: 'homePage',
-					},
-				},
-			},
-			{
-				displayName: 'Return Cookie',
-				name: 'returnCookie',
-				type: 'boolean',
-				default: true,
-				description: 'Whether to include browser cookies in the response',
-				routing: {
-					send: {
-						type: 'query',
-						property: 'returnCookie',
-						value: '={{ $value ? "true" : "false" }}',
-					},
-				},
-			},
-			{
-				displayName: 'Super',
-				name: 'super',
-				type: 'boolean',
-				default: true,
-				description: 'Whether to use a real device for websites that require stronger scraping capabilities',
-				routing: {
-					send: {
-						type: 'query',
-						property: 'super',
-						value: '={{ $value ? "true" : "false" }}',
 					},
 				},
 			},
