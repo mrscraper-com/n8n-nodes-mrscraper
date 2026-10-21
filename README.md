@@ -120,6 +120,31 @@ Manual runs support browser, proxy, cookie, paginator, recording, output, timeou
 
 5. Select **Super** for stronger scraping capabilities or **Cheap** for sites with weaker protection, then run the node.
 
+### Extract structured hotel data
+
+Select **Extraction > Extract Structured Data**, enter a hotel page URL, and choose **Hotel** as the category. The node sends the hotel preset from `structuredDataPrompts.json` as the API's `message` field; `hotel` is not a separate API parameter.
+
+To send the same request directly from the repository root, set `MRSCRAPER_API_TOKEN` in your environment and run:
+
+```bash
+jq -n \
+  --slurpfile presets nodes/Mrscraper/resources/extraction/structuredDataPrompts.json \
+  --arg url 'https://www.kempinski.com/id/hotel-indonesia' \
+  '{
+    graph: "general",
+    url: $url,
+    message: $presets[0].hotel,
+    mode: "Super",
+    proxyCountry: "ID"
+  }' | curl --fail-with-body -sS 'https://api.app.mrscraper.com/api/v1/scrapers-ai' \
+    -H "x-api-token: ${MRSCRAPER_API_TOKEN}" \
+    -H 'Accept: application/json' \
+    -H 'Content-Type: application/json' \
+    --data-binary @-
+```
+
+Replace the URL with the hotel page you want to extract. The response contains a scraper ID and the extracted hotel data.
+
 ### Fetch a rendered page
 
 1. Select **Extraction > Fetch Rendered HTML** and enter the target URL.
