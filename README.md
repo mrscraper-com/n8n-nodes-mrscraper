@@ -64,7 +64,7 @@ Version 4.0.0 exposes six resources. Choose a resource, then select one of its o
 ### Discovery
 
 - **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
-- **Web Search** — Search the web using a query, country (default `us`), and number of results (default `10`). See the [Web Search documentation](./docs/web-search.md) for the request format and migration steps.
+- **Web Search** — Search the web using a query, country (default `us`), and number of results (default `10`).
 
 WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query.
 
@@ -111,7 +111,7 @@ Manual runs support browser, proxy, cookie, paginator, recording, output, timeou
 3. Enter **Search Query**, for example `best hotels in New York`.
 4. Set **Country** (default `us`) and **Number of Results** (default `10`), then run the node.
 
-The node sends `POST https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`. Authentication uses the saved credential in the `x-api-token` header. See the [Web Search documentation](./docs/web-search.md) for an API request example.
+The node sends `POST https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`. Authentication uses the saved credential in the `x-api-token` header.
 
 ### Extract data with a JSON shape
 
@@ -203,7 +203,6 @@ Test migrated workflows before enabling them in production.
 - [MrScraper](https://mrscraper.com)
 - [MrScraper app](https://app.mrscraper.com)
 - [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
-- [Web Search documentation](./docs/web-search.md)
 - [MrScraper programmatic guide](https://docs.mrscraper.com/docs/guides/programmatically)
 - [MrScraper n8n integration](https://n8n.io/integrations/mrscraper/)
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
