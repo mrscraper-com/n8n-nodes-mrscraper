@@ -2,13 +2,13 @@
 
 ![MrScraper](./mrscraper.jpeg)
 
-Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run AI or manual scrapers, extract structured content, discover URLs, search Google, and retrieve results.
+Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run AI or manual scrapers, extract structured content, discover URLs, search the web, and retrieve results.
 
 This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
 
-## Version 3.0.6
+## Version 4.0.0
 
-Version 3.0.6 reorganizes the node around six task-based resources and removes duplicated operations.
+Version 4.0.0 reorganizes the node around six task-based resources and removes duplicated operations.
 
 - New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
 - One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
@@ -19,7 +19,7 @@ Version 3.0.6 reorganizes the node around six task-based resources and removes d
 - Rendered HTML requests now consistently use the MrScraper API's `POST` method
 - More run options for General, Listing, Map, and Manual scrapers
 
-Version 3.0.6 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
+Version 4.0.0 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
 
 ## Table of contents
 
@@ -55,7 +55,7 @@ Keep the token private. Do not place it directly in workflow fields or commit it
 
 ## Resources and operations
 
-Version 3.0.6 exposes six resources. Choose a resource, then select one of its operations.
+Version 4.0.0 exposes six resources. Choose a resource, then select one of its operations.
 
 ### Account
 
@@ -64,7 +64,9 @@ Version 3.0.6 exposes six resources. Choose a resource, then select one of its o
 ### Discovery
 
 - **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
-- **Web Search** — Search the web for real-time results, including website URLs, titles, descriptions, and related questions. Configure the query, country (default `us`), and number of results (default `10`). Sends a `POST` request to `https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`, authenticated with the configured API token.
+- **Web Search** — Search the web using a query, country (default `us`), and number of results (default `10`). See the [Web Search documentation](./docs/web-search.md) for the request format and migration steps.
+
+WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query.
 
 ### Extraction
 
@@ -101,6 +103,15 @@ For a single AI run, choose the agent type:
 Manual runs support browser, proxy, cookie, paginator, recording, output, timeout, and token-cap options. Batch runs accept URLs as a JSON array or a comma/newline-separated list.
 
 ## Usage examples
+
+### Search the web
+
+1. Select **Discovery > Web Search**.
+2. Select your saved **MrScraper API** credential.
+3. Enter **Search Query**, for example `best hotels in New York`.
+4. Set **Country** (default `us`) and **Number of Results** (default `10`), then run the node.
+
+The node sends `POST https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`. Authentication uses the saved credential in the `x-api-token` header. See the [Web Search documentation](./docs/web-search.md) for an API request example.
 
 ### Extract data with a JSON shape
 
@@ -149,7 +160,7 @@ Use **Results > Get Latest Results** with the scraper ID, or use **Get Result De
 
 After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
 
-| 2.x selection                                       | 3.0.6 selection                                                             |
+| 2.x selection                                       | 4.0.0 selection                                                             |
 | --------------------------------------------------- | --------------------------------------------------------------------------- |
 | Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
 | Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
@@ -160,12 +171,12 @@ After upgrading, open each existing MrScraper node and reselect its resource and
 | Get Result > Get Latest                             | Results > Get Latest Results                                                |
 | Get Result > Get Detail                             | Results > Get Result Detail                                                 |
 | Scraping > prompt, listing, or structured operation | Extraction > matching extraction operation                                  |
-| SERP > Scrape Google SERP                           | Discovery > Web Search                                                      |
+| SERP > legacy search operation                     | Discovery > Web Search                                                      |
 | Web Unblocker > Fetch Rendered HTML                 | Extraction > Fetch Rendered HTML                                            |
 
 Also review these field changes:
 
-- **Web Search** replaces **Search Google SERP** (`syncSerp`). Reselect **Discovery > Web Search** in existing search nodes and configure `query`, `country`, and `numResults`; region, language, page, response format, and JavaScript rendering are no longer search inputs.
+- **Web Search** replaces the legacy search operation (`syncSerp`). Reselect **Discovery > Web Search** in existing search nodes and configure `query`, `country`, and `numResults`; region, language, page, response format, and JavaScript rendering are no longer search inputs.
 - Single and batch reruns now share **Scraper Runs**. Select **AI** or **Manual** explicitly.
 - AI single runs expose agent-specific fields after selecting General, Listing, or Map.
 - Batch URLs can be a JSON array string or a comma/newline-separated list.
@@ -178,7 +189,7 @@ Test migrated workflows before enabling them in production.
 
 ## Compatibility
 
-- `n8n-nodes-mrscraper` version: **3.0.6**
+- `n8n-nodes-mrscraper` version: **4.0.0**
 - Node.js: **22 or newer**
 - Package manager used by this project: **npm**
 
@@ -192,6 +203,7 @@ Test migrated workflows before enabling them in production.
 - [MrScraper](https://mrscraper.com)
 - [MrScraper app](https://app.mrscraper.com)
 - [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
+- [Web Search documentation](./docs/web-search.md)
 - [MrScraper programmatic guide](https://docs.mrscraper.com/docs/guides/programmatically)
 - [MrScraper n8n integration](https://n8n.io/integrations/mrscraper/)
 - [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
