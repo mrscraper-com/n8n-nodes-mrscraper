@@ -82,6 +82,7 @@ jobs:
         with:
           # Keep native dependencies on a tested major rather than a moving LTS alias.
           node-version: '24'
+          registry-url: 'https://registry.npmjs.org/'
           cache: 'npm'
 
       - name: Install dependencies
