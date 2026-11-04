@@ -14,7 +14,7 @@ Version 3.0.6 reorganizes the node around six task-based resources and removes d
 - One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
 - Dedicated creation flows for prompt-based, listing, and website crawl scrapers
 - Expected JSON output schemas for prompt-based and listing extraction
-- Updated Google SERP v2 inputs: query, region, language, page, response format, and JavaScript rendering
+- Web Search inputs: query, country, and number of results
 - Streamlined rendered-page controls with opt-in Markdown and screenshots, selectable screenshot modes, selector waits, home-page navigation, and grouped advanced browser options
 - Rendered HTML requests now consistently use the MrScraper API's `POST` method
 - More run options for General, Listing, Map, and Manual scrapers
@@ -64,7 +64,7 @@ Version 3.0.6 exposes six resources. Choose a resource, then select one of its o
 ### Discovery
 
 - **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
-- **Search Google SERP** — Search Google through the synchronous SERP v2 API. Configure the query, region, language, page, JSON or HTML response format, and optional JavaScript rendering.
+- **Web Search** — Search the web for real-time results, including website URLs, titles, descriptions, and related questions. Configure the query, country (default `us`), and number of results (default `10`). Sends a `POST` request to `https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`, authenticated with the configured API token.
 
 ### Extraction
 
@@ -160,12 +160,12 @@ After upgrading, open each existing MrScraper node and reselect its resource and
 | Get Result > Get Latest                             | Results > Get Latest Results                                                |
 | Get Result > Get Detail                             | Results > Get Result Detail                                                 |
 | Scraping > prompt, listing, or structured operation | Extraction > matching extraction operation                                  |
-| SERP > Scrape Google SERP                           | Discovery > Search Google SERP                                              |
+| SERP > Scrape Google SERP                           | Discovery > Web Search                                                      |
 | Web Unblocker > Fetch Rendered HTML                 | Extraction > Fetch Rendered HTML                                            |
 
 Also review these field changes:
 
-- Google SERP now accepts a search query instead of a complete Google search URL and uses the v2 synchronous endpoint.
+- **Web Search** replaces **Search Google SERP** (`syncSerp`). Reselect **Discovery > Web Search** in existing search nodes and configure `query`, `country`, and `numResults`; region, language, page, response format, and JavaScript rendering are no longer search inputs.
 - Single and batch reruns now share **Scraper Runs**. Select **AI** or **Manual** explicitly.
 - AI single runs expose agent-specific fields after selecting General, Listing, or Map.
 - Batch URLs can be a JSON array string or a comma/newline-separated list.
