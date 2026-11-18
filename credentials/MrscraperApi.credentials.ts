@@ -11,12 +11,15 @@ export class MrscraperApi implements ICredentialType {
 	displayName = 'MrScraper API';
 
 	// Link to your community node's README
-	documentationUrl = 'https://github.com/mrscraper-com/n8n-nodes-mrscraper?tab=readme-ov-file#credentials';
+	documentationUrl =
+		'https://github.com/mrscraper-com/n8n-nodes-mrscraper?tab=readme-ov-file#credentials';
 
 	properties: INodeProperties[] = [
 		{
 			displayName: 'API Token',
 			name: 'apiToken',
+			description:
+				'Your MrScraper API token, which you can copy from your account in the MrScraper app',
 			type: 'string',
 			typeOptions: { password: true },
 			required: true,
