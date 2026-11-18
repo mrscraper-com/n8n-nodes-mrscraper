@@ -7,7 +7,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to skip images, fonts, and stylesheets when loading the page',
+		description: 'Whether to skip loading images, fonts, and stylesheets to speed up scraping',
 		routing: { send: { type: 'query', property: 'blockResources' } },
 	},
 	{
@@ -16,7 +16,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'string',
 		default: 'us',
 		placeholder: 'e.g. us',
-		description: 'Country code used to load the page',
+		description: 'Two-letter code of the country to load the page from, such as us or gb',
 		routing: { send: { type: 'query', property: 'geoCode' } },
 	},
 	{
@@ -25,7 +25,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'number',
 		default: 3,
 		typeOptions: { minValue: 0, numberPrecision: 0 },
-		description: 'Maximum retry attempts; omit this option for no limit',
+		description: 'Maximum number of retry attempts. Remove this option to allow unlimited retries.',
 		routing: { send: { type: 'query', property: 'maxRetries' } },
 	},
 	{
@@ -36,7 +36,7 @@ export const scraperOptions: INodeProperties[] = [
 		default: '',
 		placeholder: 'http://user:pass@host:port',
 		displayOptions: { hide: { '/operation': ['scrapeHtml', 'scrapeJson'] } },
-		description: 'Custom proxy server URL',
+		description: 'URL of your own proxy server, including credentials if required',
 		routing: { send: { type: 'query', property: 'proxy', value: '={{ $value || undefined }}' } },
 	},
 	{
@@ -45,7 +45,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to include browser session cookies in the response',
+		description: 'Whether to include the browser session cookies in the response',
 		routing: { send: { type: 'query', property: 'returnCookie' } },
 	},
 	{
@@ -54,7 +54,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'boolean',
 		default: true,
 		displayOptions: { show: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to include the raw page HTML with the extracted JSON',
+		description: "Whether to include the page's raw HTML along with the extracted JSON",
 		routing: { send: { type: 'query', property: 'html' } },
 	},
 	{
@@ -63,7 +63,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'boolean',
 		default: true,
 		displayOptions: { hide: { '/operation': ['scrapeHtml'] } },
-		description: 'Whether to save the scrape in the Result tab of your MrScraper account',
+		description: 'Whether to save the result to the Result tab in your MrScraper account',
 		routing: { send: { type: 'query', property: 'saveResult' } },
 	},
 	{
@@ -72,7 +72,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to include a base64 screenshot with the extracted JSON',
+		description: 'Whether to include a Base64-encoded screenshot along with the extracted JSON',
 		routing: { send: { type: 'query', property: 'screenshot' } },
 	},
 	{
@@ -81,7 +81,7 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'number',
 		default: 300,
 		typeOptions: { minValue: 1, numberPrecision: 0 },
-		description: 'Maximum number of seconds to wait for the page to load',
+		description: 'Maximum time to wait for the page to load, in seconds',
 		routing: { send: { type: 'query', property: 'timeout' } },
 	},
 	{
@@ -91,7 +91,7 @@ export const scraperOptions: INodeProperties[] = [
 		default: 30,
 		typeOptions: { minValue: 1, numberPrecision: 0 },
 		description:
-			'Maximum total tokens for the scrape and its retries; omit this option for no limit',
+			'Maximum number of tokens the scrape and its retries can use. Remove this option for no limit.',
 		routing: { send: { type: 'query', property: 'tokenCap' } },
 	},
 	{
@@ -101,7 +101,7 @@ export const scraperOptions: INodeProperties[] = [
 		default: '',
 		placeholder: 'e.g. .product-list',
 		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'CSS selector to wait for before extracting page content',
+		description: 'CSS selector that must appear on the page before content is extracted',
 		routing: {
 			send: { type: 'query', property: 'waitForSelector', value: '={{ $value || undefined }}' },
 		},
@@ -111,13 +111,31 @@ export const scraperOptions: INodeProperties[] = [
 		name: 'waitUntil',
 		type: 'options',
 		options: [
-			{ name: 'DOM Content Loaded', value: 'domcontentloaded' },
-			{ name: 'Load', value: 'load' },
-			{ name: 'Network Idle 0', value: 'networkidle0' },
-			{ name: 'Network Idle 2', value: 'networkidle2' },
+			{
+				name: 'DOM Content Loaded',
+				value: 'domcontentloaded',
+				description:
+					'Wait until the HTML document is loaded and parsed. This is the fastest option.',
+			},
+			{
+				name: 'Load',
+				value: 'load',
+				description: 'Wait until the page and all of its resources are loaded',
+			},
+			{
+				name: 'Network Idle 0',
+				value: 'networkidle0',
+				description:
+					'Wait until all network activity stops. This is the most thorough but slowest option.',
+			},
+			{
+				name: 'Network Idle 2',
+				value: 'networkidle2',
+				description: 'Wait until no more than two network connections remain active',
+			},
 		],
 		default: 'domcontentloaded',
-		description: 'Browser lifecycle event to wait for before extraction',
+		description: 'Page load event to wait for before content is extracted',
 		routing: { send: { type: 'query', property: 'waitUntil' } },
 	},
 ];

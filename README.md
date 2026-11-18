@@ -24,25 +24,25 @@ The node has three resources: **Account**, **Scraper API**, and **Discovery**.
 
 ### Account
 
-- **Get Account Info** — Get account details, token usage, and token limits. This keeps the existing `GET https://api.app.mrscraper.com/api/v1/subscription-accounts` implementation.
+- **Get Account Info** — Retrieve your account details, including token usage and limits. The node sends `GET https://api.app.mrscraper.com/api/v1/subscription-accounts`.
 
 ### Scraper API
 
-All five operations use `https://api.mrscraper.com` and your saved credential.
+All five operations call `https://api.mrscraper.com` with your saved credential.
 
-HTML, Markdown, screenshot, and JSON requests also supply the documented `token` query parameter from that credential. Brand and Web Search requests use header authentication.
+HTML, Markdown, screenshot, and JSON requests also send the token as the `token` query parameter, as the API reference requires. Brand and Web Search requests authenticate with the header only.
 
-| Operation           | Request                                                                       | Output                                                  |
-| ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------- |
-| **Scrape HTML**     | `GET /` with `url` and `html=true`                                            | Page content in `html`                                  |
-| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                         | Page content in `markdown`                              |
-| **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled | API JSON containing the base64 screenshot and page HTML |
-| **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                             | Brand data in `data.brand` and its ID in `data.job_id`  |
-| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body          | Structured extraction and API metadata                  |
+| Operation           | Request                                                                       | Output                                                        |
+| ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------------- |
+| **Scrape HTML**     | `GET /` with `url` and `html=true`                                            | Page content in `html`                                        |
+| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                         | Page content in `markdown`                                    |
+| **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled | JSON with the Base64-encoded screenshot and the page HTML     |
+| **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                             | Brand details in `data.brand` and the job ID in `data.job_id` |
+| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body          | Extracted data as JSON, plus API metadata                     |
 
 For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
 
-These fields are always sent. Turn on **Warm Start** or **Super** for more reliable scraping on difficult pages.
+The following fields are always sent. Turn on **Warm Start** or **Super** for more reliable scraping on difficult pages.
 
 | Field             | Operations                       | Default | Query parameter |
 | ----------------- | -------------------------------- | ------- | --------------- |
@@ -57,13 +57,13 @@ curl 'https://api.mrscraper.com/?token=<token>&html=true&url=https%3A%2F%2Fwww.s
   --header 'x-api-token: <token>'
 ```
 
-**Options** (HTML, Markdown, screenshot, and JSON) exposes the remaining settings supported by each operation: geolocation, retries, timeout, token cap, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
+Under **Options**, the HTML, Markdown, screenshot, and JSON operations offer additional settings, such as geolocation, retries, timeout, token cap, page load waiting, and output or browser settings for the selected operation. **Wait Until** accepts `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when you add them, so leaving out **Token Cap** or **Max Retries** means no limit is applied. **Timeout** is measured in seconds and is separate from n8n's own request timeout.
 
 See the official references for [Scrape HTML](https://docs.mrscraper.com/docs/api/scraper-api/scrape-html), [Scrape Markdown](https://docs.mrscraper.com/docs/api/scraper-api/scrape-markdown), [Get Screenshot](https://docs.mrscraper.com/docs/api/scraper-api/get-screenshot), [Scrape Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/scrape-brand), and [Scrape JSON](https://docs.mrscraper.com/docs/api/scraper-api/scrape-json).
 
 ### Discovery
 
-- **Web Search** — Search with **Search Query**, **Country** (default `us`), and **Number of Results** (default and minimum `10`).
+- **Web Search** — Search the web using **Search Query**, **Country** (default `us`), and **Number of Results** (default and minimum `10`).
 
 The node sends `POST https://api.mrscraper.com/` with this JSON body:
 
@@ -76,15 +76,15 @@ The node sends `POST https://api.mrscraper.com/` with this JSON body:
 }
 ```
 
-Authentication uses the saved credential in `x-api-token`; the content type is `application/json`.
+The request authenticates with the `x-api-token` header and uses the `application/json` content type.
 
 ## Usage examples
 
 ### Extract structured JSON
 
 1. Select **Scraper API > Scrape JSON** and enter a page URL.
-2. Set **Prompt**, for example `Extract the product name, price, and availability`.
-3. Optionally supply **Expected Output Schema**:
+2. Enter a **Prompt**, such as `Extract the product name, price, and availability`.
+3. Optionally, add an **Expected Output Schema**:
 
 ```json
 {
@@ -94,7 +94,7 @@ Authentication uses the saved credential in `x-api-token`; the content type is `
 }
 ```
 
-The schema is appended to the prompt as a `Json Schema:` section. Requests use POST so long prompts and schemas do not exceed the URL length limit. Prompts describe the data to extract from the scraped page.
+The schema is appended to the prompt as a `Json Schema:` section. Requests are sent as POST so that long prompts and schemas stay within the URL length limit. The prompt only describes what to extract from the scraped page; it cannot change how the page is scraped.
 
 ### Scrape a brand
 
@@ -105,15 +105,15 @@ curl 'https://api.mrscraper.com/?action=brand-scraping&bundle=none&url=https%3A%
   --header 'x-api-token: <token>'
 ```
 
-The response contains colors, typography, logos, social links, and other brand metadata in `data.brand`, plus `data.job_id`.
+The response includes colors, typography, logos, social links, and other brand details in `data.brand`, along with the job ID in `data.job_id`.
 
 ### Search the web
 
-Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`, and leave Country `us` and Number of Results `10` to send the example request above.
+Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`, and keep the default Country (`us`) and Number of Results (`10`) to send the example request above.
 
 ## Upgrading from 4.x
 
-This release replaces the previous resources. Only Account, Scraper API, and Discovery remain; Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs were removed. Workflows that use a removed operation must be rebuilt with a new MrScraper node:
+This release replaces the previous resources. Only Account, Scraper API, and Discovery remain. Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs have been removed, so workflows that use them must be rebuilt with a new MrScraper node:
 
 | Previous selection                  | New selection                                                 |
 | ----------------------------------- | ------------------------------------------------------------- |
@@ -122,7 +122,7 @@ This release replaces the previous resources. Only Account, Scraper API, and Dis
 | Extraction > Fetch Rendered HTML    | Scraper API > Scrape HTML, Scrape Markdown, or Get Screenshot |
 | Extraction > Extract Page by Prompt | Scraper API > Scrape JSON                                     |
 
-Scraper creation, listing, crawl, run, and result operations have no replacement in the node. Test migrated workflows before activating them.
+The scraper creation, listing, crawl, run, and result operations have no replacement in this node. Test migrated workflows before activating them.
 
 ## Development
 

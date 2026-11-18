@@ -26,7 +26,7 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Get Screenshot',
 				value: 'getScreenshot',
 				action: 'Get a screenshot',
-				description: 'Capture a full-page or viewport screenshot',
+				description: 'Capture a screenshot of the full page or only the visible area at the top',
 				routing: {
 					request: {
 						...apiRequest,
@@ -38,8 +38,9 @@ export const scraperApiDescription: INodeProperties[] = [
 			{
 				name: 'Scrape Brand',
 				value: 'scrapeBrand',
-				action: 'Scrape a brand',
-				description: 'Extract colors, typography, logos, social links, and brand metadata',
+				action: 'Scrape brand details',
+				description:
+					"Extract a website's brand identity, including colors, typography, logos, and social links",
 				routing: {
 					request: {
 						...apiRequest,
@@ -52,7 +53,7 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Scrape HTML',
 				value: 'scrapeHtml',
 				action: 'Scrape HTML',
-				description: 'Retrieve the HTML of a web page',
+				description: 'Retrieve the full HTML of a web page',
 				routing: {
 					request: {
 						...apiRequest,
@@ -69,7 +70,7 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Scrape JSON',
 				value: 'scrapeJson',
 				action: 'Scrape JSON',
-				description: 'Extract structured JSON from one page using a prompt',
+				description: 'Extract structured JSON data from a web page using a natural language prompt',
 				routing: {
 					request: {
 						...apiRequest,
@@ -84,7 +85,7 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Scrape Markdown',
 				value: 'scrapeMarkdown',
 				action: 'Scrape markdown',
-				description: 'Convert a web page to clean Markdown',
+				description: 'Convert a web page into clean, readable Markdown',
 				routing: {
 					request: {
 						...apiRequest,
@@ -113,7 +114,7 @@ export const scraperApiDescription: INodeProperties[] = [
 				operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeBrand'],
 			},
 		},
-		description: 'Full URL of the page to scrape, including https://',
+		description: 'Full URL of the page to scrape, including the https:// prefix',
 		routing: { send: { type: 'query', property: 'url' } },
 	},
 	{
@@ -124,7 +125,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		required: true,
 		placeholder: 'https://example.com',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
-		description: 'Full URL of the page to extract JSON from, including https://',
+		description: 'Full URL of the page to extract data from, including the https:// prefix',
 		routing: { send: { type: 'body', property: 'url' } },
 	},
 	{
@@ -132,11 +133,11 @@ export const scraperApiDescription: INodeProperties[] = [
 		name: 'prompt',
 		type: 'string',
 		typeOptions: { rows: 4 },
-		default: 'Extract all data as complete as possible.',
+		default: 'Extract all available data as completely as possible.',
 		required: true,
 		placeholder: 'Extract the product name, price, and availability',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
-		description: 'Describe the data to extract from the page content',
+		description: 'Describe the data you want to extract from the page',
 		routing: {
 			send: {
 				type: 'body',
@@ -152,19 +153,24 @@ export const scraperApiDescription: INodeProperties[] = [
 		default: '',
 		placeholder: '{ "name": "string", "price": "number" }',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
-		description: 'Optional JSON schema appended to the prompt as a JSON Schema section',
+		description:
+			'Optional JSON schema that describes the expected output. It is appended to the prompt to shape the result.',
 	},
 	{
 		displayName: 'Screenshot Mode',
 		name: 'screenshotMode',
 		type: 'options',
 		options: [
-			{ name: 'Full', value: 'full' },
-			{ name: 'Top', value: 'top' },
+			{ name: 'Full', value: 'full', description: 'Capture the entire scrollable page' },
+			{
+				name: 'Top',
+				value: 'top',
+				description: 'Capture only the visible area at the top of the page',
+			},
 		],
 		default: 'full',
 		displayOptions: { show: { resource, operation: ['getScreenshot'] } },
-		description: 'Capture the entire scroll height or the visible viewport at the top',
+		description: 'Area of the page to capture',
 		routing: { send: { type: 'query', property: 'screenshot' } },
 	},
 	{
@@ -175,7 +181,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
 		},
-		description: 'Whether to render the page using a browser for JavaScript content',
+		description: 'Whether to render the page in a real browser so that JavaScript content loads',
 		routing: { send: { type: 'query', property: 'browserRendering' } },
 	},
 	{
@@ -186,7 +192,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot'] },
 		},
-		description: 'Whether to use a warm start to make scraping more reliable',
+		description: 'Whether to use a warm start for more reliable scraping',
 		routing: { send: { type: 'query', property: 'warmStart' } },
 	},
 	{
@@ -195,7 +201,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Whether to route the request through a real device for reliable scraping',
+		description: 'Whether to route the request through a real device for more reliable scraping',
 		routing: { send: { type: 'query', property: 'super' } },
 	},
 	{
@@ -205,7 +211,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		default: 'us',
 		placeholder: 'e.g. us',
 		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Country code for the proxy server',
+		description: 'Two-letter country code of the proxy server, such as us or gb',
 		routing: { send: { type: 'query', property: 'proxyCountry' } },
 	},
 	{

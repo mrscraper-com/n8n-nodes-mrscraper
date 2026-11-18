@@ -16,7 +16,7 @@ export const webSearchDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Search terms, for example best hotels in New York',
+		description: 'Keywords or a question to search for, such as "best hotels in New York"',
 		routing: {
 			send: {
 				type: 'body',
@@ -34,7 +34,7 @@ export const webSearchDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Two-letter country code used for localized results, for example us or gb',
+		description: 'Two-letter country code for localized results, such as us or gb',
 		routing: {
 			send: {
 				type: 'body',
@@ -55,7 +55,7 @@ export const webSearchDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Number of search results to return (minimum 10)',
+		description: 'Number of search results to return, with a minimum of 10',
 		routing: {
 			send: {
 				type: 'body',

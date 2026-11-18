@@ -13,7 +13,8 @@ export const discoveryDescription: INodeProperties[] = [
 				name: 'Web Search',
 				value: 'webSearch',
 				action: 'Search the web',
-				description: 'Search the web for relevant URLs, titles, and descriptions',
+				description:
+					'Search the web and return matching pages with their URLs, titles, and descriptions',
 				routing: {
 					request: {
 						method: 'POST',
