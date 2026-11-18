@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForWebSearch = {
 	operation: ['webSearch'],
-	resource: ['serp'],
+	resource: ['discovery'],
 };
 
 export const webSearchDescription: INodeProperties[] = [

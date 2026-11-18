@@ -20,7 +20,7 @@ The node sends the saved token in the `x-api-token` header. Keep it in the crede
 
 ## Resources and operations
 
-New nodes use **node version 3**, with three resources. The npm package version and the node version stored in workflows are separate values.
+The node has three resources: **Account**, **Scraper API**, and **Discovery**.
 
 ### Account
 
@@ -32,23 +32,23 @@ All five operations use `https://api.mrscraper.com` and your saved credential.
 
 HTML, Markdown, screenshot, and JSON requests also supply the documented `token` query parameter from that credential. Brand and Web Search requests use header authentication.
 
-| Operation           | Request                                                                              | Output                                                  |
-| ------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------- |
-| **Scrape HTML**     | `GET /` with `url` and `html=true`                                                   | Page content in `html`                                  |
-| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                                | Page content in `markdown`                              |
-| **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled        | API JSON containing the base64 screenshot and page HTML |
-| **Scrape Brand**    | `POST /?action=brand-scraping&bundle=none&url=...` with a JSON body containing `url` | Brand data in `data.brand` and its ID in `data.job_id`  |
-| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body                 | Structured extraction and API metadata                  |
+| Operation           | Request                                                                       | Output                                                  |
+| ------------------- | ----------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **Scrape HTML**     | `GET /` with `url` and `html=true`                                            | Page content in `html`                                  |
+| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                         | Page content in `markdown`                              |
+| **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled | API JSON containing the base64 screenshot and page HTML |
+| **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                             | Brand data in `data.brand` and its ID in `data.job_id`  |
+| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body          | Structured extraction and API metadata                  |
 
 For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
 
-**Options** exposes the settings supported by each page operation: geolocation, proxy country, retries, timeout, token cap, Super routing, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
+**Options** (HTML, Markdown, screenshot, and JSON) exposes the settings supported by each operation: geolocation, proxy country, retries, timeout, token cap, Super routing, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
 
 See the official references for [Scrape HTML](https://docs.mrscraper.com/docs/api/scraper-api/scrape-html), [Scrape Markdown](https://docs.mrscraper.com/docs/api/scraper-api/scrape-markdown), [Get Screenshot](https://docs.mrscraper.com/docs/api/scraper-api/get-screenshot), [Scrape Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/scrape-brand), and [Scrape JSON](https://docs.mrscraper.com/docs/api/scraper-api/scrape-json).
 
 ### Discovery
 
-- **Web Search** — Search with **Search Query**, **Country** (default `us`), and **Number of Results** (default `10`).
+- **Web Search** — Search with **Search Query**, **Country** (default `us`), and **Number of Results** (default and minimum `10`).
 
 The node sends `POST https://api.mrscraper.com/` with this JSON body:
 
@@ -81,28 +81,24 @@ Authentication uses the saved credential in `x-api-token`; the content type is `
 
 The schema is appended to the prompt as a `Json Schema:` section. Requests use POST so long prompts and schemas do not exceed the URL length limit. Prompts describe the data to extract from the scraped page.
 
-### Scrape and retrieve a brand
+### Scrape a brand
 
-1. Select **Scraper API > Scrape Brand**.
-2. Set **Brand Action** to **Scrape Brand** and enter the page URL.
-3. Choose **Bundle**: **None** returns brand JSON; **Clean** adds HTML, screenshots, and a ZIP without scripts; **Full** keeps scripts in the ZIP. Clean and Full can take about a minute.
-4. Keep `data.job_id` from the response.
+Select **Scraper API > Scrape Brand** and enter the page URL. The node sends:
 
-To read it again, use **Brand Action > Get Brand** and supply **Job ID**. The node sends `GET /neo/brand?id=<job_id>`.
+```sh
+curl 'https://api.mrscraper.com/?action=brand-scraping&bundle=none&url=https%3A%2F%2Fbooks.toscrape.com%2F' \
+  --header 'x-api-token: <token>'
+```
 
-To download a file, use **Brand Action > Download File**, enter the job ID, and choose **HTML**, **ZIP Bundle**, **Screenshot**, or **Full Screenshot**. The node sends `GET /neo/brand?id=<job_id>&output=...` and puts the file in binary field `data`, ready for a file storage node. Jobs scraped with Bundle None only have HTML available; Clean and Full provide all four files.
-
-See [Get Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/get-brand) for the retrieval and download contract.
+The response contains colors, typography, logos, social links, and other brand metadata in `data.brand`, plus `data.job_id`.
 
 ### Search the web
 
 Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`, and leave Country `us` and Number of Results `10` to send the example request above.
 
-## Existing workflows
+## Upgrading from 4.x
 
-Existing workflows saved with node version 0 or 2 keep their previous resources, operations, fields, and routes. The previous implementation remains available for those versions, including Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs.
-
-New version 3 nodes expose only Account, Scraper API, and Discovery. To migrate, create a new MrScraper node and configure its inputs explicitly:
+This release replaces the previous resources. Only Account, Scraper API, and Discovery remain; Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs were removed. Workflows that use a removed operation must be rebuilt with a new MrScraper node:
 
 | Previous selection                  | New selection                                                 |
 | ----------------------------------- | ------------------------------------------------------------- |
@@ -111,7 +107,7 @@ New version 3 nodes expose only Account, Scraper API, and Discovery. To migrate,
 | Extraction > Fetch Rendered HTML    | Scraper API > Scrape HTML, Scrape Markdown, or Get Screenshot |
 | Extraction > Extract Page by Prompt | Scraper API > Scrape JSON                                     |
 
-The Platform scraper creation, listing, crawl, run, and result operations remain in the older node versions. Scrape JSON performs extraction directly; configure its prompt and output schema when migrating. Test migrated workflows before activating them.
+Scraper creation, listing, crawl, run, and result operations have no replacement in the node. Test migrated workflows before activating them.
 
 ## Development
 
@@ -123,7 +119,7 @@ npm run lint
 npm test
 ```
 
-`npm test` builds the package and runs local regression tests for node versions, field visibility, request routing, prompt schemas, and brand downloads. These tests do not call the live MrScraper API.
+`npm test` builds the package and runs local regression tests for resources, field visibility, request routing, and prompt schemas. These tests do not call the live MrScraper API.
 
 ## Compliance and legal risk
 

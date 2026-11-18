@@ -1,6 +1,5 @@
 import type { INodeProperties, PostReceiveAction } from 'n8n-workflow';
 import { scraperOptions } from './options';
-import { brandOutput, prepareBrandRequest } from './brand';
 import { prepareJsonRequest } from './json';
 
 const resource = ['scraperApi'];
@@ -44,12 +43,9 @@ export const scraperApiDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						...apiRequest,
-						method: 'POST',
-						qs: { action: 'brand-scraping' },
-						body: { url: '={{$parameter.brandMode === "scrape" ? $parameter.url : undefined}}' },
+						method: 'GET',
+						qs: { action: 'brand-scraping', bundle: 'none' },
 					},
-					send: { preSend: [prepareBrandRequest] },
-					output: { postReceive: [brandOutput] },
 				},
 			},
 			{
@@ -114,7 +110,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: {
 			show: {
 				resource,
-				operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot'],
+				operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeBrand'],
 			},
 		},
 		description: 'Full URL of the page to scrape, including https://',
@@ -130,17 +126,6 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
 		description: 'Full URL of the page to extract JSON from, including https://',
 		routing: { send: { type: 'body', property: 'url' } },
-	},
-	{
-		displayName: 'URL',
-		name: 'url',
-		type: 'string',
-		default: '',
-		required: true,
-		placeholder: 'https://example.com',
-		displayOptions: { show: { resource, operation: ['scrapeBrand'], brandMode: ['scrape'] } },
-		description: 'Full URL of the page whose brand you want to scrape, including https://',
-		routing: { send: { type: 'query', property: 'url' } },
 	},
 	{
 		displayName: 'Prompt',
@@ -181,76 +166,6 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: { show: { resource, operation: ['getScreenshot'] } },
 		description: 'Capture the entire scroll height or the visible viewport at the top',
 		routing: { send: { type: 'query', property: 'screenshot' } },
-	},
-	{
-		displayName: 'Brand Action',
-		name: 'brandMode',
-		type: 'options',
-		options: [
-			{
-				name: 'Scrape Brand',
-				value: 'scrape',
-				description: 'Scrape a page and return its brand and job ID',
-			},
-			{ name: 'Get Brand', value: 'get', description: 'Read an existing brand job by ID' },
-			{
-				name: 'Download File',
-				value: 'download',
-				description: 'Download a file from an existing brand job',
-			},
-		],
-		default: 'scrape',
-		displayOptions: { show: { resource, operation: ['scrapeBrand'] } },
-		description: 'Scrape a new brand, read a saved brand, or download its files',
-	},
-	{
-		displayName: 'Job ID',
-		name: 'jobId',
-		type: 'string',
-		default: '',
-		required: true,
-		displayOptions: {
-			show: { resource, operation: ['scrapeBrand'], brandMode: ['get', 'download'] },
-		},
-		description: 'Brand job ID returned in data.job_id when scraping a brand',
-	},
-	{
-		displayName: 'File',
-		name: 'brandOutput',
-		type: 'options',
-		options: [
-			{ name: 'HTML', value: 'html' },
-			{ name: 'ZIP Bundle', value: 'bundle' },
-			{ name: 'Screenshot', value: 'screenshot' },
-			{ name: 'Full Screenshot', value: 'screenshot_full' },
-		],
-		default: 'html',
-		displayOptions: { show: { resource, operation: ['scrapeBrand'], brandMode: ['download'] } },
-		description:
-			'File to download into binary field data. Screenshots and the ZIP bundle exist only for brands scraped with Bundle set to Clean or Full.',
-	},
-	{
-		displayName: 'Bundle',
-		name: 'bundle',
-		type: 'options',
-		options: [
-			{ name: 'None', value: 'none', description: 'Return brand JSON only' },
-			{
-				name: 'Clean',
-				value: 'clean',
-				description: 'Include HTML, screenshots, and a ZIP without scripts',
-			},
-			{
-				name: 'Full',
-				value: 'full',
-				description: 'Include HTML, screenshots, and a ZIP with scripts',
-			},
-		],
-		default: 'none',
-		displayOptions: { show: { resource, operation: ['scrapeBrand'], brandMode: ['scrape'] } },
-		description:
-			'Page bundle to return with the brand data; clean and full can take about a minute',
-		routing: { send: { type: 'query', property: 'bundle' } },
 	},
 	{
 		displayName: 'Browser Rendering',

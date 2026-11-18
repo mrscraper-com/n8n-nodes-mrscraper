@@ -1,23 +1,45 @@
-import { VersionedNodeType, type INodeType, type INodeTypeBaseDescription } from 'n8n-workflow';
-import { MrscraperV2 } from './MrscraperV2.node';
-import { MrscraperV3 } from './MrscraperV3.node';
+import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
+import { accountDescription } from './resources/account';
+import { discoveryDescription } from './resources/discovery';
+import { scraperApiDescription } from './resources/scraperApi';
 
-export class Mrscraper extends VersionedNodeType {
-	constructor() {
-		const description: INodeTypeBaseDescription = {
-			displayName: 'MrScraper',
-			name: 'mrscraper',
-			icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
-			group: ['transform'],
-			description: 'Interact with the MrScraper API',
-			defaultVersion: 3,
-			usableAsTool: true,
-		};
-		const legacyNode = new MrscraperV2();
-		super({ 0: legacyNode, 2: legacyNode, 3: new MrscraperV3() }, description);
-	}
-
-	getNodeType(version?: number): INodeType {
-		return this.nodeVersions[version ?? this.currentVersion];
-	}
+export class Mrscraper implements INodeType {
+	description: INodeTypeDescription = {
+		displayName: 'MrScraper',
+		name: 'mrscraper',
+		icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
+		group: ['transform'],
+		version: 3,
+		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
+		description: 'Interact with the MrScraper API',
+		defaults: { name: 'MrScraper' },
+		usableAsTool: true,
+		inputs: [NodeConnectionTypes.Main],
+		outputs: [NodeConnectionTypes.Main],
+		credentials: [{ name: 'mrscraperApi', required: true }],
+		requestDefaults: {
+			baseURL: 'https://api.app.mrscraper.com',
+			headers: {
+				Accept: 'application/json',
+				'Content-Type': 'application/json',
+			},
+		},
+		properties: [
+			{
+				displayName: 'Resource',
+				name: 'resource',
+				type: 'options',
+				noDataExpression: true,
+				options: [
+					{ name: 'Account', value: 'account' },
+					{ name: 'Discovery', value: 'discovery' },
+					{ name: 'Scraper API', value: 'scraperApi' },
+				],
+				default: 'scraperApi',
+			},
+			...accountDescription,
+			...scraperApiDescription,
+			...discoveryDescription,
+		],
+	};
 }
