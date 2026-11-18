@@ -114,6 +114,8 @@ test('Web Search matches the supplied POST contract and defaults', () => {
 	for (const name of ['query', 'country', 'numResults']) {
 		assert.deepEqual(field(name, values).routing.send, { type: 'body', property: name });
 	}
+	// The API rejects numResults below 10 with HTTP 400.
+	assert.equal(field('numResults', values).typeOptions.minValue, 10);
 	assert.equal(description.requestDefaults.headers['Content-Type'], 'application/json');
 });
 

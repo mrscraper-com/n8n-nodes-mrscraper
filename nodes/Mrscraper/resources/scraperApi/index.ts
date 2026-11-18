@@ -227,7 +227,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		default: 'html',
 		displayOptions: { show: { resource, operation: ['scrapeBrand'], brandMode: ['download'] } },
 		description:
-			'File to download into binary field data; bundles other than none include all files',
+			'File to download into binary field data. Screenshots and the ZIP bundle exist only for brands scraped with Bundle set to Clean or Full.',
 	},
 	{
 		displayName: 'Bundle',

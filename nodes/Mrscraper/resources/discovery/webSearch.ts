@@ -49,13 +49,13 @@ export const webSearchDescription: INodeProperties[] = [
 		default: 10,
 		required: true,
 		typeOptions: {
-			minValue: 1,
+			minValue: 10,
 			numberPrecision: 0,
 		},
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Number of search results to return',
+		description: 'Number of search results to return (minimum 10)',
 		routing: {
 			send: {
 				type: 'body',
