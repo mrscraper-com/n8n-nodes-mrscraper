@@ -2,41 +2,9 @@
 
 ![MrScraper](./mrscraper.jpeg)
 
-Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run AI or manual scrapers, extract structured content, discover URLs, search the web, and retrieve results.
+Use [MrScraper](https://mrscraper.com) in n8n to scrape HTML, Markdown, screenshots, brand information, and structured JSON, search the web, and check your account.
 
-This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
-
-## Version 4.0.0
-
-Version 4.0.0 reorganizes the node around six task-based resources and removes duplicated operations.
-
-- New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
-- One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
-- Dedicated creation flows for prompt-based, listing, and website crawl scrapers
-- Expected JSON output schemas for prompt-based and listing extraction
-- Web Search inputs: query, country, and number of results
-- Streamlined rendered-page controls with opt-in Markdown and screenshots, selectable screenshot modes, selector waits, home-page navigation, and grouped advanced browser options
-- Rendered HTML requests now consistently use the MrScraper API's `POST` method
-- More run options for General, Listing, Map, and Manual scrapers
-
-Version 4.0.0 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
-
-## Table of contents
-
-- [Installation](#installation)
-- [Credentials](#credentials)
-- [Resources and operations](#resources-and-operations)
-  - [Account](#account)
-  - [Discovery](#discovery)
-  - [Extraction](#extraction)
-  - [Results](#results)
-  - [Scraper Creation](#scraper-creation)
-  - [Scraper Runs](#scraper-runs)
-- [Usage examples](#usage-examples)
-- [Migrating from 2.x](#migrating-from-2x)
-- [Compatibility](#compatibility)
-- [Compliance and legal risk](#compliance-and-legal-risk)
-- [Resources](#resources)
+This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/).
 
 ## Installation
 
@@ -44,154 +12,118 @@ Install `n8n-nodes-mrscraper` from **Settings > Community Nodes** in n8n. For ot
 
 ## Credentials
 
-The node requires a **MrScraper API** credential.
+1. Sign in to the [MrScraper app](https://app.mrscraper.com) and copy an API token from your account.
+2. Create a **MrScraper API** credential in n8n and enter the token in **API Token**.
+3. Select that credential in your MrScraper node.
 
-1. Sign in to the [MrScraper app](https://app.mrscraper.com).
-2. Create or copy an API token from your account.
-3. In n8n, create a **MrScraper API** credential and enter the token in **API Token**.
-4. Select the credential in your MrScraper node.
-
-Keep the token private. Do not place it directly in workflow fields or commit it to source control.
+The node sends the saved token in the `x-api-token` header. Keep it in the credential rather than workflow fields or source control.
 
 ## Resources and operations
 
-Version 4.0.0 exposes six resources. Choose a resource, then select one of its operations.
+New nodes use **node version 3**, with three resources. The npm package version and the node version stored in workflows are separate values.
 
 ### Account
 
-- **Get Account Info** — Get account details, token usage, and token limits.
+- **Get Account Info** — Get account details, token usage, and token limits. This keeps the existing `GET https://api.app.mrscraper.com/api/v1/subscription-accounts` implementation.
+
+### Scraper API
+
+All five operations use `https://api.mrscraper.com` and your saved credential.
+
+HTML, Markdown, screenshot, and JSON requests also supply the documented `token` query parameter from that credential. Brand and Web Search requests use header authentication.
+
+| Operation           | Request                                                                              | Output                                                  |
+| ------------------- | ------------------------------------------------------------------------------------ | ------------------------------------------------------- |
+| **Scrape HTML**     | `GET /` with `url` and `html=true`                                                   | Page content in `html`                                  |
+| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                                | Page content in `markdown`                              |
+| **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled        | API JSON containing the base64 screenshot and page HTML |
+| **Scrape Brand**    | `POST /?action=brand-scraping&bundle=none&url=...` with a JSON body containing `url` | Brand data in `data.brand` and its ID in `data.job_id`  |
+| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body                 | Structured extraction and API metadata                  |
+
+For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
+
+**Options** exposes the settings supported by each page operation: geolocation, proxy country, retries, timeout, token cap, Super routing, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
+
+See the official references for [Scrape HTML](https://docs.mrscraper.com/docs/api/scraper-api/scrape-html), [Scrape Markdown](https://docs.mrscraper.com/docs/api/scraper-api/scrape-markdown), [Get Screenshot](https://docs.mrscraper.com/docs/api/scraper-api/get-screenshot), [Scrape Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/scrape-brand), and [Scrape JSON](https://docs.mrscraper.com/docs/api/scraper-api/scrape-json).
 
 ### Discovery
 
-- **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
-- **Web Search** — Search the web using a query, country (default `us`), and number of results (default `10`).
+- **Web Search** — Search with **Search Query**, **Country** (default `us`), and **Number of Results** (default `10`).
 
-WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query.
+The node sends `POST https://api.mrscraper.com/` with this JSON body:
 
-### Extraction
+```json
+{
+	"action": "websearch",
+	"query": "e-menessaptieka.lv linkedin",
+	"country": "us",
+	"numResults": 10
+}
+```
 
-- **Extract Page by Prompt** — Extract data from one page using a natural-language prompt and an optional expected JSON output schema. Supports Super or Cheap mode and an optional proxy country.
-- **Extract Listings and Paginated Content** — Extract repeated listing data with a prompt, optional item schema, page limit, and proxy country.
-- **Extract Structured Data** — Use a preset extraction schema for Article, Forum Thread, Hotel, Job Posting, Post, Product, Property, Restaurant, Social Media Profile, or Tour / Attraction content.
-- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser with a rendered JavaScript page. HTML is returned by default; Markdown and screenshots are opt-in. A screenshot can cover the full page or only the top. The primary fields configure retries, timeout, geolocation, and proxy country, while **Advanced Options** contains the token cap, CSS selector wait, lifecycle wait condition, resource blocking, home-page navigation, cookies, and Super mode.
-
-### Results
-
-- **Get Results** — Get paginated results for a scraper ID with page size and created-date sort order.
-- **Get Latest Results** — Get the latest N results for a scraper ID.
-- **Get Result Detail** — Get one complete result by result ID.
-
-### Scraper Creation
-
-- **Create Prompt-Based Scraper** — Create a General AI scraper from a URL, prompt, optional expected JSON schema, mode, and proxy country.
-- **Create Listing Scraper** — Create a Listing AI scraper from a URL, prompt, optional item schema, maximum page count, and proxy country.
-- **Create Website Crawl Scraper** — Create a Map AI scraper with crawl depth, maximum pages, result limit, and optional URL include or exclude patterns.
-
-Created scrapers are available in your MrScraper account and can be reused with **Scraper Runs**.
-
-### Scraper Runs
-
-- **Run Existing Scraper** — Run one URL with an existing AI or manual scraper.
-- **Run Existing Scraper in Batch** — Run multiple URLs with an existing AI or manual scraper.
-
-For a single AI run, choose the agent type:
-
-- **General** — Prompt-based page extraction, with optional HTML, Markdown, screenshot, cookies, JavaScript rendering, selector wait, and home-page visit settings.
-- **Listing** — Listing and pagination extraction, with page and timeout limits plus optional streaming and rendering settings.
-- **Map** — Website URL discovery with crawl limits and URL filtering patterns.
-
-Manual runs support browser, proxy, cookie, paginator, recording, output, timeout, and token-cap options. Batch runs accept URLs as a JSON array or a comma/newline-separated list.
+Authentication uses the saved credential in `x-api-token`; the content type is `application/json`.
 
 ## Usage examples
 
-### Search the web
+### Extract structured JSON
 
-1. Select **Discovery > Web Search**.
-2. Select your saved **MrScraper API** credential.
-3. Enter **Search Query**, for example `best hotels in New York`.
-4. Set **Country** (default `us`) and **Number of Results** (default `10`), then run the node.
-
-The node sends `POST https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`. Authentication uses the saved credential in the `x-api-token` header.
-
-### Extract data with a JSON shape
-
-1. Select **Extraction > Extract Page by Prompt**.
-2. Enter the page URL.
-3. Enter a prompt such as `Extract the product name, price, availability, and image URL`.
-4. Optionally enter an expected output schema:
+1. Select **Scraper API > Scrape JSON** and enter a page URL.
+2. Set **Prompt**, for example `Extract the product name, price, and availability`.
+3. Optionally supply **Expected Output Schema**:
 
 ```json
 {
 	"name": "string",
 	"price": "number",
-	"inStock": "boolean",
-	"imageUrl": "string"
+	"inStock": "boolean"
 }
 ```
 
-5. Select **Super** for stronger scraping capabilities or **Cheap** for sites with weaker protection, then run the node.
+The schema is appended to the prompt as a `Json Schema:` section. Requests use POST so long prompts and schemas do not exceed the URL length limit. Prompts describe the data to extract from the scraped page.
 
-### Fetch a rendered page
+### Scrape and retrieve a brand
 
-1. Select **Extraction > Fetch Rendered HTML** and enter the target URL.
-2. Leave **Return HTML** enabled, or enable **Return Markdown** if Markdown output is also needed.
-3. To capture an image, enable **Screenshot**, then choose **Full** or **Top** under **Screenshot Mode**.
-4. Use **Advanced Options** when the page needs a CSS selector wait, a different lifecycle event, resource blocking controls, home-page navigation, returned cookies, Super mode, or a custom token cap.
+1. Select **Scraper API > Scrape Brand**.
+2. Set **Brand Action** to **Scrape Brand** and enter the page URL.
+3. Choose **Bundle**: **None** returns brand JSON; **Clean** adds HTML, screenshots, and a ZIP without scripts; **Full** keeps scripts in the ZIP. Clean and Full can take about a minute.
+4. Keep `data.job_id` from the response.
 
-The operation defaults to a 300-second timeout, three retries, `us` geolocation and proxy country, HTML output enabled, and Markdown and screenshot output disabled. **Wait Until** supports **DOM Content Loaded**, **Load**, and **Network Idle**.
+To read it again, use **Brand Action > Get Brand** and supply **Job ID**. The node sends `GET /neo/brand?id=<job_id>`.
 
-### Run an existing scraper in batch
+To download a file, use **Brand Action > Download File**, enter the job ID, and choose **HTML**, **ZIP Bundle**, **Screenshot**, or **Full Screenshot**. The node sends `GET /neo/brand?id=<job_id>&output=...` and puts the file in binary field `data`, ready for a file storage node. Jobs scraped with Bundle None only have HTML available; Clean and Full provide all four files.
 
-1. Select **Scraper Runs > Run Existing Scraper in Batch**.
-2. Choose **AI** or **Manual** and enter the scraper ID.
-3. Enter the URLs as a JSON array:
+See [Get Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/get-brand) for the retrieval and download contract.
 
-```json
-["https://example.com/page-1", "https://example.com/page-2"]
+### Search the web
+
+Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`, and leave Country `us` and Number of Results `10` to send the example request above.
+
+## Existing workflows
+
+Existing workflows saved with node version 0 or 2 keep their previous resources, operations, fields, and routes. The previous implementation remains available for those versions, including Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs.
+
+New version 3 nodes expose only Account, Scraper API, and Discovery. To migrate, create a new MrScraper node and configure its inputs explicitly:
+
+| Previous selection                  | New selection                                                 |
+| ----------------------------------- | ------------------------------------------------------------- |
+| Account > Get Account Info          | Account > Get Account Info                                    |
+| Discovery > Web Search              | Discovery > Web Search                                        |
+| Extraction > Fetch Rendered HTML    | Scraper API > Scrape HTML, Scrape Markdown, or Get Screenshot |
+| Extraction > Extract Page by Prompt | Scraper API > Scrape JSON                                     |
+
+The Platform scraper creation, listing, crawl, run, and result operations remain in the older node versions. Scrape JSON performs extraction directly; configure its prompt and output schema when migrating. Test migrated workflows before activating them.
+
+## Development
+
+Requires Node.js 22 or newer and npm.
+
+```sh
+npm ci
+npm run lint
+npm test
 ```
 
-You can also use comma-separated or newline-separated URLs.
-
-### Retrieve completed results
-
-Use **Results > Get Latest Results** with the scraper ID, or use **Get Result Detail** when you already have a result ID.
-
-## Migrating from 2.x
-
-After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
-
-| 2.x selection                                       | 4.0.0 selection                                                             |
-| --------------------------------------------------- | --------------------------------------------------------------------------- |
-| Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
-| Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
-| Agent > Map Agent                                   | Scraper Creation > Create Website Crawl Scraper                             |
-| Batch Operation > Batch Scrape URLs                 | Scraper Runs > Run Existing Scraper in Batch                                |
-| Rerun Scraper > Manual or AI agent operation        | Scraper Runs > Run Existing Scraper, then select the scraper and agent type |
-| Get Result > Get Many                               | Results > Get Results                                                       |
-| Get Result > Get Latest                             | Results > Get Latest Results                                                |
-| Get Result > Get Detail                             | Results > Get Result Detail                                                 |
-| Scraping > prompt, listing, or structured operation | Extraction > matching extraction operation                                  |
-| SERP > legacy search operation                     | Discovery > Web Search                                                      |
-| Web Unblocker > Fetch Rendered HTML                 | Extraction > Fetch Rendered HTML                                            |
-
-Also review these field changes:
-
-- **Web Search** replaces the legacy search operation (`syncSerp`). Reselect **Discovery > Web Search** in existing search nodes and configure `query`, `country`, and `numResults`; region, language, page, response format, and JavaScript rendering are no longer search inputs.
-- Single and batch reruns now share **Scraper Runs**. Select **AI** or **Manual** explicitly.
-- AI single runs expose agent-specific fields after selecting General, Listing, or Map.
-- Batch URLs can be a JSON array string or a comma/newline-separated list.
-- Prompt-based and listing operations can append an expected JSON schema to the extraction prompt.
-- **Fetch Rendered HTML** now uses a screenshot toggle followed by a **Full** or **Top** mode; screenshots and Markdown are disabled by default.
-- Browser rendering is always enabled and is no longer a user-configurable field.
-- Token cap, resource blocking, lifecycle waiting, cookies, and Super mode are now under **Advanced Options**, which also adds CSS selector waiting and optional home-page navigation.
-
-Test migrated workflows before enabling them in production.
-
-## Compatibility
-
-- `n8n-nodes-mrscraper` version: **4.0.0**
-- Node.js: **22 or newer**
-- Package manager used by this project: **npm**
+`npm test` builds the package and runs local regression tests for node versions, field visibility, request routing, prompt schemas, and brand downloads. These tests do not call the live MrScraper API.
 
 ## Compliance and legal risk
 
@@ -202,10 +134,8 @@ Test migrated workflows before enabling them in production.
 
 - [MrScraper](https://mrscraper.com)
 - [MrScraper app](https://app.mrscraper.com)
-- [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
-- [MrScraper programmatic guide](https://docs.mrscraper.com/docs/guides/programmatically)
+- [MrScraper API reference](https://docs.mrscraper.com/docs/api/overview)
 - [MrScraper n8n integration](https://n8n.io/integrations/mrscraper/)
-- [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
 - [Changelog](./CHANGELOG.md)
 
 ## License

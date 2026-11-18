@@ -1,10 +1,41 @@
-import type { INodeProperties } from 'n8n-workflow';
+import type { INodeProperties, INodePropertyOptions } from 'n8n-workflow';
 import { crawlWebsiteUrlsDescription } from './crawlWebsiteUrls';
 import { webSearchDescription } from './webSearch';
 
 const showOnlyForSerp = {
 	resource: ['serp'],
 };
+
+const webSearchOperation: INodePropertyOptions = {
+	name: 'Web Search',
+	value: 'webSearch',
+	action: 'Search the web',
+	description: 'Search the web for relevant URLs, titles, and descriptions',
+	routing: {
+		request: {
+			method: 'POST',
+			baseURL: 'https://api.mrscraper.com',
+			url: '/',
+		},
+		send: { type: 'body', property: 'action', value: 'websearch' },
+	},
+};
+
+export const discoveryApiDescription: INodeProperties[] = [
+	{
+		displayName: 'Operation',
+		name: 'operation',
+		type: 'options',
+		noDataExpression: true,
+		displayOptions: { show: { resource: ['discovery'] } },
+		options: [webSearchOperation],
+		default: 'webSearch',
+	},
+	...webSearchDescription.map((property) => ({
+		...property,
+		displayOptions: { show: { resource: ['discovery'], operation: ['webSearch'] } },
+	})),
+];
 
 export const discoveryDescription: INodeProperties[] = [
 	{
