@@ -37,9 +37,8 @@ export const discoveryDescription: INodeProperties[] = [
 				name: 'Web Search',
 				value: 'webSearch',
 				action: 'Search the web',
-				// eslint-disable-next-line n8n-nodes-base/node-param-description-excess-final-period -- Preserve the supplied description.
 				description:
-					'WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query.',
+					'WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query',
 				routing: {
 					request: {
 						method: 'POST',
