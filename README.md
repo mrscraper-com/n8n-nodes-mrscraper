@@ -42,7 +42,22 @@ HTML, Markdown, screenshot, and JSON requests also supply the documented `token`
 
 For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
 
-**Options** (HTML, Markdown, screenshot, and JSON) exposes the settings supported by each operation: geolocation, proxy country, retries, timeout, token cap, Super routing, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
+These fields are always sent:
+
+| Field             | Operations                       | Default | Query parameter |
+| ----------------- | -------------------------------- | ------- | --------------- |
+| **Warm Start**    | HTML, Markdown, Screenshot       | `true`  | `warmStart`     |
+| **Super**         | HTML, Markdown, Screenshot, JSON | `true`  | `super`         |
+| **Proxy Country** | HTML, Markdown, Screenshot, JSON | `us`    | `proxyCountry`  |
+
+For example, Scrape HTML with the defaults sends:
+
+```sh
+curl 'https://api.mrscraper.com/?token=<token>&html=true&url=https%3A%2F%2Fwww.scrapethissite.com&browserRendering=false&warmStart=true&super=true&proxyCountry=us' \
+  --header 'x-api-token: <token>'
+```
+
+**Options** (HTML, Markdown, screenshot, and JSON) exposes the remaining settings supported by each operation: geolocation, retries, timeout, token cap, lifecycle waiting, and applicable output or browser settings. Browser waits use `domcontentloaded`, `load`, `networkidle0`, or `networkidle2`. Options are sent only when added; omitting token cap or retries leaves those limits to the API. Timeout is in seconds. n8n also has a separate request timeout under its request options.
 
 See the official references for [Scrape HTML](https://docs.mrscraper.com/docs/api/scraper-api/scrape-html), [Scrape Markdown](https://docs.mrscraper.com/docs/api/scraper-api/scrape-markdown), [Get Screenshot](https://docs.mrscraper.com/docs/api/scraper-api/get-screenshot), [Scrape Brand](https://docs.mrscraper.com/docs/api/scraper-api/scrape-brand/scrape-brand), and [Scrape JSON](https://docs.mrscraper.com/docs/api/scraper-api/scrape-json).
 

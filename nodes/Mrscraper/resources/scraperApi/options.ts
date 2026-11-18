@@ -40,15 +40,6 @@ export const scraperOptions: INodeProperties[] = [
 		routing: { send: { type: 'query', property: 'proxy', value: '={{ $value || undefined }}' } },
 	},
 	{
-		displayName: 'Proxy Country',
-		name: 'proxyCountry',
-		type: 'string',
-		default: 'us',
-		placeholder: 'e.g. us',
-		description: 'Country code for the proxy server',
-		routing: { send: { type: 'query', property: 'proxyCountry' } },
-	},
-	{
 		displayName: 'Return Cookie',
 		name: 'returnCookie',
 		type: 'boolean',
@@ -83,14 +74,6 @@ export const scraperOptions: INodeProperties[] = [
 		displayOptions: { show: { '/operation': ['scrapeJson'] } },
 		description: 'Whether to include a base64 screenshot with the extracted JSON',
 		routing: { send: { type: 'query', property: 'screenshot' } },
-	},
-	{
-		displayName: 'Super',
-		name: 'super',
-		type: 'boolean',
-		default: true,
-		description: 'Whether to route the request through a real device for complex websites',
-		routing: { send: { type: 'query', property: 'super' } },
 	},
 	{
 		displayName: 'Timeout',

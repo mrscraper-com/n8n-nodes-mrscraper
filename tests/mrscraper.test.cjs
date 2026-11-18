@@ -194,13 +194,19 @@ test('JSON extraction keeps long prompts in a POST body and validates schemas be
 test('scraper options preserve zero and false values and hide unsupported controls', () => {
 	const values = parameters({
 		operation: 'scrapeJson',
-		options: { maxRetries: 0, super: false, saveResult: false, waitUntil: 'networkidle2' },
+		options: { maxRetries: 0, saveResult: false, waitUntil: 'networkidle2' },
 	});
 	assert.equal(values.options.maxRetries, 0);
-	assert.equal(values.options.super, false);
 	assert.equal(values.options.saveResult, false);
 	assert.equal(values.options.waitUntil, 'networkidle2');
 	const options = field('options', values).options;
+	for (const name of ['proxyCountry', 'super', 'warmStart']) {
+		assert.equal(
+			options.some((p) => p.name === name),
+			false,
+			`${name} is a top-level field`,
+		);
+	}
 	assert.deepEqual(options.find((p) => p.name === 'maxRetries').routing.send, {
 		type: 'query',
 		property: 'maxRetries',
@@ -217,6 +223,24 @@ test('scraper options preserve zero and false values and hide unsupported contro
 			false,
 		);
 	}
+});
+
+test('Warm Start, Super, and Proxy Country are top-level query fields with API defaults', () => {
+	for (const operationName of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot']) {
+		const values = parameters({ operation: operationName });
+		assert.equal(values.warmStart, true);
+		assert.equal(values.super, true);
+		assert.equal(values.proxyCountry, 'us');
+		for (const name of ['warmStart', 'super', 'proxyCountry']) {
+			assert.deepEqual(field(name, values).routing.send, { type: 'query', property: name });
+		}
+	}
+	const json = parameters({ operation: 'scrapeJson' });
+	assert.equal('warmStart' in json, false, 'Warm Start is only for HTML, Markdown, and Screenshot');
+	assert.equal(json.super, true);
+	assert.equal(json.proxyCountry, 'us');
+	const brand = parameters({ operation: 'scrapeBrand' });
+	for (const name of ['warmStart', 'super', 'proxyCountry']) assert.equal(name in brand, false);
 });
 
 test('Scrape Brand is a GET with action, bundle, and url in the query and no body', () => {
