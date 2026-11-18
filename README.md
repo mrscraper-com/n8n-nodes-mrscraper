@@ -42,18 +42,18 @@ HTML, Markdown, screenshot, and JSON requests also supply the documented `token`
 
 For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
 
-These fields are always sent:
+These fields are always sent. Turn on **Warm Start** or **Super** for more reliable scraping on difficult pages.
 
 | Field             | Operations                       | Default | Query parameter |
 | ----------------- | -------------------------------- | ------- | --------------- |
-| **Warm Start**    | HTML, Markdown, Screenshot       | `true`  | `warmStart`     |
-| **Super**         | HTML, Markdown, Screenshot, JSON | `true`  | `super`         |
+| **Warm Start**    | HTML, Markdown, Screenshot       | `false` | `warmStart`     |
+| **Super**         | HTML, Markdown, Screenshot, JSON | `false` | `super`         |
 | **Proxy Country** | HTML, Markdown, Screenshot, JSON | `us`    | `proxyCountry`  |
 
 For example, Scrape HTML with the defaults sends:
 
 ```sh
-curl 'https://api.mrscraper.com/?token=<token>&html=true&url=https%3A%2F%2Fwww.scrapethissite.com&browserRendering=false&warmStart=true&super=true&proxyCountry=us' \
+curl 'https://api.mrscraper.com/?token=<token>&html=true&url=https%3A%2F%2Fwww.scrapethissite.com&browserRendering=false&warmStart=false&super=false&proxyCountry=us' \
   --header 'x-api-token: <token>'
 ```
 

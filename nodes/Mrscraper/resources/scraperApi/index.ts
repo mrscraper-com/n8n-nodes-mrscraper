@@ -175,27 +175,27 @@ export const scraperApiDescription: INodeProperties[] = [
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
 		},
-		description: 'Whether to render the page using Chromium for JavaScript content',
+		description: 'Whether to render the page using a browser for JavaScript content',
 		routing: { send: { type: 'query', property: 'browserRendering' } },
 	},
 	{
 		displayName: 'Warm Start',
 		name: 'warmStart',
 		type: 'boolean',
-		default: true,
+		default: false,
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot'] },
 		},
-		description: 'Whether to use a warm start to speed up the request',
+		description: 'Whether to use a warm start to make scraping more reliable',
 		routing: { send: { type: 'query', property: 'warmStart' } },
 	},
 	{
 		displayName: 'Super',
 		name: 'super',
 		type: 'boolean',
-		default: true,
+		default: false,
 		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Whether to route the request through a real device for complex websites',
+		description: 'Whether to route the request through a real device for reliable scraping',
 		routing: { send: { type: 'query', property: 'super' } },
 	},
 	{

@@ -225,11 +225,11 @@ test('scraper options preserve zero and false values and hide unsupported contro
 	}
 });
 
-test('Warm Start, Super, and Proxy Country are top-level query fields with API defaults', () => {
+test('Warm Start, Super, and Proxy Country are top-level query fields with off-by-default toggles', () => {
 	for (const operationName of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot']) {
 		const values = parameters({ operation: operationName });
-		assert.equal(values.warmStart, true);
-		assert.equal(values.super, true);
+		assert.equal(values.warmStart, false);
+		assert.equal(values.super, false);
 		assert.equal(values.proxyCountry, 'us');
 		for (const name of ['warmStart', 'super', 'proxyCountry']) {
 			assert.deepEqual(field(name, values).routing.send, { type: 'query', property: name });
@@ -237,7 +237,7 @@ test('Warm Start, Super, and Proxy Country are top-level query fields with API d
 	}
 	const json = parameters({ operation: 'scrapeJson' });
 	assert.equal('warmStart' in json, false, 'Warm Start is only for HTML, Markdown, and Screenshot');
-	assert.equal(json.super, true);
+	assert.equal(json.super, false);
 	assert.equal(json.proxyCountry, 'us');
 	const brand = parameters({ operation: 'scrapeBrand' });
 	for (const name of ['warmStart', 'super', 'proxyCountry']) assert.equal(name in brand, false);
