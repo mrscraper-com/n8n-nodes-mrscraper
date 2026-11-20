@@ -17,11 +17,11 @@ export const discoveryDescription: INodeProperties[] = [
 					'Search the web and return matching pages with their URLs, titles, and descriptions',
 				routing: {
 					request: {
-						method: 'POST',
+						method: 'GET',
 						baseURL: 'https://api.mrscraper.com',
 						url: '/',
+						qs: { action: 'websearch' },
 					},
-					send: { type: 'body', property: 'action', value: 'websearch' },
 				},
 			},
 		],
