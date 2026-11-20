@@ -38,7 +38,7 @@ HTML, Markdown, screenshot, and JSON requests also send the token as the `token`
 | **Scrape Markdown** | `GET /` with `url`, `markdown=true`, and `html=false`                         | Page content in `markdown`                                    |
 | **Get Screenshot**  | `GET /` with `url`, `screenshot=full` or `top`, and browser rendering enabled | JSON with the Base64-encoded screenshot and the page HTML     |
 | **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                             | Brand details in `data.brand` and the job ID in `data.job_id` |
-| **Scrape JSON**     | `POST /` with `url`, `prompt`, and `agent: "general"` in a JSON body          | Extracted data as JSON, plus API metadata                     |
+| **Scrape JSON**     | `GET /` with `url`, `prompt`, and `agent=general`; `POST /` for long URLs     | Extracted data as JSON, plus API metadata                     |
 
 For HTML, Markdown, and JSON, enable **Browser Rendering** when the page needs JavaScript. Screenshot requests always render the page in a browser.
 
@@ -65,18 +65,14 @@ See the official references for [Scrape HTML](https://docs.mrscraper.com/docs/ap
 
 - **Web Search** — Search the web using **Search Query**, **Country** (default `us`), and **Number of Results** (default and minimum `10`).
 
-The node sends `POST https://api.mrscraper.com/` with this JSON body:
+The node sends a GET request with the search settings in the query string, after trimming the query and lowercasing the country:
 
-```json
-{
-	"action": "websearch",
-	"query": "e-menessaptieka.lv linkedin",
-	"country": "us",
-	"numResults": 10
-}
+```sh
+curl 'https://api.mrscraper.com/?action=websearch&query=e-menessaptieka.lv+linkedin&country=us&numResults=10' \
+  --header 'x-api-token: <token>'
 ```
 
-The request authenticates with the `x-api-token` header and uses the `application/json` content type.
+The request authenticates with the `x-api-token` header.
 
 ## Usage examples
 
@@ -94,7 +90,7 @@ The request authenticates with the `x-api-token` header and uses the `applicatio
 }
 ```
 
-The schema is appended to the prompt as a `Json Schema:` section. Requests are sent as POST so that long prompts and schemas stay within the URL length limit. The prompt only describes what to extract from the scraped page; it cannot change how the page is scraped.
+The schema is appended to the prompt as a `Json Schema:` section. The node sends `url`, `prompt`, and `agent=general` in the query string of a GET request. If the encoded URL would exceed 8,000 characters, for example with a long prompt or schema, it sends a POST instead, with `url`, `prompt`, and `agent` in a JSON body and the other settings in the query string. The prompt only describes what to extract from the scraped page; it cannot change how the page is scraped.
 
 ### Scrape a brand
 

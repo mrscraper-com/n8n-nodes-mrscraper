@@ -74,9 +74,8 @@ export const scraperApiDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						...apiRequest,
-						method: 'POST',
-						body: { agent: 'general' },
-						qs: { token: '={{$credentials.apiToken}}' },
+						method: 'GET',
+						qs: { token: '={{$credentials.apiToken}}', agent: 'general' },
 					},
 					send: { preSend: [prepareJsonRequest] },
 				},
@@ -126,7 +125,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		placeholder: 'https://example.com',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
 		description: 'Full URL of the page to extract data from, including the https:// prefix',
-		routing: { send: { type: 'body', property: 'url' } },
+		routing: { send: { type: 'query', property: 'url' } },
 	},
 	{
 		displayName: 'Prompt',
@@ -138,12 +137,6 @@ export const scraperApiDescription: INodeProperties[] = [
 		placeholder: 'Extract the product name, price, and availability',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
 		description: 'Describe the data you want to extract from the page',
-		routing: {
-			send: {
-				type: 'body',
-				property: 'prompt',
-			},
-		},
 	},
 	{
 		displayName: 'Expected Output Schema',

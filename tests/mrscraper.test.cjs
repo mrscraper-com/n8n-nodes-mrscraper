@@ -1,6 +1,6 @@
 const assert = require('node:assert/strict');
 const { test } = require('node:test');
-const { NodeHelpers } = require('n8n-workflow');
+const { NodeHelpers, Workflow } = require('n8n-workflow');
 const { Mrscraper } = require('../dist/nodes/Mrscraper/Mrscraper.node.js');
 const { MrscraperApi } = require('../dist/credentials/MrscraperApi.credentials.js');
 
@@ -35,6 +35,46 @@ const context = (values, helpers = {}) => ({
 	getNode: () => ({ name: 'MrScraper', type: 'n8n-nodes-mrscraper.mrscraper', typeVersion: 3 }),
 	helpers,
 });
+// Resolves a routing expression with n8n's expression engine, as n8n does before it sends a request.
+const workflow = new Workflow({
+	nodes: [
+		{
+			id: '1',
+			name: 'MrScraper',
+			type: 'n8n-nodes-mrscraper.mrscraper',
+			typeVersion: 3,
+			position: [0, 0],
+			parameters: {},
+		},
+	],
+	connections: {},
+	active: false,
+	nodeTypes: {
+		getByName: () => new Mrscraper(),
+		getByNameAndVersion: () => new Mrscraper(),
+		getKnownTypes: () => ({}),
+	},
+});
+const resolve = (expression, $value) =>
+	workflow.expression.getParameterValue(expression, null, 0, 0, 'MrScraper', [], 'manual', {
+		$value,
+	});
+// A Scrape JSON request as n8n hands it to preSend, with expressions resolved and query fields merged.
+const jsonRequest = {
+	baseURL: 'https://api.mrscraper.com',
+	url: '/',
+	method: 'GET',
+	qs: {
+		token: 'test-token',
+		agent: 'general',
+		url: 'https://example.com',
+		browserRendering: false,
+		super: false,
+		proxyCountry: 'us',
+		maxRetries: 0,
+	},
+	body: {},
+};
 
 test('the node exposes exactly three resources and only the requested operations', () => {
 	assert.equal(description.version, 3);
@@ -78,7 +118,7 @@ test('Account keeps the existing Get Account Info request and header auth', () =
 	);
 });
 
-test('Web Search matches the supplied POST contract and defaults', () => {
+test('Web Search is a GET with the action and search settings in the query', () => {
 	const values = NodeHelpers.getNodeParameters(
 		description.properties,
 		{ resource: 'discovery', operation: 'webSearch' },
@@ -94,19 +134,27 @@ test('Web Search matches the supplied POST contract and defaults', () => {
 		country: 'us',
 		numResults: 10,
 	});
-	const search = operations('discovery').options[0];
-	assert.deepEqual(search.routing.request, {
-		method: 'POST',
-		baseURL: 'https://api.mrscraper.com',
-		url: '/',
+	assert.deepEqual(operations('discovery').options[0].routing, {
+		request: {
+			method: 'GET',
+			baseURL: 'https://api.mrscraper.com',
+			url: '/',
+			qs: { action: 'websearch' },
+		},
 	});
-	assert.deepEqual(search.routing.send, { type: 'body', property: 'action', value: 'websearch' });
 	for (const name of ['query', 'country', 'numResults']) {
-		assert.deepEqual(field(name, values).routing.send, { type: 'body', property: name });
+		const send = field(name, values).routing.send;
+		assert.equal(send.type, 'query');
+		assert.equal(send.property, name);
 	}
+	assert.equal(
+		resolve(field('query', values).routing.send.value, '  best hotels  '),
+		'best hotels',
+	);
+	assert.equal(resolve(field('country', values).routing.send.value, 'GB'), 'gb');
+	assert.equal(field('numResults', values).routing.send.value, undefined);
 	// The API rejects numResults below 10 with HTTP 400.
 	assert.equal(field('numResults', values).typeOptions.minValue, 10);
-	assert.equal(description.requestDefaults.headers['Content-Type'], 'application/json');
 });
 
 test('HTML and Markdown use GET, query URLs, and preserve raw text in valid n8n items', async () => {
@@ -150,45 +198,70 @@ test('page operations include the documented token query parameter from the cred
 		assert.equal(operation(name).routing.request.qs.token, '={{$credentials.apiToken}}');
 	}
 	assert.equal(operation('scrapeBrand').routing.request.qs.token, undefined);
-	assert.equal(operations('discovery').options[0].routing.request.qs, undefined);
+	assert.equal(operations('discovery').options[0].routing.request.qs.token, undefined);
 });
 
-test('JSON extraction keeps long prompts in a POST body and validates schemas before sending', async () => {
+test('JSON extraction is a GET with url, prompt, and agent in the query and validates schemas', async () => {
 	const values = parameters({ operation: 'scrapeJson' });
-	const route = operation('scrapeJson').routing.request;
-	assert.equal(route.method, 'POST');
-	assert.equal(route.baseURL, 'https://api.mrscraper.com');
-	assert.deepEqual(route.body, { agent: 'general' });
-	assert.deepEqual(field('url', values).routing.send, { type: 'body', property: 'url' });
-	const prompt = field('prompt', values).routing.send;
-	assert.equal(prompt.type, 'body');
-	assert.equal(prompt.property, 'prompt');
-	const longPrompt = 'Extract the product name. '.repeat(500);
+	assert.deepEqual(operation('scrapeJson').routing.request, {
+		baseURL: 'https://api.mrscraper.com',
+		url: '/',
+		method: 'GET',
+		qs: { token: '={{$credentials.apiToken}}', agent: 'general' },
+	});
+	assert.deepEqual(field('url', values).routing.send, { type: 'query', property: 'url' });
+	assert.equal(field('prompt', values).routing, undefined, 'preSend sends the prompt and schema');
 	const prepare = operation('scrapeJson').routing.send.preSend[0];
-	const request = {
-		...route,
-		body: { ...route.body, url: 'https://example.com', prompt: longPrompt },
-	};
-	assert.equal(
-		(await prepare.call(context({ ...values, prompt: longPrompt }), structuredClone(request))).body
-			.prompt,
-		longPrompt,
+	const sent = await prepare.call(
+		context({ ...values, prompt: 'Extract name' }),
+		structuredClone(jsonRequest),
 	);
+	assert.equal(sent.method, 'GET');
+	assert.deepEqual(sent.qs, { ...jsonRequest.qs, prompt: 'Extract name' });
+	assert.deepEqual(sent.body, {});
 	for (const outputSchema of ['{"name":"string"}', { name: 'string' }]) {
-		assert.equal(
-			(
-				await prepare.call(
-					context({ ...values, prompt: 'Extract name', outputSchema }),
-					structuredClone(request),
-				)
-			).body.prompt,
-			'Extract name\n\nJson Schema:\n{"name":"string"}',
+		const withSchema = await prepare.call(
+			context({ ...values, prompt: 'Extract name', outputSchema }),
+			structuredClone(jsonRequest),
 		);
+		assert.equal(withSchema.method, 'GET');
+		assert.equal(withSchema.qs.prompt, 'Extract name\n\nJson Schema:\n{"name":"string"}');
 	}
 	await assert.rejects(
-		() => prepare.call(context({ ...values, outputSchema: '{invalid' }), structuredClone(request)),
+		() =>
+			prepare.call(context({ ...values, outputSchema: '{invalid' }), structuredClone(jsonRequest)),
 		/Expected Output Schema must be valid JSON/,
 	);
+});
+
+test('JSON extraction switches to POST only when the encoded GET URL exceeds 8,000 characters', async () => {
+	const values = parameters({ operation: 'scrapeJson' });
+	const prepare = operation('scrapeJson').routing.send.preSend[0];
+	const send = (prompt) =>
+		prepare.call(context({ ...values, prompt }), structuredClone(jsonRequest));
+	const getUrl = new URL('https://api.mrscraper.com/');
+	for (const [name, value] of Object.entries({ ...jsonRequest.qs, prompt: '' })) {
+		getUrl.searchParams.set(name, String(value));
+	}
+	const longest = 'x'.repeat(8000 - getUrl.href.length);
+
+	const atLimit = await send(longest);
+	assert.equal(atLimit.method, 'GET');
+	assert.equal(atLimit.qs.prompt, longest);
+
+	// One more character, or a shorter prompt that is longer once encoded, moves to a POST body.
+	for (const prompt of [`${longest}x`, 'é'.repeat(2000)]) {
+		const overLimit = await send(prompt);
+		assert.equal(overLimit.method, 'POST');
+		assert.deepEqual(overLimit.body, { url: 'https://example.com', prompt, agent: 'general' });
+		assert.deepEqual(overLimit.qs, {
+			token: 'test-token',
+			browserRendering: false,
+			super: false,
+			proxyCountry: 'us',
+			maxRetries: 0,
+		});
+	}
 });
 
 test('scraper options preserve zero and false values and hide unsupported controls', () => {

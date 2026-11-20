@@ -19,8 +19,9 @@ export const webSearchDescription: INodeProperties[] = [
 		description: 'Keywords or a question to search for, such as "best hotels in New York"',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'query',
+				value: '={{ String($value).trim() }}',
 			},
 		},
 	},
@@ -37,8 +38,9 @@ export const webSearchDescription: INodeProperties[] = [
 		description: 'Two-letter country code for localized results, such as us or gb',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'country',
+				value: '={{ String($value).toLowerCase() }}',
 			},
 		},
 	},
@@ -58,7 +60,7 @@ export const webSearchDescription: INodeProperties[] = [
 		description: 'Number of search results to return, with a minimum of 10',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'numResults',
 			},
 		},
