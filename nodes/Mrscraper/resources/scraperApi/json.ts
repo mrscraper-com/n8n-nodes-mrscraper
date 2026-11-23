@@ -1,4 +1,5 @@
 import { NodeOperationError, type IDataObject, type PreSendAction } from 'n8n-workflow';
+import { validatePageQuery } from './validation';
 
 // Scrape JSON is a GET unless its encoded URL would exceed this length, as the API refuses request lines
 // over about 8 KB. A longer request is a POST with url, prompt, and agent in a JSON body and the other
@@ -17,7 +18,8 @@ export const prepareJsonRequest: PreSendAction = async function (requestOptions)
 		}
 		prompt += `\n\nJson Schema:\n${JSON.stringify(schema)}`;
 	}
-	const qs: IDataObject = { ...requestOptions.qs, prompt };
+	const settings: IDataObject = validatePageQuery.call(this, { ...requestOptions.qs });
+	const qs: IDataObject = { ...settings, prompt };
 	const getUrl = new URL(requestOptions.url, requestOptions.baseURL);
 	for (const [name, value] of Object.entries(qs)) {
 		if (value !== undefined && value !== null) getUrl.searchParams.set(name, String(value));
@@ -26,7 +28,9 @@ export const prepareJsonRequest: PreSendAction = async function (requestOptions)
 		requestOptions.qs = qs;
 		return requestOptions;
 	}
-	const { url, agent, ...settings } = requestOptions.qs ?? {};
+	const { url, agent } = settings;
+	delete settings.url;
+	delete settings.agent;
 	requestOptions.method = 'POST';
 	requestOptions.qs = settings;
 	requestOptions.body = { url, prompt, agent };

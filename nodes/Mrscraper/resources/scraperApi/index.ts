@@ -1,12 +1,27 @@
-import type { INodeProperties, PostReceiveAction } from 'n8n-workflow';
+import type { IDataObject, INodeProperties, PostReceiveAction } from 'n8n-workflow';
 import { scraperOptions } from './options';
 import { prepareJsonRequest } from './json';
+import { prepareBrandRequest, prepareHtmlRequest, validatePageRequest } from './validation';
 
 const resource = ['scraperApi'];
 const pageOperations = ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson'];
+const loadingOperations = ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'];
+const warmStartOperations = [...loadingOperations, 'scrapeBrand'];
+// Scrape Brand offers only Geo Code and Timeout under Options.
+const brandOptions = scraperOptions.filter((option) =>
+	['geoCode', 'timeout'].includes(option.name),
+);
 const apiRequest = { baseURL: 'https://api.mrscraper.com', url: '/' };
+// Documented defaults sent with every page request. An entry under Options overrides its default.
+const pageDefaults = { timeout: 300, saveResult: true, maxAge: 0 };
+const loadingDefaults = { ...pageDefaults, blockResources: false };
 
+// With a screenshot, Scrape HTML returns JSON with html and screenshot instead of HTML text.
 const htmlOutput: PostReceiveAction = async function (_items, response) {
+	const contentType = String(response.headers?.['content-type'] ?? '');
+	if (contentType.includes('application/json') && typeof response.body === 'string') {
+		return [{ json: JSON.parse(response.body) as IDataObject }];
+	}
 	return [{ json: { html: response.body } }];
 };
 
@@ -26,13 +41,14 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Get Screenshot',
 				value: 'getScreenshot',
 				action: 'Get a screenshot',
-				description: 'Capture a screenshot of the full page or only the visible area at the top',
+				description: 'Capture a full-page screenshot of a web page',
 				routing: {
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', browserRendering: true, html: true },
+						qs: { screenshot: 'full', browserRendering: true, ...pageDefaults },
 					},
+					send: { preSend: [validatePageRequest] },
 				},
 			},
 			{
@@ -45,8 +61,9 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { action: 'brand-scraping', bundle: 'none' },
+						qs: { action: 'brand-scraping', bundle: 'none', timeout: 300 },
 					},
+					send: { preSend: [prepareBrandRequest] },
 				},
 			},
 			{
@@ -58,11 +75,12 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', html: true },
+						qs: { html: true, ...loadingDefaults },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/html' },
 					},
+					send: { preSend: [prepareHtmlRequest] },
 					output: { postReceive: [htmlOutput] },
 				},
 			},
@@ -75,7 +93,7 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', agent: 'general' },
+						qs: { agent: 'general', html: true, screenshot: false, ...loadingDefaults },
 					},
 					send: { preSend: [prepareJsonRequest] },
 				},
@@ -89,11 +107,12 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', markdown: true, html: false },
+						qs: { markdown: true, ...loadingDefaults },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/markdown' },
 					},
+					send: { preSend: [validatePageRequest] },
 					output: { postReceive: [markdownOutput] },
 				},
 			},
@@ -132,7 +151,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		name: 'prompt',
 		type: 'string',
 		typeOptions: { rows: 4 },
-		default: 'Extract all available data as completely as possible.',
+		default: 'Extract all data as complete as possible.',
 		required: true,
 		placeholder: 'Extract the product name, price, and availability',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
@@ -150,62 +169,84 @@ export const scraperApiDescription: INodeProperties[] = [
 			'Optional JSON schema that describes the expected output. It is appended to the prompt to shape the result.',
 	},
 	{
-		displayName: 'Screenshot Mode',
-		name: 'screenshotMode',
+		displayName: 'Screenshot',
+		name: 'screenshot',
 		type: 'options',
 		options: [
-			{ name: 'Full', value: 'full', description: 'Capture the entire scrollable page' },
 			{
-				name: 'Top',
-				value: 'top',
-				description: 'Capture only the visible area at the top of the page',
+				name: 'Custom Viewport',
+				value: 'custom',
+				description: 'Capture a viewport of the size entered in Viewport',
 			},
+			{ name: 'Full Page', value: 'full', description: 'Capture the entire scrollable page' },
+			{ name: 'None', value: false, description: 'Return only the HTML' },
+			{ name: 'Top of Page', value: 'top', description: 'Capture only the first viewport' },
 		],
-		default: 'full',
-		displayOptions: { show: { resource, operation: ['getScreenshot'] } },
-		description: 'Area of the page to capture',
-		routing: { send: { type: 'query', property: 'screenshot' } },
+		default: false,
+		displayOptions: { show: { resource, operation: ['scrapeHtml'] } },
+		description:
+			'Screenshot to capture with the HTML. Any screenshot also sends browserRendering=true, overriding Browser Rendering, and returns JSON with html and screenshot.',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'screenshot',
+				value: '={{ $value === "custom" ? undefined : $value }}',
+			},
+		},
+	},
+	{
+		displayName: 'Viewport',
+		name: 'screenshotViewport',
+		type: 'string',
+		default: '',
+		required: true,
+		placeholder: '1280x800',
+		displayOptions: { show: { resource, operation: ['scrapeHtml'], screenshot: ['custom'] } },
+		description:
+			'Viewport size as WIDTHxHEIGHT from 100 to 3840 pixels, with an optional -ZOOM percent from 25 to 300, such as 1280x800 or 1920x1080-75',
+		routing: {
+			send: { type: 'query', property: 'screenshot', value: '={{ String($value).trim() }}' },
+		},
 	},
 	{
 		displayName: 'Browser Rendering',
 		name: 'browserRendering',
-		type: 'boolean',
-		default: false,
-		displayOptions: {
-			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
+		type: 'options',
+		options: [
+			{
+				name: 'Auto',
+				value: 'auto',
+				description:
+					'Load the page without a browser first and switch to a browser if the request is blocked',
+			},
+			{ name: 'Disabled', value: false, description: 'Never load the page in a browser' },
+			{
+				name: 'Enabled',
+				value: true,
+				description: 'Always load the page in a browser, which JavaScript-heavy pages need',
+			},
+		],
+		default: 'auto',
+		displayOptions: { show: { resource, operation: loadingOperations } },
+		description:
+			'Whether to load the page in a real browser. In Scrape HTML, a screenshot always sends browserRendering=true.',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'browserRendering',
+				value: '={{ $value === "auto" ? undefined : $value }}',
+			},
 		},
-		description: 'Whether to render the page in a real browser so that JavaScript content loads',
-		routing: { send: { type: 'query', property: 'browserRendering' } },
 	},
 	{
 		displayName: 'Warm Start',
 		name: 'warmStart',
 		type: 'boolean',
 		default: false,
-		displayOptions: {
-			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot'] },
-		},
-		description: 'Whether to use a warm start for more reliable scraping',
+		displayOptions: { show: { resource, operation: warmStartOperations } },
+		description:
+			"Whether to open the site's home page first to warm the session before loading the page",
 		routing: { send: { type: 'query', property: 'warmStart' } },
-	},
-	{
-		displayName: 'Super',
-		name: 'super',
-		type: 'boolean',
-		default: false,
-		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Whether to route the request through a real device for more reliable scraping',
-		routing: { send: { type: 'query', property: 'super' } },
-	},
-	{
-		displayName: 'Proxy Country',
-		name: 'proxyCountry',
-		type: 'string',
-		default: 'us',
-		placeholder: 'e.g. us',
-		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Two-letter country code of the proxy server, such as us or gb',
-		routing: { send: { type: 'query', property: 'proxyCountry' } },
 	},
 	{
 		displayName: 'Options',
@@ -215,5 +256,14 @@ export const scraperApiDescription: INodeProperties[] = [
 		default: {},
 		displayOptions: { show: { resource, operation: pageOperations } },
 		options: scraperOptions,
+	},
+	{
+		displayName: 'Options',
+		name: 'options',
+		type: 'collection',
+		placeholder: 'Add Option',
+		default: {},
+		displayOptions: { show: { resource, operation: ['scrapeBrand'] } },
+		options: brandOptions,
 	},
 ];

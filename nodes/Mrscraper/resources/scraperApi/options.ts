@@ -1,23 +1,59 @@
 import type { INodeProperties } from 'n8n-workflow';
 
+// Each operation already sends the documented default of Block Resources, Max Age, Return HTML,
+// Save Result, Screenshot, and Timeout. Adding one of these options overrides that default.
 export const scraperOptions: INodeProperties[] = [
+	{
+		displayName: 'Action',
+		name: 'action',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. product-page',
+		displayOptions: { show: { '/operation': ['scrapeHtml', 'scrapeMarkdown'] } },
+		description:
+			'Scraper action that routes the request or flags it, useful for separating analytics per domain. The action must exist for the target site.',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'action',
+				value: '={{ String($value).trim() || undefined }}',
+			},
+		},
+	},
 	{
 		displayName: 'Block Resources',
 		name: 'blockResources',
 		type: 'boolean',
 		default: false,
-		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to skip loading images, fonts, and stylesheets to speed up scraping',
+		displayOptions: { hide: { '/operation': ['getScreenshot'] } },
+		description: 'Whether to block images, fonts, and stylesheets while the page loads',
 		routing: { send: { type: 'query', property: 'blockResources' } },
 	},
 	{
 		displayName: 'Geo Code',
 		name: 'geoCode',
 		type: 'string',
-		default: 'us',
-		placeholder: 'e.g. us',
-		description: 'Two-letter code of the country to load the page from, such as us or gb',
-		routing: { send: { type: 'query', property: 'geoCode' } },
+		default: '',
+		placeholder: 'e.g. gb',
+		description:
+			'Two-letter code of the country to load the page from, such as us or gb. Leave this option out to load the page from the United States.',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'geoCode',
+				value: '={{ String($value).trim().toLowerCase() || undefined }}',
+			},
+		},
+	},
+	{
+		displayName: 'Max Age',
+		name: 'maxAge',
+		type: 'number',
+		default: 0,
+		typeOptions: { minValue: 0, maxValue: 604800000, numberPrecision: 0 },
+		description:
+			'Return a cached result of the same request when it is newer than this age, in milliseconds (up to 604800000, 7 days). A cached result costs the same tokens as the original scrape. 0 always scrapes fresh.',
+		routing: { send: { type: 'query', property: 'maxAge' } },
 	},
 	{
 		displayName: 'Max Retries',
@@ -27,26 +63,6 @@ export const scraperOptions: INodeProperties[] = [
 		typeOptions: { minValue: 0, numberPrecision: 0 },
 		description: 'Maximum number of retry attempts. Remove this option to allow unlimited retries.',
 		routing: { send: { type: 'query', property: 'maxRetries' } },
-	},
-	{
-		displayName: 'Proxy',
-		name: 'proxy',
-		type: 'string',
-		typeOptions: { password: true },
-		default: '',
-		placeholder: 'http://user:pass@host:port',
-		displayOptions: { hide: { '/operation': ['scrapeHtml', 'scrapeJson'] } },
-		description: 'URL of your own proxy server, including credentials if required',
-		routing: { send: { type: 'query', property: 'proxy', value: '={{ $value || undefined }}' } },
-	},
-	{
-		displayName: 'Return Cookie',
-		name: 'returnCookie',
-		type: 'boolean',
-		default: false,
-		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'Whether to include the browser session cookies in the response',
-		routing: { send: { type: 'query', property: 'returnCookie' } },
 	},
 	{
 		displayName: 'Return HTML',
@@ -62,7 +78,6 @@ export const scraperOptions: INodeProperties[] = [
 		name: 'saveResult',
 		type: 'boolean',
 		default: true,
-		displayOptions: { hide: { '/operation': ['scrapeHtml'] } },
 		description: 'Whether to save the result to the Result tab in your MrScraper account',
 		routing: { send: { type: 'query', property: 'saveResult' } },
 	},
@@ -80,8 +95,8 @@ export const scraperOptions: INodeProperties[] = [
 		name: 'timeout',
 		type: 'number',
 		default: 300,
-		typeOptions: { minValue: 1, numberPrecision: 0 },
-		description: 'Maximum time to wait for the page to load, in seconds',
+		typeOptions: { minValue: 1, maxValue: 330, numberPrecision: 0 },
+		description: 'Maximum time to wait for the scrape, in seconds, up to 330',
 		routing: { send: { type: 'query', property: 'timeout' } },
 	},
 	{
@@ -100,42 +115,14 @@ export const scraperOptions: INodeProperties[] = [
 		type: 'string',
 		default: '',
 		placeholder: 'e.g. .product-list',
-		displayOptions: { hide: { '/operation': ['scrapeJson'] } },
-		description: 'CSS selector that must appear on the page before content is extracted',
+		description:
+			'CSS selector or text that must appear on the page before it is returned, up to 500 characters. It needs a rendered page, so do not combine it with Browser Rendering set to Disabled.',
 		routing: {
-			send: { type: 'query', property: 'waitForSelector', value: '={{ $value || undefined }}' },
+			send: {
+				type: 'query',
+				property: 'waitForSelector',
+				value: '={{ String($value).trim() || undefined }}',
+			},
 		},
-	},
-	{
-		displayName: 'Wait Until',
-		name: 'waitUntil',
-		type: 'options',
-		options: [
-			{
-				name: 'DOM Content Loaded',
-				value: 'domcontentloaded',
-				description:
-					'Wait until the HTML document is loaded and parsed. This is the fastest option.',
-			},
-			{
-				name: 'Load',
-				value: 'load',
-				description: 'Wait until the page and all of its resources are loaded',
-			},
-			{
-				name: 'Network Idle 0',
-				value: 'networkidle0',
-				description:
-					'Wait until all network activity stops. This is the most thorough but slowest option.',
-			},
-			{
-				name: 'Network Idle 2',
-				value: 'networkidle2',
-				description: 'Wait until no more than two network connections remain active',
-			},
-		],
-		default: 'domcontentloaded',
-		description: 'Page load event to wait for before content is extracted',
-		routing: { send: { type: 'query', property: 'waitUntil' } },
 	},
 ];

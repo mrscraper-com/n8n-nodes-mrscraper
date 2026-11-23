@@ -29,18 +29,18 @@ export const webSearchDescription: INodeProperties[] = [
 		displayName: 'Country',
 		name: 'country',
 		type: 'string',
-		default: 'us',
+		default: '',
 		placeholder: 'e.g. us',
-		required: true,
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Two-letter country code for localized results, such as us or gb',
+		description:
+			'Two-letter code of the country to search from, such as us or gb. Leave empty to search from the United States.',
 		routing: {
 			send: {
 				type: 'query',
 				property: 'country',
-				value: '={{ String($value).toLowerCase() }}',
+				value: '={{ String($value).trim().toLowerCase() || undefined }}',
 			},
 		},
 	},
@@ -52,12 +52,13 @@ export const webSearchDescription: INodeProperties[] = [
 		required: true,
 		typeOptions: {
 			minValue: 10,
+			maxValue: 100,
 			numberPrecision: 0,
 		},
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Number of search results to return, with a minimum of 10',
+		description: 'Number of search results to return, from 10 to 100. The search may return fewer.',
 		routing: {
 			send: {
 				type: 'query',
