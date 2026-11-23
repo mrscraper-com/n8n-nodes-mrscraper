@@ -112,6 +112,7 @@ async function routedRequest(values, resourceName = 'scraperApi') {
 // The query each operation sends with its defaults, in the order n8n builds it.
 const HTML_DEFAULTS = [
 	['html', 'true'],
+	['markdown', 'false'],
 	['timeout', '300'],
 	['saveResult', 'true'],
 	['maxAge', '0'],
@@ -122,6 +123,8 @@ const HTML_DEFAULTS = [
 ];
 const MARKDOWN_DEFAULTS = [
 	['markdown', 'true'],
+	['html', 'false'],
+	['screenshot', 'false'],
 	['timeout', '300'],
 	['saveResult', 'true'],
 	['maxAge', '0'],
@@ -131,6 +134,8 @@ const MARKDOWN_DEFAULTS = [
 ];
 const SCREENSHOT_DEFAULTS = [
 	['screenshot', 'full'],
+	['html', 'false'],
+	['markdown', 'false'],
 	['browserRendering', 'true'],
 	['timeout', '300'],
 	['saveResult', 'true'],
@@ -220,10 +225,12 @@ test('Scrape HTML maps every documented option to its query field', async () => 
 			waitForSelector: ' .ready ',
 		},
 	});
+	// Save Result and Token Cap are no longer options; values saved by 5.0 are not sent.
 	assert.deepEqual(sent.query, [
 		['html', 'true'],
+		['markdown', 'false'],
 		['timeout', '330'],
-		['saveResult', 'false'],
+		['saveResult', 'true'],
 		['maxAge', '3600000'],
 		['blockResources', 'true'],
 		['url', PAGE],
@@ -233,7 +240,6 @@ test('Scrape HTML maps every documented option to its query field', async () => 
 		['action', 'analytics'],
 		['geoCode', 'gb'],
 		['maxRetries', '0'],
-		['tokenCap', '25'],
 		['waitForSelector', '.ready'],
 	]);
 });
@@ -342,10 +348,9 @@ test('HTML output keeps raw text and parses the JSON returned with a screenshot'
 	);
 });
 
-test('Scrape Markdown sends markdown=true without an HTML flag', async () => {
+test('Scrape Markdown sends markdown=true with html=false and screenshot=false', async () => {
 	const sent = await routedRequest({ operation: 'scrapeMarkdown', url: PAGE });
 	assert.deepEqual(sent.query, MARKDOWN_DEFAULTS);
-	assert.equal(operation('scrapeMarkdown').routing.request.qs.html, undefined);
 	const withOptions = await routedRequest({
 		operation: 'scrapeMarkdown',
 		url: PAGE,
@@ -354,6 +359,8 @@ test('Scrape Markdown sends markdown=true without an HTML flag', async () => {
 	});
 	assert.deepEqual(withOptions.query, [
 		['markdown', 'true'],
+		['html', 'false'],
+		['screenshot', 'false'],
 		['timeout', '300'],
 		['saveResult', 'true'],
 		['maxAge', '0'],
@@ -370,7 +377,7 @@ test('Scrape Markdown sends markdown=true without an HTML flag', async () => {
 	]);
 });
 
-test('Get Screenshot always sends screenshot=full and browserRendering=true', async () => {
+test('Get Screenshot always sends screenshot=full, html=false, markdown=false, and browserRendering=true', async () => {
 	const values = parameters({ operation: 'getScreenshot' });
 	for (const name of ['screenshot', 'screenshotViewport', 'browserRendering', 'warmStart']) {
 		assert.equal(name in values, false, `${name} is not a Get Screenshot field`);
@@ -394,14 +401,15 @@ test('Get Screenshot always sends screenshot=full and browserRendering=true', as
 	});
 	assert.deepEqual(sent.query, [
 		['screenshot', 'full'],
+		['html', 'false'],
+		['markdown', 'false'],
 		['browserRendering', 'true'],
 		['timeout', '120'],
-		['saveResult', 'false'],
+		['saveResult', 'true'],
 		['maxAge', '86400000'],
 		['url', PAGE],
 		['geoCode', 'de'],
 		['maxRetries', '1'],
-		['tokenCap', '10'],
 		['waitForSelector', '#results'],
 	]);
 });
@@ -415,38 +423,40 @@ test('Options appear only for the operations the reference lists them for', () =
 			)
 			.map((option) => option.name);
 	};
-	const shared = ['geoCode', 'maxAge', 'maxRetries', 'saveResult', 'timeout', 'tokenCap'];
 	assert.deepEqual(shown('scrapeHtml'), [
 		'action',
 		'blockResources',
-		...shared.slice(0, 3),
-		'saveResult',
+		'geoCode',
+		'maxAge',
+		'maxRetries',
 		'timeout',
-		'tokenCap',
 		'waitForSelector',
 	]);
 	assert.deepEqual(shown('scrapeMarkdown'), shown('scrapeHtml'));
-	assert.deepEqual(shown('getScreenshot'), [...shared, 'waitForSelector']);
+	assert.deepEqual(shown('getScreenshot'), [
+		'geoCode',
+		'maxAge',
+		'maxRetries',
+		'timeout',
+		'waitForSelector',
+	]);
 	assert.deepEqual(shown('scrapeJson'), [
 		'blockResources',
 		'geoCode',
 		'maxAge',
 		'maxRetries',
 		'html',
-		'saveResult',
 		'screenshot',
 		'timeout',
-		'tokenCap',
 		'waitForSelector',
 	]);
+	assert.deepEqual(shown('scrapeBrand'), ['geoCode', 'timeout']);
 	assert.equal(scraperOption('timeout').typeOptions.maxValue, 330);
 	assert.deepEqual(scraperOption('maxAge').typeOptions, {
 		minValue: 0,
 		maxValue: 604800000,
 		numberPrecision: 0,
 	});
-	assert.equal(scraperOption('tokenCap').typeOptions.minValue, 1);
-	assert.equal(scraperOption('saveResult').default, true);
 	assert.equal(scraperOption('html').default, true);
 });
 
@@ -563,7 +573,6 @@ test('invalid ranges and formats fail before a request is sent', async () => {
 		[{ timeout: '={{ 0 }}' }, /Timeout must be an integer from 1 to 330/],
 		[{ maxAge: 604800001 }, /Max Age must be an integer from 0 to 604800000/],
 		[{ maxAge: 1.5 }, /Max Age must be an integer/],
-		[{ tokenCap: 0 }, /Token Cap must be an integer from 1/],
 		[{ maxRetries: -1 }, /Max Retries must be an integer from 0/],
 		[{ geoCode: 'usa' }, /Geo Code must be a two-letter country code/],
 		[{ waitForSelector: 'a'.repeat(501) }, /Wait for Selector must be at most 500 characters/],
@@ -588,7 +597,7 @@ test('invalid ranges and formats fail before a request is sent', async () => {
 	assert.equal(Object.fromEntries(sent.query).timeout, '120');
 });
 
-test('fields the Scraper API reference does not list are gone, including the token query parameter', () => {
+test('removed fields are gone: no token query parameter, Save Result, or Token Cap', () => {
 	const names = new Set();
 	const collect = (properties) => {
 		for (const property of properties) {
@@ -604,12 +613,20 @@ test('fields the Scraper API reference does not list are gone, including the tok
 		'returnCookie',
 		'waitUntil',
 		'screenshotMode',
+		'saveResult',
+		'tokenCap',
 	]) {
 		assert.equal(names.has(removed), false, removed);
 	}
 	for (const option of operations('scraperApi').options) {
 		assert.equal(option.routing.request.qs.token, undefined, option.value);
+		assert.equal(option.routing.request.qs.tokenCap, undefined, option.value);
 	}
+	// Every page operation always saves its result.
+	for (const name of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson']) {
+		assert.equal(operation(name).routing.request.qs.saveResult, true, name);
+	}
+	assert.equal(operation('scrapeBrand').routing.request.qs.saveResult, undefined);
 	assert.equal(operations('discovery').options[0].routing.request.qs.token, undefined);
 });
 
@@ -673,7 +690,7 @@ test('Scrape Brand is a GET with fixed action and bundle and no body', () => {
 		baseURL: 'https://api.mrscraper.com',
 		url: '/',
 		method: 'GET',
-		qs: { action: 'brand-scraping', bundle: 'none', timeout: 300 },
+		qs: { action: 'brand-scraping', bundle: 'none' },
 	});
 	assert.equal(route.request.qs.token, undefined);
 	assert.equal(route.send.preSend.length, 1);
@@ -685,13 +702,12 @@ test('Scrape Brand is a GET with fixed action and bundle and no body', () => {
 	);
 });
 
-test('Scrape Brand sends action, url, bundle, timeout, warmStart, and geoCode in order', async () => {
+test('Scrape Brand sends action, url, bundle, timeout when set, warmStart, and geoCode when set', async () => {
 	const url = 'https://books.toscrape.com/';
 	assert.deepEqual((await routedRequest({ operation: 'scrapeBrand', url })).query, [
 		['action', 'brand-scraping'],
 		['url', url],
 		['bundle', 'none'],
-		['timeout', '300'],
 		['warmStart', 'false'],
 	]);
 	const sent = await routedRequest({
@@ -708,6 +724,16 @@ test('Scrape Brand sends action, url, bundle, timeout, warmStart, and geoCode in
 		['warmStart', 'true'],
 		['geoCode', 'gb'],
 	]);
+	assert.deepEqual(
+		(await routedRequest({ operation: 'scrapeBrand', url, options: { geoCode: 'id' } })).query,
+		[
+			['action', 'brand-scraping'],
+			['url', url],
+			['bundle', 'none'],
+			['warmStart', 'false'],
+			['geoCode', 'id'],
+		],
+	);
 	for (const [options, message] of [
 		[{ timeout: 331 }, /Timeout must be an integer from 1 to 330/],
 		[{ timeout: 0 }, /Timeout must be an integer from 1 to 330/],

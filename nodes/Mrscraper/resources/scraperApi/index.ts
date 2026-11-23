@@ -12,7 +12,8 @@ const brandOptions = scraperOptions.filter((option) =>
 	['geoCode', 'timeout'].includes(option.name),
 );
 const apiRequest = { baseURL: 'https://api.mrscraper.com', url: '/' };
-// Documented defaults sent with every page request. An entry under Options overrides its default.
+// Documented defaults sent with every page request; an entry under Options overrides timeout and
+// maxAge. Results are always saved, so saveResult is a fixed field.
 const pageDefaults = { timeout: 300, saveResult: true, maxAge: 0 };
 const loadingDefaults = { ...pageDefaults, blockResources: false };
 
@@ -46,7 +47,13 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { screenshot: 'full', browserRendering: true, ...pageDefaults },
+						qs: {
+							screenshot: 'full',
+							html: false,
+							markdown: false,
+							browserRendering: true,
+							...pageDefaults,
+						},
 					},
 					send: { preSend: [validatePageRequest] },
 				},
@@ -61,7 +68,7 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { action: 'brand-scraping', bundle: 'none', timeout: 300 },
+						qs: { action: 'brand-scraping', bundle: 'none' },
 					},
 					send: { preSend: [prepareBrandRequest] },
 				},
@@ -75,7 +82,7 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { html: true, ...loadingDefaults },
+						qs: { html: true, markdown: false, ...loadingDefaults },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/html' },
@@ -107,7 +114,7 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { markdown: true, ...loadingDefaults },
+						qs: { markdown: true, html: false, screenshot: false, ...loadingDefaults },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/markdown' },

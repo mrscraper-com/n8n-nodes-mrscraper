@@ -55,7 +55,6 @@ function isScreenshotCapture(value: unknown): boolean {
 export function validatePageQuery(this: IExecuteSingleFunctions, qs: IDataObject): IDataObject {
 	checkInteger(this, qs, 'timeout', 'Timeout', 1, MAX_TIMEOUT_SECONDS);
 	checkInteger(this, qs, 'maxAge', 'Max Age', 0, MAX_CACHE_AGE_MS);
-	checkInteger(this, qs, 'tokenCap', 'Token Cap', 1);
 	checkInteger(this, qs, 'maxRetries', 'Max Retries', 0);
 	if (qs.geoCode !== undefined && !/^[a-z]{2}$/.test(String(qs.geoCode))) {
 		fail(this, 'Geo Code must be a two-letter country code, such as us or gb');
@@ -80,7 +79,8 @@ export const validatePageRequest: PreSendAction = async function (requestOptions
 	return requestOptions;
 };
 
-// Scrape Brand sends its fixed fields first: action, url, bundle, then timeout, warmStart, and geoCode.
+// Scrape Brand sends action, url, and bundle first, then timeout (when set), warmStart, and geoCode
+// (when set).
 const BRAND_QUERY_ORDER = ['action', 'url', 'bundle', 'timeout', 'warmStart', 'geoCode'];
 
 export const prepareBrandRequest: PreSendAction = async function (requestOptions) {

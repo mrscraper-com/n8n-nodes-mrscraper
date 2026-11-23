@@ -1,7 +1,8 @@
 import type { INodeProperties } from 'n8n-workflow';
 
-// Each operation already sends the documented default of Block Resources, Max Age, Return HTML,
-// Save Result, Screenshot, and Timeout. Adding one of these options overrides that default.
+// Each page operation already sends the documented default of Block Resources, Max Age, Return HTML,
+// Screenshot, and Timeout; adding one of these options overrides that default. Results are always
+// saved (saveResult=true) and no token cap is sent.
 export const scraperOptions: INodeProperties[] = [
 	{
 		displayName: 'Action',
@@ -74,14 +75,6 @@ export const scraperOptions: INodeProperties[] = [
 		routing: { send: { type: 'query', property: 'html' } },
 	},
 	{
-		displayName: 'Save Result',
-		name: 'saveResult',
-		type: 'boolean',
-		default: true,
-		description: 'Whether to save the result to the Result tab in your MrScraper account',
-		routing: { send: { type: 'query', property: 'saveResult' } },
-	},
-	{
 		displayName: 'Screenshot',
 		name: 'screenshot',
 		type: 'boolean',
@@ -98,16 +91,6 @@ export const scraperOptions: INodeProperties[] = [
 		typeOptions: { minValue: 1, maxValue: 330, numberPrecision: 0 },
 		description: 'Maximum time to wait for the scrape, in seconds, up to 330',
 		routing: { send: { type: 'query', property: 'timeout' } },
-	},
-	{
-		displayName: 'Token Cap',
-		name: 'tokenCap',
-		type: 'number',
-		default: 30,
-		typeOptions: { minValue: 1, numberPrecision: 0 },
-		description:
-			'Maximum number of tokens the scrape and its retries can use. Remove this option for no limit.',
-		routing: { send: { type: 'query', property: 'tokenCap' } },
 	},
 	{
 		displayName: 'Wait for Selector',

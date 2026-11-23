@@ -30,13 +30,15 @@ The node has three resources: **Account**, **Scraper API**, and **Discovery**.
 
 All five operations call `https://api.mrscraper.com` by GET and authenticate with the `x-api-token` header from your saved credential. Each operation sends only the parameters listed in the [MrScraper API reference](https://docs.mrscraper.com/docs/api/overview).
 
-| Operation           | Request                                                                                                       | Output                                                              |
-| ------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **Scrape HTML**     | `GET /` with `url`, `html=true`, and an optional screenshot                                                   | Page content in `html`; with a screenshot, `html` and `screenshot`  |
-| **Scrape Markdown** | `GET /` with `url` and `markdown=true`                                                                        | Page content in `markdown`                                          |
-| **Get Screenshot**  | `GET /` with `url`, `screenshot=full`, and `browserRendering=true`                                            | JSON with the Base64-encoded full-page screenshot and the page HTML |
-| **Scrape Brand**    | `GET /` with `action=brand-scraping`, `url`, `bundle=none`, `timeout`, `warmStart`, and an optional `geoCode` | Brand details in `data.brand` and the job ID in `data.job_id`       |
-| **Scrape JSON**     | `GET /` with `url`, `prompt`, and `agent=general`; `POST /` for long URLs                                     | Extracted data as JSON, plus API metadata                           |
+| Operation           | Request                                                                                                          | Output                                                                                |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
+| **Scrape HTML**     | `GET /` with `url`, `html=true`, `markdown=false`, and an optional screenshot                                    | Page content in `html`; with a screenshot, `html` and `screenshot`                    |
+| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, `html=false`, and `screenshot=false`                                        | Page content in `markdown`                                                            |
+| **Get Screenshot**  | `GET /` with `url`, `screenshot=full`, `html=false`, `markdown=false`, and `browserRendering=true`               | JSON with the Base64-encoded full-page screenshot; the API also returns the page HTML |
+| **Scrape Brand**    | `GET /` with `action=brand-scraping`, `url`, `bundle=none`, `warmStart`, and an optional `timeout` and `geoCode` | Brand details in `data.brand` and the job ID in `data.job_id`                         |
+| **Scrape JSON**     | `GET /` with `url`, `prompt`, and `agent=general`; `POST /` for long URLs                                        | Extracted data as JSON, plus API metadata                                             |
+
+HTML, Markdown, Screenshot, and JSON results are always saved to the Result tab in your MrScraper account (`saveResult=true`), and no token cap is sent.
 
 **Browser Rendering** (HTML, Markdown, and JSON) has three choices. **Auto**, the default, leaves the field out, so the API loads the page without a browser first and switches to a browser if the request is blocked. **Enabled** always loads the page in a browser, which JavaScript-heavy pages need, and **Disabled** never does. Get Screenshot always renders the page in a browser.
 
@@ -44,29 +46,29 @@ In Scrape HTML, **Screenshot** can be **None** (the default), **Full Page**, **T
 
 Requests also send these documented defaults. Change them with the top-level fields or by adding the matching entry under **Options**:
 
-| Field or option     | Operations                              | Default | Query parameter  |
-| ------------------- | --------------------------------------- | ------- | ---------------- |
-| **Timeout**         | HTML, Markdown, Screenshot, JSON, Brand | `300`   | `timeout`        |
-| **Save Result**     | HTML, Markdown, Screenshot, JSON        | `true`  | `saveResult`     |
-| **Max Age**         | HTML, Markdown, Screenshot, JSON        | `0`     | `maxAge`         |
-| **Block Resources** | HTML, Markdown, JSON                    | `false` | `blockResources` |
-| **Warm Start**      | HTML, Markdown, JSON, Brand             | `false` | `warmStart`      |
-| **Screenshot**      | HTML                                    | `false` | `screenshot`     |
-| **Return HTML**     | JSON                                    | `true`  | `html`           |
-| **Screenshot**      | JSON                                    | `false` | `screenshot`     |
+| Field or option     | Operations                       | Default | Query parameter  |
+| ------------------- | -------------------------------- | ------- | ---------------- |
+| **Timeout**         | HTML, Markdown, Screenshot, JSON | `300`   | `timeout`        |
+| **Max Age**         | HTML, Markdown, Screenshot, JSON | `0`     | `maxAge`         |
+| **Block Resources** | HTML, Markdown, JSON             | `false` | `blockResources` |
+| **Warm Start**      | HTML, Markdown, JSON, Brand      | `false` | `warmStart`      |
+| **Screenshot**      | HTML                             | `false` | `screenshot`     |
+| **Return HTML**     | JSON                             | `true`  | `html`           |
+| **Screenshot**      | JSON                             | `false` | `screenshot`     |
 
 For example, Scrape HTML with the defaults sends:
 
 ```sh
-curl 'https://api.mrscraper.com/?html=true&timeout=300&saveResult=true&maxAge=0&blockResources=false&url=https%3A%2F%2Fwww.scrapethissite.com&screenshot=false&warmStart=false' \
+curl 'https://api.mrscraper.com/?html=true&markdown=false&timeout=300&saveResult=true&maxAge=0&blockResources=false&url=https%3A%2F%2Fwww.scrapethissite.com&screenshot=false&warmStart=false' \
   --header 'x-api-token: <token>'
 ```
 
 **Options** also offers settings that are sent only when you add them:
 
 - **Action** (HTML and Markdown) routes the request to a scraper action or flags it for analytics. The action must exist for the target site; an unknown action fails with HTTP 400.
-- **Geo Code** is the two-letter country to load the page from. Leave it out to load the page from the United States. Scrape Brand offers Geo Code and Timeout under Options.
-- **Max Retries** and **Token Cap** limit retries and the tokens a scrape and its retries can use. Leave them out for no limit.
+- **Geo Code** is the two-letter country to load the page from. Leave it out to load the page from the United States.
+- **Timeout** in Scrape Brand is sent only when you add it; Scrape Brand offers Geo Code and Timeout under Options.
+- **Max Retries** limits retries. Leave it out for no limit.
 - **Wait for Selector** waits for a CSS selector or text, up to 500 characters. It needs a rendered page, so do not combine it with Browser Rendering set to **Disabled**.
 
 **Max Age** returns a cached result of the same request when it is newer than the selected age, in milliseconds up to `604800000` (7 days); a cached result costs the same tokens as the original scrape, and `0` always scrapes fresh. **Timeout** accepts 1 to 330 seconds and is separate from n8n's own request timeout. The node checks these ranges, the Geo Code format, and the Viewport format before it sends a request.
@@ -109,11 +111,11 @@ The schema is appended to the prompt as a `Json Schema:` section. The node sends
 Select **Scraper API > Scrape Brand** and enter the page URL. With the defaults, the node sends:
 
 ```sh
-curl 'https://api.mrscraper.com/?action=brand-scraping&url=https%3A%2F%2Fbooks.toscrape.com%2F&bundle=none&timeout=300&warmStart=false' \
+curl 'https://api.mrscraper.com/?action=brand-scraping&url=https%3A%2F%2Fbooks.toscrape.com%2F&bundle=none&warmStart=false' \
   --header 'x-api-token: <token>'
 ```
 
-Turn on **Warm Start**, or add **Timeout** or **Geo Code** under **Options**; Geo Code is sent in lowercase only when you add it. The response includes colors, typography, logos, social links, and other brand details in `data.brand`, along with the job ID in `data.job_id`.
+Turn on **Warm Start**, or add **Timeout** or **Geo Code** under **Options**. Timeout and Geo Code are sent only when you add them, and Geo Code in lowercase. The response includes colors, typography, logos, social links, and other brand details in `data.brand`, along with the job ID in `data.job_id`.
 
 ### Search the web
 
@@ -123,12 +125,12 @@ Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`
 
 Version 5.1 sends only the parameters in the MrScraper API reference:
 
-- **Super**, **Proxy Country**, **Screenshot Mode**, and the **Proxy**, **Return Cookie**, and **Wait Until** options are removed, and requests no longer repeat the token as a `token` query parameter.
+- **Super**, **Proxy Country**, **Screenshot Mode**, and the **Proxy**, **Return Cookie**, **Wait Until**, **Save Result**, and **Token Cap** options are removed, and requests no longer repeat the token as a `token` query parameter. Results are always saved to your account, and no token cap is sent.
 - **Browser Rendering** now offers Auto, Enabled, and Disabled. Workflows saved with it on or off keep that choice; workflows that left it at the old default now use Auto.
 - **Get Screenshot** always captures the full page. Use **Scrape HTML** with **Screenshot** set to Top of Page or Custom Viewport for other areas.
-- **Scrape Markdown** no longer sends `html=false`, and **Web Search** sends Country only when you enter one.
-- **Scrape Brand** accepts **Warm Start**, **Timeout**, and **Geo Code**, and still sends `action=brand-scraping` and `bundle=none`.
-- New: **Screenshot** in Scrape HTML, and the **Action** and **Max Age** options. Scrape JSON also accepts **Warm Start**, **Block Resources**, and **Wait for Selector**, and Save Result is now available for Scrape HTML. Timeout accepts up to 330 seconds.
+- Scrape HTML also sends `markdown=false`, Scrape Markdown sends `html=false` and `screenshot=false`, and Get Screenshot sends `html=false` and `markdown=false`. **Web Search** sends Country only when you enter one.
+- **Scrape Brand** accepts **Warm Start** (always sent, off by default) and **Timeout** and **Geo Code** (sent only when added), and still sends `action=brand-scraping` and `bundle=none`.
+- New: **Screenshot** in Scrape HTML, and the **Action** and **Max Age** options. Scrape JSON also accepts **Warm Start**, **Block Resources**, and **Wait for Selector**. Timeout accepts up to 330 seconds.
 
 Check workflows that used a removed field before activating them.
 
