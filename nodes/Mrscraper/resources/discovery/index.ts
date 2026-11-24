@@ -1,10 +1,6 @@
 import type { INodeProperties } from 'n8n-workflow';
-import { crawlWebsiteUrlsDescription } from './crawlWebsiteUrls';
+import { prepareSearchRequest } from './search';
 import { webSearchDescription } from './webSearch';
-
-const showOnlyForSerp = {
-	resource: ['serp'],
-};
 
 export const discoveryDescription: INodeProperties[] = [
 	{
@@ -12,49 +8,31 @@ export const discoveryDescription: INodeProperties[] = [
 		name: 'operation',
 		type: 'options',
 		noDataExpression: true,
-		displayOptions: {
-			show: showOnlyForSerp,
-		},
+		displayOptions: { show: { resource: ['discovery'] } },
 		options: [
-			{
-				name: 'Crawl Website URLs',
-				value: 'mapAgent',
-				action: 'Crawl website urls',
-				description: 'Discover URLs by crawling links from a starting website',
-				routing: {
-					request: {
-						method: 'POST',
-						url: '/api/v1/scrapers-ai',
-					},
-					send: {
-						type: 'body',
-						property: 'graph',
-						value: 'map',
-					},
-				},
-			},
 			{
 				name: 'Web Search',
 				value: 'webSearch',
 				action: 'Search the web',
 				description:
-					'WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query',
+					'Search the web and return matching pages with their URLs, titles, and descriptions',
 				routing: {
 					request: {
-						method: 'POST',
+						method: 'GET',
 						baseURL: 'https://api.mrscraper.com',
 						url: '/',
+						timeout: 120000,
 					},
 					send: {
-						type: 'body',
+						type: 'query',
 						property: 'action',
 						value: 'websearch',
+						preSend: [prepareSearchRequest],
 					},
 				},
 			},
 		],
-		default: 'mapAgent',
+		default: 'webSearch',
 	},
-	...crawlWebsiteUrlsDescription,
 	...webSearchDescription,
 ];

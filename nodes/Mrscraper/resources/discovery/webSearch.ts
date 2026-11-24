@@ -2,7 +2,7 @@ import type { INodeProperties } from 'n8n-workflow';
 
 const showOnlyForWebSearch = {
 	operation: ['webSearch'],
-	resource: ['serp'],
+	resource: ['discovery'],
 };
 
 export const webSearchDescription: INodeProperties[] = [
@@ -16,10 +16,10 @@ export const webSearchDescription: INodeProperties[] = [
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Search terms, for example best hotels in New York',
+		description: 'Keywords or a question to search for, such as "best hotels in New York"',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'query',
 			},
 		},
@@ -28,17 +28,17 @@ export const webSearchDescription: INodeProperties[] = [
 		displayName: 'Country',
 		name: 'country',
 		type: 'string',
-		default: 'us',
+		default: '',
 		placeholder: 'e.g. us',
-		required: true,
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Two-letter country code used for localized results, for example us or gb',
+		description: 'Two-letter country code for localized results, such as us or gb',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'country',
+				value: '={{ $value ? $value.toLowerCase() : undefined }}',
 			},
 		},
 	},
@@ -49,16 +49,17 @@ export const webSearchDescription: INodeProperties[] = [
 		default: 10,
 		required: true,
 		typeOptions: {
-			minValue: 1,
+			minValue: 10,
+			maxValue: 100,
 			numberPrecision: 0,
 		},
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
-		description: 'Number of search results to return',
+		description: 'Number of search results to return, with a minimum of 10',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'numResults',
 			},
 		},

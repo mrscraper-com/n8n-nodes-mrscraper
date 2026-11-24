@@ -2,212 +2,458 @@
 
 ![MrScraper](./mrscraper.jpeg)
 
-Use [MrScraper](https://mrscraper.com) in your n8n workflows to create and run AI or manual scrapers, extract structured content, discover URLs, search the web, and retrieve results.
+Use the seven MrScraper services in n8n to retrieve page HTML, Markdown, screenshots, brand details, structured JSON, web search results, and account status.
 
-This package is an [n8n community node](https://docs.n8n.io/integrations/community-nodes/) for the AI-powered MrScraper web scraping platform.
+## Overview
 
-## Version 4.0.0
+Services share their upstream API with the MrScraper CLI and SDKs. This integration organizes them into n8n resources, stores authentication in credentials, and returns results as n8n items.
 
-Version 4.0.0 reorganizes the node around six task-based resources and removes duplicated operations.
-
-- New **Discovery**, **Extraction**, **Results**, **Scraper Creation**, and **Scraper Runs** resource names
-- One **Scraper Runs** interface for single and batch runs of AI and manual scrapers
-- Dedicated creation flows for prompt-based, listing, and website crawl scrapers
-- Expected JSON output schemas for prompt-based and listing extraction
-- Web Search inputs: query, country, and number of results
-- Streamlined rendered-page controls with opt-in Markdown and screenshots, selectable screenshot modes, selector waits, home-page navigation, and grouped advanced browser options
-- Rendered HTML requests now consistently use the MrScraper API's `POST` method
-- More run options for General, Listing, Map, and Manual scrapers
-
-Version 4.0.0 changes resource and operation selections. Review the [migration guide](#migrating-from-2x) before activating existing workflows.
-
-## Table of contents
-
-- [Installation](#installation)
-- [Credentials](#credentials)
-- [Resources and operations](#resources-and-operations)
-  - [Account](#account)
-  - [Discovery](#discovery)
-  - [Extraction](#extraction)
-  - [Results](#results)
-  - [Scraper Creation](#scraper-creation)
-  - [Scraper Runs](#scraper-runs)
-- [Usage examples](#usage-examples)
-- [Migrating from 2.x](#migrating-from-2x)
-- [Compatibility](#compatibility)
-- [Compliance and legal risk](#compliance-and-legal-risk)
-- [Resources](#resources)
+| Resource    | Operation                           | Description                                                                                                                |
+| ----------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Scraper API | [Scrape HTML](#scrape-html)         | Retrieve the raw HTML of a page. Browser rendering is optional.                                                            |
+| Scraper API | [Scrape Markdown](#scrape-markdown) | Retrieve a page as clean Markdown. Browser rendering is optional.                                                          |
+| Scraper API | [Get Screenshot](#get-screenshot)   | Capture a Base64 PNG screenshot of the full page, first viewport, or custom viewport. Browser rendering is always enabled. |
+| Scraper API | [Scrape Brand](#scrape-brand)       | Extract a website's colors, typography, logos, and social links as JSON.                                                   |
+| Scraper API | [Scrape JSON](#scrape-json)         | Extract structured JSON from a page using a natural-language prompt and optional schema.                                   |
+| Discovery   | [Web Search](#web-search)           | Search the web and return ranked results with titles, URLs, descriptions, and sources.                                     |
+| Account     | [Get Status](#get-status)           | Return the raw account status API response without summarizing, redacting body fields, or adding calculated fields.        |
 
 ## Installation
 
-Install `n8n-nodes-mrscraper` from **Settings > Community Nodes** in n8n. For other installation methods, follow the [n8n community node installation guide](https://docs.n8n.io/integrations/community-nodes/installation/).
+Install `n8n-nodes-mrscraper` through **Settings > Community Nodes** in your n8n instance. See the [community node installation guide](https://docs.n8n.io/integrations/community-nodes/installation/) for installation methods and requirements.
 
-## Credentials
+For local development with this repository, see [Development](#development).
 
-The node requires a **MrScraper API** credential.
+## Authentication
 
-1. Sign in to the [MrScraper app](https://app.mrscraper.com).
-2. Create or copy an API token from your account.
-3. In n8n, create a **MrScraper API** credential and enter the token in **API Token**.
-4. Select the credential in your MrScraper node.
+1. Obtain an API token from [the MrScraper app](https://app.mrscraper.com/api-tokens).
+2. Create a **MrScraper API** credential in n8n.
+3. Paste the token into **API Token** and select that credential in your MrScraper node.
 
-Keep the token private. Do not place it directly in workflow fields or commit it to source control.
+The saved credential supplies `Authorization: Bearer <token>` and `x-api-token` headers. Tokens are not sent in the request URL. Store the token in the credential rather than in workflow fields or Code nodes.
 
-## Resources and operations
+## Quick start
 
-Version 4.0.0 exposes six resources. Choose a resource, then select one of its operations.
+1. Add a **Manual Trigger** and connect it to a **MrScraper** node.
+2. Select your **MrScraper API** credential.
+3. Set **Resource** to **Scraper API** and **Operation** to **Scrape HTML**.
+4. Enter `https://example.com` in **URL**.
+5. Leave **Browser Rendering** at **None**, **Warm Start** off, and **Geo Code** blank.
+6. Execute the node. Read the HTML using `{{ $json.html }}` in a following node.
 
-### Account
+Replace the example target with your page. Live scraping and search calls consume account quota. Response examples below illustrate selected fields; content and arrays are abbreviated, and actual responses can include additional fields.
 
-- **Get Account Info** — Get account details, token usage, and token limits.
+## Shared page controls
 
-### Discovery
+Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape JSON share the following controls. Scrape Brand, Web Search, and Get Status have separate inputs described below.
 
-- **Crawl Website URLs** — Discover links from a starting URL. Set crawl depth, pages evaluated, result limit, and optional pipe-separated include or exclude regular expressions.
-- **Web Search** — Search the web using a query, country (default `us`), and number of results (default `10`).
+### Main configuration
 
-WebSearch is a tool that searches the web to retrieve real-time results, including relevant website URLs, titles, descriptions, and related questions based on a given query.
+| Field    | HTTP field | Type   | Default        | Description                                                                                     |
+| -------- | ---------- | ------ | -------------- | ----------------------------------------------------------------------------------------------- |
+| URL      | `url`      | String | Required       | Absolute HTTP or HTTPS URL of the page to process.                                              |
+| Geo Code | `geoCode`  | String | Blank; omitted | Two-letter country code to load the page from, sent in lowercase. For example, `ID` sends `id`. |
 
-### Extraction
+**Geo Code is a regular field outside Options.** Leaving it blank uses the API's default location. The default location is the United States.
 
-- **Extract Page by Prompt** — Extract data from one page using a natural-language prompt and an optional expected JSON output schema. Supports Super or Cheap mode and an optional proxy country.
-- **Extract Listings and Paginated Content** — Extract repeated listing data with a prompt, optional item schema, page limit, and proxy country.
-- **Extract Structured Data** — Use a preset extraction schema for Article, Forum Thread, Hotel, Job Posting, Post, Product, Property, Restaurant, Social Media Profile, or Tour / Attraction content.
-- **Fetch Rendered HTML** — Load a page using the MrScraper stealth browser with a rendered JavaScript page. HTML is returned by default; Markdown and screenshots are opt-in. A screenshot can cover the full page or only the top. The primary fields configure retries, timeout, geolocation, and proxy country, while **Advanced Options** contains the token cap, CSS selector wait, lifecycle wait condition, resource blocking, home-page navigation, cookies, and Super mode.
+### Options
 
-### Results
+Add these through **Options > Add Option**:
 
-- **Get Results** — Get paginated results for a scraper ID with page size and created-date sort order.
-- **Get Latest Results** — Get the latest N results for a scraper ID.
-- **Get Result Detail** — Get one complete result by result ID.
+| Field             | HTTP field        | Type    | Default sent | Description                                                                                                                                                                                                            |
+| ----------------- | ----------------- | ------- | ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Timeout           | `timeout`         | Integer | `300`        | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds.                                                                                                                  |
+| Wait for Selector | `waitForSelector` | String  | Omitted      | CSS selector or text to wait for before returning the result, up to 500 characters.                                                                                                                                    |
+| Max Age           | `maxAge`          | Integer | `0`          | Return a cached result of the same request when it is newer than this age in milliseconds. Maximum 604800000 (seven days). Zero requests a fresh scrape. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | `maxRetries`      | Integer | Omitted      | Maximum retries, as a nonnegative integer. Omit for no limit; zero disables retries. Adding the option inserts `3`, which you can change.                                                                              |
 
-### Scraper Creation
+Every page request sends `saveResult=true`, so results are always saved to the dashboard. There is no Save Result toggle.
 
-- **Create Prompt-Based Scraper** — Create a General AI scraper from a URL, prompt, optional expected JSON schema, mode, and proxy country.
-- **Create Listing Scraper** — Create a Listing AI scraper from a URL, prompt, optional item schema, maximum page count, and proxy country.
-- **Create Website Crawl Scraper** — Create a Map AI scraper with crawl depth, maximum pages, result limit, and optional URL include or exclude patterns.
+### Loading controls
 
-Created scrapers are available in your MrScraper account and can be reused with **Scraper Runs**.
+HTML, Markdown, and JSON extraction also support these controls:
 
-### Scraper Runs
+| Field             | Location           | HTTP field         | Type                | Default | Description                                                                                                                                                        |
+| ----------------- | ------------------ | ------------------ | ------------------- | ------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Browser Rendering | Main configuration | `browserRendering` | True / False / None | None    | True always loads the page in a browser; False never does. None omits the parameter, allowing the API to try without a browser first and switch to one if blocked. |
+| Warm Start        | Main configuration | `warmStart`        | Boolean             | `false` | Open the site's home page first to warm the session before loading the target URL.                                                                                 |
+| Block Resources   | Options            | `blockResources`   | Boolean             | `false` | Block images, fonts, and stylesheets while loading the page.                                                                                                       |
 
-- **Run Existing Scraper** — Run one URL with an existing AI or manual scraper.
-- **Run Existing Scraper in Batch** — Run multiple URLs with an existing AI or manual scraper.
+Get Screenshot always sends `browserRendering=true` and has no Browser Rendering, Warm Start, or Block Resources input.
 
-For a single AI run, choose the agent type:
+## Scraper API
 
-- **General** — Prompt-based page extraction, with optional HTML, Markdown, screenshot, cookies, JavaScript rendering, selector wait, and home-page visit settings.
-- **Listing** — Listing and pagination extraction, with page and timeout limits plus optional streaming and rendering settings.
-- **Map** — Website URL discovery with crawl limits and URL filtering patterns.
+Select **Resource > Scraper API** for the five operations below. All use `https://api.mrscraper.com/`.
 
-Manual runs support browser, proxy, cookie, paginator, recording, output, timeout, and token-cap options. Batch runs accept URLs as a JSON array or a comma/newline-separated list.
+### Scrape HTML
 
-## Usage examples
+Retrieve the raw HTML of a page. Browser rendering is optional.
 
-### Search the web
+**Configuration details**
 
-1. Select **Discovery > Web Search**.
-2. Select your saved **MrScraper API** credential.
-3. Enter **Search Query**, for example `best hotels in New York`.
-4. Set **Country** (default `us`) and **Number of Results** (default `10`), then run the node.
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
 
-The node sends `POST https://api.mrscraper.com/` with `action: "websearch"`, `query`, `country`, and `numResults`. Authentication uses the saved credential in the `x-api-token` header.
+| Field             | Location           | HTTP field         | Type                | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ------------------ | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`              | String              | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Browser Rendering | Main configuration | `browserRendering` | True / False / None | None                    | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start        | Main configuration | `warmStart`        | Boolean toggle      | Off (`false`)           | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code          | Main configuration | `geoCode`          | String              | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources   | Options            | `blockResources`   | Boolean toggle      | Off (`false`)           | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout           | Options            | `timeout`          | Integer             | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector`  | String              | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`           | Integer             | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`       | Integer             | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Screenshot        | Options            | `screenshot`       | Boolean toggle      | Off (`false`)           | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
 
-### Extract data with a JSON shape
+The request uses GET with `html=true`, `markdown=false`, and `saveResult=true`. Browser Rendering follows your selected True, False, or None value.
 
-1. Select **Extraction > Extract Page by Prompt**.
-2. Enter the page URL.
-3. Enter a prompt such as `Extract the product name, price, availability, and image URL`.
-4. Optionally enter an expected output schema:
+**Example configuration**
+
+| Field                       | Value                 |
+| --------------------------- | --------------------- |
+| URL                         | `https://example.com` |
+| Browser Rendering           | True                  |
+| Warm Start                  | On                    |
+| Options > Wait for Selector | `body`                |
+| Options > Timeout           | `120`                 |
+| Options > Max Retries       | `0`                   |
+
+**Output**
+
+The node wraps the response body in `html`:
 
 ```json
 {
-	"name": "string",
-	"price": "number",
-	"inStock": "boolean",
-	"imageUrl": "string"
+	"html": "<html><body>Example page content...</body></html>"
 }
 ```
 
-5. Select **Super** for stronger scraping capabilities or **Cheap** for sites with weaker protection, then run the node.
+Use `{{ $json.html }}` in a following node, or connect an **HTML** node to extract elements. When requesting a screenshot, inspect the output first: this operation reads the response as text and places the complete body in `html`, including a JSON response returned by the API.
 
-### Fetch a rendered page
+### Scrape Markdown
 
-1. Select **Extraction > Fetch Rendered HTML** and enter the target URL.
-2. Leave **Return HTML** enabled, or enable **Return Markdown** if Markdown output is also needed.
-3. To capture an image, enable **Screenshot**, then choose **Full** or **Top** under **Screenshot Mode**.
-4. Use **Advanced Options** when the page needs a CSS selector wait, a different lifecycle event, resource blocking controls, home-page navigation, returned cookies, Super mode, or a custom token cap.
+Retrieve a page as clean Markdown. Browser rendering is optional.
 
-The operation defaults to a 300-second timeout, three retries, `us` geolocation and proxy country, HTML output enabled, and Markdown and screenshot output disabled. **Wait Until** supports **DOM Content Loaded**, **Load**, and **Network Idle**.
+**Configuration details**
 
-### Run an existing scraper in batch
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
 
-1. Select **Scraper Runs > Run Existing Scraper in Batch**.
-2. Choose **AI** or **Manual** and enter the scraper ID.
-3. Enter the URLs as a JSON array:
+| Field             | Location           | HTTP field         | Type                | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ------------------ | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`              | String              | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Browser Rendering | Main configuration | `browserRendering` | True / False / None | None                    | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start        | Main configuration | `warmStart`        | Boolean toggle      | Off (`false`)           | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code          | Main configuration | `geoCode`          | String              | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources   | Options            | `blockResources`   | Boolean toggle      | Off (`false`)           | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout           | Options            | `timeout`          | Integer             | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector`  | String              | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`           | Integer             | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`       | Integer             | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Screenshot        | Options            | `screenshot`       | Boolean toggle      | Off (`false`)           | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
+
+The request uses GET with `markdown=true`, `html=false`, and `saveResult=true`.
+
+**Example:** choose **Scrape Markdown**, enter `https://example.com`, turn **Warm Start** on, and add **Options > Max Age** with `86400000` to accept a cached result up to one day old.
+
+**Output**
 
 ```json
-["https://example.com/page-1", "https://example.com/page-2"]
+{
+	"markdown": "# Example page\n\nExample Markdown content..."
+}
 ```
 
-You can also use comma-separated or newline-separated URLs.
+Use `{{ $json.markdown }}` in a following node. The complete upstream body is read as text; inspect it before mapping fields when requesting a screenshot.
 
-### Retrieve completed results
+### Get Screenshot
 
-Use **Results > Get Latest Results** with the scraper ID, or use **Get Result Detail** when you already have a result ID.
+Capture a Base64 PNG screenshot of the full page, first viewport, or custom viewport. Browser rendering is always enabled.
 
-## Migrating from 2.x
+**Configuration details**
 
-After upgrading, open each existing MrScraper node and reselect its resource and operation. The most common mappings are:
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
 
-| 2.x selection                                       | 4.0.0 selection                                                             |
-| --------------------------------------------------- | --------------------------------------------------------------------------- |
-| Agent > General Agent                               | Scraper Creation > Create Prompt-Based Scraper                              |
-| Agent > Listing Agent                               | Scraper Creation > Create Listing Scraper                                   |
-| Agent > Map Agent                                   | Scraper Creation > Create Website Crawl Scraper                             |
-| Batch Operation > Batch Scrape URLs                 | Scraper Runs > Run Existing Scraper in Batch                                |
-| Rerun Scraper > Manual or AI agent operation        | Scraper Runs > Run Existing Scraper, then select the scraper and agent type |
-| Get Result > Get Many                               | Results > Get Results                                                       |
-| Get Result > Get Latest                             | Results > Get Latest Results                                                |
-| Get Result > Get Detail                             | Results > Get Result Detail                                                 |
-| Scraping > prompt, listing, or structured operation | Extraction > matching extraction operation                                  |
-| SERP > legacy search operation                     | Discovery > Web Search                                                      |
-| Web Unblocker > Fetch Rendered HTML                 | Extraction > Fetch Rendered HTML                                            |
+| Field             | Location           | HTTP field        | Type    | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ----------------- | ------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`             | String  | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Screenshot Mode   | Main configuration | `screenshot`      | String  | `full`                  | Area to capture: `full` for the entire scroll height, `top` for the first viewport, or `WIDTHxHEIGHT[-ZOOM]`. Width and height must be 100–3840 pixels; optional zoom must be 25–300 percent, default 100. Examples: `1280x800`, `1920x1080-75`.               |
+| Geo Code          | Main configuration | `geoCode`         | String  | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Timeout           | Options            | `timeout`         | Integer | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector` | String  | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`          | Integer | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`      | Integer | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
 
-Also review these field changes:
+| Screenshot Mode | Meaning                                                                   |
+| --------------- | ------------------------------------------------------------------------- |
+| `full`          | Capture the entire scrollable page. This is the default.                  |
+| `top`           | Capture the first viewport.                                               |
+| `1280x800`      | Capture a custom viewport. Width and height must each be 100–3840 pixels. |
+| `1920x1080-75`  | Capture a custom viewport with zoom. Zoom must be 25–300 percent.         |
 
-- **Web Search** replaces the legacy search operation (`syncSerp`). Reselect **Discovery > Web Search** in existing search nodes and configure `query`, `country`, and `numResults`; region, language, page, response format, and JavaScript rendering are no longer search inputs.
-- Single and batch reruns now share **Scraper Runs**. Select **AI** or **Manual** explicitly.
-- AI single runs expose agent-specific fields after selecting General, Listing, or Map.
-- Batch URLs can be a JSON array string or a comma/newline-separated list.
-- Prompt-based and listing operations can append an expected JSON schema to the extraction prompt.
-- **Fetch Rendered HTML** now uses a screenshot toggle followed by a **Full** or **Top** mode; screenshots and Markdown are disabled by default.
-- Browser rendering is always enabled and is no longer a user-configurable field.
-- Token cap, resource blocking, lifecycle waiting, cookies, and Super mode are now under **Advanced Options**, which also adds CSS selector waiting and optional home-page navigation.
+The request uses GET with `screenshot=<mode>`, `browserRendering=true`, `html=false`, `markdown=false`, and `saveResult=true`. The API can still include HTML in its response.
 
-Test migrated workflows before enabling them in production.
+**Example:** choose **Get Screenshot**, set **URL** to `https://example.com`, set **Screenshot Mode** to `top`, and add **Options > Timeout** with `120`.
 
-## Compatibility
+**Output**
 
-- `n8n-nodes-mrscraper` version: **4.0.0**
-- Node.js: **22 or newer**
-- Package manager used by this project: **npm**
+```json
+{
+	"html": "<html>...</html>",
+	"screenshot": "BASE64_PNG_DATA"
+}
+```
 
-## Compliance and legal risk
+Read `{{ $json.screenshot }}`. This is Base64 text, not an n8n binary attachment; convert it before passing it to a node that requires a file.
 
-> [!WARNING]
-> Scraping login-protected pages carries serious legal and compliance risks. Many websites prohibit automated access in their terms of service. Only scrape content you are authorized to access, review the target website's terms and applicable laws, and accept responsibility for how you use this node.
+### Scrape Brand
+
+Extract a website's colors, typography, logos, and social links as JSON.
+
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field | Location           | HTTP field | Type   | Default  | Description                                                                       |
+| ----- | ------------------ | ---------- | ------ | -------- | --------------------------------------------------------------------------------- |
+| URL   | Main configuration | `url`      | String | Required | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`. |
+
+Only URL is accepted. Shared page and loading controls are not available.
+
+The request uses GET with `action=brand-scraping`, `bundle=none`, and the URL. The action is fixed and is not an input field.
+
+**Example:** choose **Scrape Brand** and set **URL** to `https://example.com`.
+
+**Output**
+
+```json
+{
+	"data": {
+		"job_id": "JOB_ID",
+		"status": "succeeded",
+		"url": "https://example.com",
+		"final_url": "https://example.com",
+		"brand": {
+			"name": "Example brand",
+			"colors": { "background": "#ffffff", "text": "#222222" },
+			"typography": { "body": { "font_family": "Example font" } }
+		},
+		"error": null,
+		"bundle_url": null
+	},
+	"message": "Example response"
+}
+```
+
+Use `{{ $json.data.brand }}` for brand details and `{{ $json.data.job_id }}` for the job ID.
+
+### Scrape JSON
+
+Extract structured JSON from a page using a natural-language prompt. Append a JSON schema to shape the output.
+
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field                  | Location           | HTTP field           | Type                | Default                                     | Description                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------ | -------------------- | ------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL                    | Main configuration | `url`                | String              | Required                                    | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Prompt                 | Main configuration | `prompt`             | String              | `Extract all data as complete as possible.` | Non-empty instructions describing the data to extract. For example, `Extract the product name, price, and availability.` The result follows the requested data and schema.                                                                                     |
+| Expected Output Schema | Main configuration | Appended to `prompt` | JSON                | Empty                                       | Optional valid JSON describing the expected output. The node appends `Json Schema:` and the serialized schema to Prompt; it does not send a separate schema parameter. Invalid JSON fails before the request.                                                  |
+| Browser Rendering      | Main configuration | `browserRendering`   | True / False / None | None                                        | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start             | Main configuration | `warmStart`          | Boolean toggle      | Off (`false`)                               | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code               | Main configuration | `geoCode`            | String              | Blank; omitted                              | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources        | Options            | `blockResources`     | Boolean toggle      | Off (`false`)                               | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout                | Options            | `timeout`            | Integer             | `300` seconds                               | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector      | Options            | `waitForSelector`    | String              | Blank; omitted                              | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age                | Options            | `maxAge`             | Integer             | `0` milliseconds                            | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries            | Options            | `maxRetries`         | Integer             | Omitted; `3` when added                     | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Return HTML            | Options            | `html`               | Boolean toggle      | On (`true`)                                 | Whether to include the page HTML alongside extracted JSON. Turn off to send `false` when only extracted data is needed.                                                                                                                                        |
+| Screenshot             | Options            | `screenshot`         | Boolean toggle      | Off (`false`)                               | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
+
+The request sends `agent=general` and `saveResult=true`. It uses GET unless the encoded URL exceeds 8,000 characters, when it switches to POST with only `url`, `prompt`, and `agent` in the body. Page controls remain in the query.
+
+**Example configuration**
+
+| Field                  | Value                                                                                                                                        |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL                    | `https://example.com`                                                                                                                        |
+| Prompt                 | `Extract the first two items with title and price.`                                                                                          |
+| Expected Output Schema | `{"type":"array","items":{"type":"object","properties":{"title":{"type":"string"},"price":{"type":"string"}},"required":["title","price"]}}` |
+| Browser Rendering      | True                                                                                                                                         |
+| Options > Return HTML  | Off                                                                                                                                          |
+
+**Output**
+
+```json
+{
+	"success": true,
+	"data": [{ "title": "Example item", "price": "10.00" }],
+	"thread_id": "THREAD_ID",
+	"token_usage": 1,
+	"html": "",
+	"markdown": "",
+	"screenshot": "",
+	"status": "Results ready",
+	"error": "",
+	"runtime": 1.23,
+	"cookies": []
+}
+```
+
+Extracted results are in `{{ $json.data }}` and follow the requested schema. Use **Split Out** on `data` when it is an array and you need one n8n item per result. Response metadata can include `thread_id`, `token_usage`, `status`, `error`, `runtime`, and `cookies`.
+
+## Discovery
+
+### Web Search
+
+Search the web and return ranked results with titles, URLs, descriptions, and sources.
+
+Select **Resource > Discovery** and **Operation > Web Search**.
+
+| Field             | HTTP field   | Type    | Default        | Description                                                        |
+| ----------------- | ------------ | ------- | -------------- | ------------------------------------------------------------------ |
+| Search Query      | `query`      | String  | Required       | Search text, trimmed before sending, containing 1–1000 characters. |
+| Country           | `country`    | String  | Blank; omitted | Two-letter country code to search from, sent in lowercase.         |
+| Number of Results | `numResults` | Integer | `10`           | Request 10–100 results. Fewer results may be returned.             |
+
+The request uses GET `https://api.mrscraper.com/` with fixed `action=websearch`. Country is omitted when blank; the API default is the United States. The transport timeout is fixed at 120 seconds.
+
+**Example:** set **Search Query** to `site:example.com documentation`, **Country** to `id`, and **Number of Results** to `20`.
+
+**Output**
+
+```json
+{
+	"success": true,
+	"message": "Example response",
+	"data": [
+		{
+			"rank": 1,
+			"title": "Example result",
+			"url": "https://example.com",
+			"description": "Example result description.",
+			"source": "example.com"
+		}
+	],
+	"tokenUsage": 1
+}
+```
+
+Use **Split Out** on `data`, connect a second MrScraper node, choose **Scrape HTML** or **Scrape Markdown**, and map the resulting URL field into **URL**. Inspect the Split Out output to choose the correct expression.
+
+## Account
+
+### Get Status
+
+Return the raw account status API response without summarizing, redacting body fields, or adding calculated fields.
+
+Select **Resource > Account** and **Operation > Get Status**, choose your credential, and execute. There are no operation-specific input fields.
+
+The request uses GET `https://api.app.mrscraper.com/api/v1/subscription-accounts`.
+
+**Output**
+
+```json
+{
+	"message": "Example response",
+	"data": {
+		"id": "ACCOUNT_ID",
+		"tokenLimit": 100000,
+		"tokenUsage": 2500,
+		"stripeStatus": "active",
+		"user": {
+			"name": "Example user",
+			"email": "user@example.com",
+			"isVerified": true
+		},
+		"subscriptionItem": { "name": "Example plan", "tokenLimit": 100000 },
+		"scraperAllowance": { "remaining": 97500, "plans": [{ "remaining": 97500 }] }
+	}
+}
+```
+
+Account fields remain nested in `data`. For example, use `{{ $json.data.tokenUsage }}` or inspect `{{ $json.data.scraperAllowance }}`. The node preserves the API body rather than creating usage summaries.
+
+## Working with n8n output
+
+The node returns n8n items. It does not add the CLI/SDK response envelope containing `status_code`, `data`, and `headers`. A `data` field shown above belongs to the API body itself.
+
+| Operation       | Result expression        |
+| --------------- | ------------------------ |
+| Scrape HTML     | `{{ $json.html }}`       |
+| Scrape Markdown | `{{ $json.markdown }}`   |
+| Get Screenshot  | `{{ $json.screenshot }}` |
+| Scrape Brand    | `{{ $json.data.brand }}` |
+| Scrape JSON     | `{{ $json.data }}`       |
+| Web Search      | `{{ $json.data }}`       |
+| Get Status      | `{{ $json.data }}`       |
+
+To use a URL produced by a previous node, switch **URL** to expression mode and enter `{{ $json.url }}`. For search, use `{{ $json.query }}` in **Search Query**.
+
+For example, connect a **Code** node after Scrape Markdown, choose **Run Once for All Items**, and count the returned characters:
+
+```javascript
+return $input.all().map((item, index) => ({
+	json: {
+		characterCount: String(item.json.markdown ?? '').length,
+	},
+	pairedItem: { item: index },
+}));
+```
+
+## Errors and troubleshooting
+
+HTTP and network failures appear as node execution errors. Input validation rejects invalid URLs, page limits, screenshot viewport formats, search inputs, and JSON schemas before sending the affected request. Inspect API response fields such as `success`, `status`, and `error` for service-level results.
+
+| Symptom                                      | What to check                                                                                                               |
+| -------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| Authentication fails                         | Check the token in the selected MrScraper API credential.                                                                   |
+| Dynamic content is missing                   | Set Browser Rendering to True and add Wait for Selector if needed.                                                          |
+| A scrape takes too long                      | Set Timeout up to 330 seconds and configure Max Retries. The transport allows 30 additional seconds.                        |
+| Expected Output Schema is rejected           | Use valid JSON with double quotes and no trailing commas.                                                                   |
+| Screenshot settings are rejected             | HTML, Markdown, and JSON use boolean toggles. Get Screenshot uses full, top, or a supported viewport.                       |
+| Screenshot output is text rather than a file | Decode the Base64 output into binary before passing it to a node requiring a file.                                          |
+| Old configuration fields still appear        | Restart `npm run dev`, reload the editor, and confirm n8n is loading this local package rather than another installed copy. |
+| An output expression returns undefined       | Inspect the node's output JSON and map the actual response fields.                                                          |
+
+## Migration
+
+**Get Account Info** is now named **Get Status**. Its internal operation identifier is retained so existing selections continue to work.
+
+Geo Code is in the main configuration. Browser Rendering choices are **True**, **False**, and **None**. HTML and Markdown use boolean Screenshot toggles and have no Action input. `proxy`, `proxyCountry`, `super`, `returnCookie`, `tokenCap`, and `waitUntil` are not exposed or forwarded.
+
+Web Search and ordinary JSON extraction use GET. Results are always saved for page operations. Get Screenshot sends `html=false`, although the API may still return HTML.
+
+The previous Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs resources are unavailable. Rebuild workflows using those resources with the supported operations.
+
+## Development
+
+Requires Node.js 22 or newer and npm. From the repository directory:
+
+```sh
+npm ci
+npm run dev
+```
+
+Open the URL printed in the terminal to run n8n with the local node. Restart the server after changes if the editor still shows an older configuration.
+
+Run local checks:
+
+```sh
+npm run lint
+npm test
+```
+
+Tests build the package and verify resources, input visibility, authentication configuration, request preparation, validation, and JSON GET/POST fallback without calling the production API. To check live behavior, execute the corresponding operation in your local n8n instance with your credential; scraping and search consume quota.
 
 ## Resources
 
 - [MrScraper](https://mrscraper.com)
 - [MrScraper app](https://app.mrscraper.com)
-- [MrScraper API documentation](https://docs.mrscraper.com/docs/getting-started/overview)
-- [MrScraper programmatic guide](https://docs.mrscraper.com/docs/guides/programmatically)
-- [MrScraper n8n integration](https://n8n.io/integrations/mrscraper/)
-- [n8n community nodes documentation](https://docs.n8n.io/integrations/community-nodes/)
+- [API reference](https://docs.mrscraper.com/docs/api/overview)
 - [Changelog](./CHANGELOG.md)
 
 ## License
 
-This package is released under the MIT License.
+MIT. See [LICENSE](./LICENSE).

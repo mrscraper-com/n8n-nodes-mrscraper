@@ -1,10 +1,7 @@
 import { NodeConnectionTypes, type INodeType, type INodeTypeDescription } from 'n8n-workflow';
-import { scraperRunsDescription } from './resources/scraperRuns';
-import { resultsDescription } from './resources/results';
-import { scraperCreationDescription } from './resources/scraperCreation';
 import { accountDescription } from './resources/account';
-import { extractionDescription } from './resources/extraction';
 import { discoveryDescription } from './resources/discovery';
+import { scraperApiDescription } from './resources/scraperApi';
 
 export class Mrscraper implements INodeType {
 	description: INodeTypeDescription = {
@@ -12,12 +9,10 @@ export class Mrscraper implements INodeType {
 		name: 'mrscraper',
 		icon: { light: 'file:mrscraper.svg', dark: 'file:mrscraper.dark.svg' },
 		group: ['transform'],
-		version: [2, 0],
+		version: 3,
 		subtitle: '={{$parameter["operation"] + ": " + $parameter["resource"]}}',
 		description: 'Interact with the MrScraper API',
-		defaults: {
-			name: 'MrScraper',
-		},
+		defaults: { name: 'MrScraper' },
 		usableAsTool: true,
 		inputs: [NodeConnectionTypes.Main],
 		outputs: [NodeConnectionTypes.Main],
@@ -36,38 +31,14 @@ export class Mrscraper implements INodeType {
 				type: 'options',
 				noDataExpression: true,
 				options: [
-					{
-						name: 'Account',
-						value: 'account',
-					},
-					{
-						name: 'Discovery',
-						value: 'serp',
-					},
-					{
-						name: 'Extraction',
-						value: 'scraping',
-					},
-					{
-						name: 'Result',
-						value: 'result',
-					},
-					{
-						name: 'Scraper Creation',
-						value: 'createScraper',
-					},
-					{
-						name: 'Scraper Run',
-						value: 'rerun',
-					},
+					{ name: 'Account', value: 'account' },
+					{ name: 'Discovery', value: 'discovery' },
+					{ name: 'Scraper API', value: 'scraperApi' },
 				],
-				default: 'rerun',
+				default: 'scraperApi',
 			},
-			...scraperRunsDescription,
-			...resultsDescription,
-			...scraperCreationDescription,
 			...accountDescription,
-			...extractionDescription,
+			...scraperApiDescription,
 			...discoveryDescription,
 		],
 	};

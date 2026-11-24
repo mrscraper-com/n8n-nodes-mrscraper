@@ -15,10 +15,11 @@ export const accountDescription: INodeProperties[] = [
 		},
 		options: [
 			{
-				name: 'Get Account Info',
+				name: 'Get Status',
 				value: 'accountInformation',
-				action: 'Get account info',
-				description: 'Get account details including token usage and token limits',
+				action: 'Get status',
+				description:
+					'Return the raw account status API response without summarizing, redacting body fields, or adding calculated fields',
 				routing: {
 					request: {
 						method: 'GET',

@@ -1,6 +1,6 @@
 {
   "name": "n8n-nodes-mrscraper",
-  "version": "4.0.1",
+  "version": "6.0.0",
   "description": "n8n community nodes package for MrScraper",
   "license": "MIT",
   "homepage": "https://docs.mrscraper.com/docs/integrations/n8n",
@@ -25,6 +25,7 @@
     "dev": "n8n-node dev",
     "lint": "n8n-node lint",
     "lint:fix": "n8n-node lint --fix",
+    "test": "npm run build && node --test tests/*.test.cjs",
     "release": "n8n-node release",
     "prepublishOnly": "n8n-node prerelease"
   },
