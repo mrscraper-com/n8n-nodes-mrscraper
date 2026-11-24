@@ -79,6 +79,16 @@ export const validatePageRequest: PreSendAction = async function (requestOptions
 	return requestOptions;
 };
 
+// Get Screenshot always captures an area: the full page, the first viewport, or a custom viewport.
+export const prepareScreenshotRequest: PreSendAction = async function (requestOptions) {
+	const qs = validatePageQuery.call(this, { ...requestOptions.qs });
+	if (typeof qs.screenshot !== 'string') {
+		fail(this, 'Screenshot must be Full Page, Top of Page, or a Custom Viewport');
+	}
+	requestOptions.qs = qs;
+	return requestOptions;
+};
+
 // A Scrape HTML screenshot needs a rendered page, so it sends browserRendering=true whatever
 // Browser Rendering is set to. Without a screenshot, Browser Rendering is sent as selected.
 export const prepareHtmlRequest: PreSendAction = async function (requestOptions) {

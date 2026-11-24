@@ -30,19 +30,21 @@ The node has three resources: **Account**, **Scraper API**, and **Discovery**.
 
 All five operations call `https://api.mrscraper.com` by GET and authenticate with the `x-api-token` header from your saved credential. Each operation sends only the parameters listed in the [MrScraper API reference](https://docs.mrscraper.com/docs/api/overview).
 
-| Operation           | Request                                                                                            | Output                                                                                |
-| ------------------- | -------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- |
-| **Scrape HTML**     | `GET /` with `url`, `html=true`, `markdown=false`, and an optional screenshot                      | Page content in `html`; with a screenshot, `html` and `screenshot`                    |
-| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, `html=false`, and `screenshot=false`                          | Page content in `markdown`                                                            |
-| **Get Screenshot**  | `GET /` with `url`, `screenshot=full`, `html=false`, `markdown=false`, and `browserRendering=true` | JSON with the Base64-encoded full-page screenshot; the API also returns the page HTML |
-| **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                                                  | Brand details in `data.brand` and the job ID in `data.job_id`                         |
-| **Scrape JSON**     | `GET /` with `url`, `prompt`, and `agent=general`; `POST /` for long URLs                          | Extracted data as JSON, plus API metadata                                             |
+| Operation           | Request                                                                                                                                        | Output                                                                      |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Scrape HTML**     | `GET /` with `url`, `html=true`, `markdown=false`, and an optional screenshot                                                                  | Page content in `html`; with a screenshot, `html` and `screenshot`          |
+| **Scrape Markdown** | `GET /` with `url`, `markdown=true`, `html=false`, and `screenshot=false`                                                                      | Page content in `markdown`                                                  |
+| **Get Screenshot**  | `GET /` with `url`, `screenshot` (`full` by default, `top`, or a custom viewport), `html=false`, `markdown=false`, and `browserRendering=true` | JSON with the Base64-encoded screenshot; the API also returns the page HTML |
+| **Scrape Brand**    | `GET /?action=brand-scraping&bundle=none&url=...`                                                                                              | Brand details in `data.brand` and the job ID in `data.job_id`               |
+| **Scrape JSON**     | `GET /` with `url`, `prompt`, and `agent=general`; `POST /` for long URLs                                                                      | Extracted data as JSON, plus API metadata                                   |
 
 HTML, Markdown, Screenshot, and JSON results are always saved to the Result tab in your MrScraper account (`saveResult=true`), and no token cap is sent.
 
 **Browser Rendering** (HTML, Markdown, and JSON) has three choices. **Auto**, the default, leaves the field out, so the API loads the page without a browser first and switches to a browser if the request is blocked. **Enabled** always loads the page in a browser, which JavaScript-heavy pages need, and **Disabled** never does. Get Screenshot always renders the page in a browser.
 
 In Scrape HTML, **Screenshot** can be **None** (the default), **Full Page**, **Top of Page**, or **Custom Viewport**, which uses the **Viewport** you enter as `WIDTHxHEIGHT` from 100 to 3840 pixels with an optional `-ZOOM` percent from 25 to 300, such as `1280x800` or `1920x1080-75`. Any screenshot also sends `browserRendering=true`, whatever Browser Rendering is set to, and the response becomes JSON with `html` and `screenshot`.
+
+In Get Screenshot, **Screenshot** can be **Full Page** (the default), **Top of Page**, or **Custom Viewport**, which uses the **Viewport** you enter in the same `WIDTHxHEIGHT[-ZOOM]` format. Get Screenshot always sends `browserRendering=true`, `html=false`, and `markdown=false`.
 
 Requests also send these documented defaults. Change them with the top-level fields or by adding the matching entry under **Options**:
 
@@ -53,6 +55,7 @@ Requests also send these documented defaults. Change them with the top-level fie
 | **Block Resources** | HTML, Markdown, JSON             | `false` | `blockResources` |
 | **Warm Start**      | HTML, Markdown, JSON             | `false` | `warmStart`      |
 | **Screenshot**      | HTML                             | `false` | `screenshot`     |
+| **Screenshot**      | Screenshot                       | `full`  | `screenshot`     |
 | **Return HTML**     | JSON                             | `true`  | `html`           |
 | **Screenshot**      | JSON                             | `false` | `screenshot`     |
 
@@ -124,9 +127,9 @@ Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`
 
 Version 5.1 sends only the parameters in the MrScraper API reference:
 
-- **Super**, **Proxy Country**, **Screenshot Mode**, and the **Proxy**, **Return Cookie**, **Wait Until**, **Save Result**, and **Token Cap** options are removed, and requests no longer repeat the token as a `token` query parameter. Results are always saved to your account, and no token cap is sent.
+- **Super**, **Proxy Country**, and the **Proxy**, **Return Cookie**, **Wait Until**, **Save Result**, and **Token Cap** options are removed, and requests no longer repeat the token as a `token` query parameter. Results are always saved to your account, and no token cap is sent.
 - **Browser Rendering** now offers Auto, Enabled, and Disabled. Workflows saved with it on or off keep that choice; workflows that left it at the old default now use Auto.
-- **Get Screenshot** always captures the full page. Use **Scrape HTML** with **Screenshot** set to Top of Page or Custom Viewport for other areas.
+- **Get Screenshot**'s **Screenshot Mode** is now **Screenshot**, with **Full Page** (the default), **Top of Page**, and the new **Custom Viewport**. Saved Full and Top choices are kept.
 - Scrape HTML also sends `markdown=false`, Scrape Markdown sends `html=false` and `screenshot=false`, and Get Screenshot sends `html=false` and `markdown=false`. **Web Search** sends Country only when you enter one.
 - New: **Screenshot** in Scrape HTML, and the **Action** and **Max Age** options. Scrape JSON also accepts **Warm Start**, **Block Resources**, and **Wait for Selector**. Timeout accepts up to 330 seconds.
 

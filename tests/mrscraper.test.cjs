@@ -379,6 +379,7 @@ test('Scrape Markdown sends markdown=true with html=false and screenshot=false',
 
 test('Get Screenshot always sends screenshot=full, html=false, markdown=false, and browserRendering=true', async () => {
 	const values = parameters({ operation: 'getScreenshot' });
+	assert.equal(values.screenshotMode, 'full');
 	for (const name of ['screenshot', 'screenshotViewport', 'browserRendering', 'warmStart']) {
 		assert.equal(name in values, false, `${name} is not a Get Screenshot field`);
 	}
@@ -412,6 +413,53 @@ test('Get Screenshot always sends screenshot=full, html=false, markdown=false, a
 		['maxRetries', '1'],
 		['waitForSelector', '#results'],
 	]);
+});
+
+test('Get Screenshot captures Full Page, Top of Page, or a valid custom viewport', async () => {
+	assert.deepEqual(
+		field('screenshotMode', parameters({ operation: 'getScreenshot' })).options.map((p) => p.value),
+		['custom', 'full', 'top'],
+	);
+	const withArea = (area) =>
+		SCREENSHOT_DEFAULTS.map(([key, value]) => [key, key === 'screenshot' ? area : value]);
+	for (const [values, area] of [
+		[{ screenshotMode: 'full' }, 'full'],
+		[{ screenshotMode: 'top' }, 'top'],
+		[{ screenshotMode: 'custom', screenshotViewport: '1280x800' }, '1280x800'],
+		[{ screenshotMode: 'custom', screenshotViewport: ' 1920x1080-75 ' }, '1920x1080-75'],
+	]) {
+		const sent = await routedRequest({ operation: 'getScreenshot', url: PAGE, ...values });
+		assert.deepEqual(sent.query, withArea(area), JSON.stringify(values));
+	}
+	for (const viewport of [
+		'',
+		'99x800',
+		'3841x800',
+		'1280x99',
+		'1280x800-24',
+		'1280x800-301',
+		'full-ish',
+	]) {
+		await assert.rejects(
+			routedRequest({
+				operation: 'getScreenshot',
+				url: PAGE,
+				screenshotMode: 'custom',
+				screenshotViewport: viewport,
+			}),
+			/Viewport must be WIDTHxHEIGHT/,
+			viewport,
+		);
+	}
+	// Get Screenshot has no None choice; an expression that resolves to false is rejected.
+	await assert.rejects(
+		routedRequest({ operation: 'getScreenshot', url: PAGE, screenshotMode: false }),
+		/Screenshot must be Full Page, Top of Page, or a Custom Viewport/,
+	);
+	assert.equal(
+		'screenshotViewport' in parameters({ operation: 'getScreenshot', screenshotMode: 'top' }),
+		false,
+	);
 });
 
 test('Options appear only for the operations the reference lists them for', () => {
@@ -611,7 +659,6 @@ test('removed fields are gone: no token query parameter, Save Result, or Token C
 		'proxy',
 		'returnCookie',
 		'waitUntil',
-		'screenshotMode',
 		'saveResult',
 		'tokenCap',
 	]) {

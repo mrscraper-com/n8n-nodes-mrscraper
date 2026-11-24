@@ -1,7 +1,7 @@
 import type { IDataObject, INodeProperties, PostReceiveAction } from 'n8n-workflow';
 import { scraperOptions } from './options';
 import { prepareJsonRequest } from './json';
-import { prepareHtmlRequest, validatePageRequest } from './validation';
+import { prepareHtmlRequest, prepareScreenshotRequest, validatePageRequest } from './validation';
 
 const resource = ['scraperApi'];
 const pageOperations = ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson'];
@@ -37,7 +37,8 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Get Screenshot',
 				value: 'getScreenshot',
 				action: 'Get a screenshot',
-				description: 'Capture a full-page screenshot of a web page',
+				description:
+					'Capture a screenshot of the full page, the first viewport, or a custom viewport',
 				routing: {
 					request: {
 						...apiRequest,
@@ -50,7 +51,7 @@ export const scraperApiDescription: INodeProperties[] = [
 							...pageDefaults,
 						},
 					},
-					send: { preSend: [validatePageRequest] },
+					send: { preSend: [prepareScreenshotRequest] },
 				},
 			},
 			{
@@ -203,6 +204,47 @@ export const scraperApiDescription: INodeProperties[] = [
 		required: true,
 		placeholder: '1280x800',
 		displayOptions: { show: { resource, operation: ['scrapeHtml'], screenshot: ['custom'] } },
+		description:
+			'Viewport size as WIDTHxHEIGHT from 100 to 3840 pixels, with an optional -ZOOM percent from 25 to 300, such as 1280x800 or 1920x1080-75',
+		routing: {
+			send: { type: 'query', property: 'screenshot', value: '={{ String($value).trim() }}' },
+		},
+	},
+	{
+		// Named screenshotMode, as in 5.0, so saved Full and Top choices are kept.
+		displayName: 'Screenshot',
+		name: 'screenshotMode',
+		type: 'options',
+		options: [
+			{
+				name: 'Custom Viewport',
+				value: 'custom',
+				description: 'Capture a viewport of the size entered in Viewport',
+			},
+			{ name: 'Full Page', value: 'full', description: 'Capture the entire scrollable page' },
+			{ name: 'Top of Page', value: 'top', description: 'Capture only the first viewport' },
+		],
+		default: 'full',
+		displayOptions: { show: { resource, operation: ['getScreenshot'] } },
+		description: 'Area of the page to capture',
+		routing: {
+			send: {
+				type: 'query',
+				property: 'screenshot',
+				value: '={{ $value === "custom" ? undefined : $value }}',
+			},
+		},
+	},
+	{
+		displayName: 'Viewport',
+		name: 'screenshotViewport',
+		type: 'string',
+		default: '',
+		required: true,
+		placeholder: '1280x800',
+		displayOptions: {
+			show: { resource, operation: ['getScreenshot'], screenshotMode: ['custom'] },
+		},
 		description:
 			'Viewport size as WIDTHxHEIGHT from 100 to 3840 pixels, with an optional -ZOOM percent from 25 to 300, such as 1280x800 or 1920x1080-75',
 		routing: {
