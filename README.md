@@ -33,7 +33,7 @@ Page inputs are query parameters. JSON extraction switches to POST when the enco
 
 ## Page controls
 
-These controls follow `sdk-python/src/mrscraper/mrscraper.py`.
+These controls apply to Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape JSON, with the operation-specific exceptions below. Add optional controls under **Options > Add Option**.
 
 | Control           | Default / behavior                                                                                                                                               |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -47,6 +47,8 @@ These controls follow `sdk-python/src/mrscraper/mrscraper.py`.
 | Max Age           | 0 milliseconds, maximum 604800000 (seven days). Cached requests cost the same tokens as the original scrape.                                                     |
 | Max Retries       | Omitted for unlimited retries. Add this option to set a nonnegative integer; zero disables retries.                                                              |
 | Action            | Optional routing action or analytics label; HTML and Markdown only                                                                                               |
+
+**Warm Start** is a main field. **Block Resources**, **Timeout**, **Wait for Selector**, **Geo Code**, **Max Age**, **Max Retries**, and **Action** are optional controls. Adding **Max Retries** inserts `3`; change it to the limit you need or remove it for unlimited retries.
 
 Every page request sends `saveResult=true`; this is not a user option. `proxy`, `proxyCountry`, `super`, `returnCookie`, `tokenCap`, and `waitUntil` are not exposed or forwarded.
 
@@ -71,6 +73,78 @@ The node passes JSON API responses through. Inspect the output and use fields su
 ### Scrape Brand
 
 Scrape Brand is retained with its existing action, bundle, and URL query. It does not expose page controls. Inspect `{{ $json.data.brand }}` and `{{ $json.data.job_id }}` in the response.
+
+## Request examples
+
+The following objects show the query parameters sent upstream. They are not JSON request bodies. Authentication comes from your saved credential.
+
+### Scrape HTML with automatic browser selection
+
+Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Rendering** on **Automatic**:
+
+```json
+{
+	"url": "https://books.toscrape.com/",
+	"html": true,
+	"markdown": false,
+	"screenshot": false,
+	"timeout": 300,
+	"warmStart": false,
+	"blockResources": false,
+	"saveResult": true,
+	"maxAge": 0
+}
+```
+
+Automatic leaves `browserRendering` out of the request. Optional fields such as `geoCode`, `waitForSelector`, and `maxRetries` are omitted until configured.
+
+### Extract product data
+
+Select **Scrape JSON** and use these fields:
+
+| Field                  | Example                                                                     |
+| ---------------------- | --------------------------------------------------------------------------- |
+| URL                    | `https://books.toscrape.com/catalogue/a-light-in-the-attic_1000/index.html` |
+| Prompt                 | `Extract the product name, price, and availability.`                        |
+| Expected Output Schema | `{ "name": "string", "price": "number", "inStock": "boolean" }`             |
+| Options > Return HTML  | `false` if you only need extracted data                                     |
+
+The node appends the schema to the prompt and sends `agent=general`. Read the response JSON before mapping the extracted fields; the shape depends on the API response and your prompt.
+
+### Capture a custom screenshot
+
+Select **Get Screenshot**, enter the URL, and set **Screenshot Mode** to `1920x1080-75`. Add **Options > Wait for Selector** if you need to wait for a page element. This sends `screenshot=1920x1080-75`, `browserRendering=true`, `html=false`, and `markdown=false`, alongside the shared page defaults.
+
+### Search the web
+
+Select **Discovery > Web Search**, set **Search Query** to `web scraping tutorials`, leave **Country** blank, and keep **Number of Results** at `10`:
+
+```json
+{
+	"action": "websearch",
+	"query": "web scraping tutorials",
+	"numResults": 10
+}
+```
+
+This is a GET request. Country is omitted when blank; entering `GB` sends `country=gb`.
+
+## Use values from other nodes
+
+If a preceding node outputs `{ "url": "https://example.com" }`, switch the MrScraper **URL** field to expression mode and use `{{ $json.url }}`. For search input, use `{{ $json.query }}` in **Search Query**.
+
+HTML and Markdown are wrapped in `html` and `markdown` output fields. Account, Brand, Screenshot, JSON, and Search responses pass through as returned by the API; inspect the node's output JSON before choosing expressions. The node does not add the Python SDK's `status_code`, `data`, and `headers` response envelope.
+
+## Troubleshooting
+
+| Symptom                                        | What to check                                                                                                                             |
+| ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| Old Proxy or Proxy Country fields still appear | Restart the local development server and reload the editor. Confirm n8n is loading this local package rather than another installed copy. |
+| Authentication fails                           | Check the selected MrScraper API credential and token.                                                                                    |
+| Dynamic content is missing                     | Set Browser Rendering to Enabled and optionally add Wait for Selector.                                                                    |
+| Expected Output Schema is rejected             | Enter valid JSON with double quotes and no trailing commas.                                                                               |
+| A request waits too long                       | Set Timeout (1–330 seconds) and Max Retries. Transport allows an additional 30 seconds.                                                   |
+| Screenshot settings are rejected               | Use full, top, or a supported viewport such as 1280x800 or 1920x1080-75.                                                                  |
 
 ## Migration
 
