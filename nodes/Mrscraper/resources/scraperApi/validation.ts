@@ -79,20 +79,6 @@ export const validatePageRequest: PreSendAction = async function (requestOptions
 	return requestOptions;
 };
 
-// Scrape Brand sends action, url, and bundle first, then timeout (when set), warmStart, and geoCode
-// (when set).
-const BRAND_QUERY_ORDER = ['action', 'url', 'bundle', 'timeout', 'warmStart', 'geoCode'];
-
-export const prepareBrandRequest: PreSendAction = async function (requestOptions) {
-	const qs = validatePageQuery.call(this, { ...requestOptions.qs });
-	const ordered: IDataObject = {};
-	for (const name of BRAND_QUERY_ORDER) if (qs[name] !== undefined) ordered[name] = qs[name];
-	for (const [name, value] of Object.entries(qs))
-		if (!(name in ordered) && value !== undefined) ordered[name] = value;
-	requestOptions.qs = ordered;
-	return requestOptions;
-};
-
 // A Scrape HTML screenshot needs a rendered page, so it sends browserRendering=true whatever
 // Browser Rendering is set to. Without a screenshot, Browser Rendering is sent as selected.
 export const prepareHtmlRequest: PreSendAction = async function (requestOptions) {

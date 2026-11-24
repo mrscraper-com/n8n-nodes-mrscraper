@@ -450,7 +450,6 @@ test('Options appear only for the operations the reference lists them for', () =
 		'timeout',
 		'waitForSelector',
 	]);
-	assert.deepEqual(shown('scrapeBrand'), ['geoCode', 'timeout']);
 	assert.equal(scraperOption('timeout').typeOptions.maxValue, 330);
 	assert.deepEqual(scraperOption('maxAge').typeOptions, {
 		minValue: 0,
@@ -673,18 +672,9 @@ test('Web Search is a GET with the action, a trimmed query, an optional country,
 	]);
 });
 
-test('Scrape Brand is a GET with fixed action and bundle and no body', () => {
+test('Scrape Brand is a GET with action, bundle, and url in the query and no body', () => {
 	const values = parameters({ operation: 'scrapeBrand', url: 'https://books.toscrape.com/' });
-	assert.deepEqual(Object.keys(values).sort(), [
-		'operation',
-		'options',
-		'resource',
-		'url',
-		'warmStart',
-	]);
-	for (const name of ['browserRendering', 'screenshot', 'prompt']) {
-		assert.equal(name in values, false, `${name} is not a Scrape Brand field`);
-	}
+	assert.deepEqual(Object.keys(values).sort(), ['operation', 'resource', 'url']);
 	const route = operation('scrapeBrand').routing;
 	assert.deepEqual(route.request, {
 		baseURL: 'https://api.mrscraper.com',
@@ -692,53 +682,22 @@ test('Scrape Brand is a GET with fixed action and bundle and no body', () => {
 		method: 'GET',
 		qs: { action: 'brand-scraping', bundle: 'none' },
 	});
-	assert.equal(route.request.qs.token, undefined);
-	assert.equal(route.send.preSend.length, 1);
+	assert.equal(route.send, undefined);
 	assert.equal(route.output, undefined);
 	assert.deepEqual(field('url', values).routing.send, { type: 'query', property: 'url' });
-	assert.deepEqual(
-		field('options', values).options.map((option) => option.name),
-		['geoCode', 'timeout'],
-	);
 });
 
-test('Scrape Brand sends action, url, bundle, timeout when set, warmStart, and geoCode when set', async () => {
-	const url = 'https://books.toscrape.com/';
-	assert.deepEqual((await routedRequest({ operation: 'scrapeBrand', url })).query, [
-		['action', 'brand-scraping'],
-		['url', url],
-		['bundle', 'none'],
-		['warmStart', 'false'],
-	]);
+test('Scrape Brand sends exactly its fixed fields and the URL', async () => {
 	const sent = await routedRequest({
 		operation: 'scrapeBrand',
-		url,
-		warmStart: true,
-		options: { timeout: 120, geoCode: ' GB ' },
+		url: 'https://books.toscrape.com/',
 	});
 	assert.deepEqual(sent.query, [
 		['action', 'brand-scraping'],
-		['url', url],
 		['bundle', 'none'],
-		['timeout', '120'],
-		['warmStart', 'true'],
-		['geoCode', 'gb'],
+		['url', 'https://books.toscrape.com/'],
 	]);
-	assert.deepEqual(
-		(await routedRequest({ operation: 'scrapeBrand', url, options: { geoCode: 'id' } })).query,
-		[
-			['action', 'brand-scraping'],
-			['url', url],
-			['bundle', 'none'],
-			['warmStart', 'false'],
-			['geoCode', 'id'],
-		],
-	);
-	for (const [options, message] of [
-		[{ timeout: 331 }, /Timeout must be an integer from 1 to 330/],
-		[{ timeout: 0 }, /Timeout must be an integer from 1 to 330/],
-		[{ geoCode: 'usa' }, /Geo Code must be a two-letter country code/],
-	]) {
-		await assert.rejects(routedRequest({ operation: 'scrapeBrand', url, options }), message);
+	for (const name of ['warmStart', 'options', 'browserRendering', 'screenshot']) {
+		assert.equal(name in parameters({ operation: 'scrapeBrand' }), false, name);
 	}
 });

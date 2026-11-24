@@ -1,16 +1,11 @@
 import type { IDataObject, INodeProperties, PostReceiveAction } from 'n8n-workflow';
 import { scraperOptions } from './options';
 import { prepareJsonRequest } from './json';
-import { prepareBrandRequest, prepareHtmlRequest, validatePageRequest } from './validation';
+import { prepareHtmlRequest, validatePageRequest } from './validation';
 
 const resource = ['scraperApi'];
 const pageOperations = ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson'];
 const loadingOperations = ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'];
-const warmStartOperations = [...loadingOperations, 'scrapeBrand'];
-// Scrape Brand offers only Geo Code and Timeout under Options.
-const brandOptions = scraperOptions.filter((option) =>
-	['geoCode', 'timeout'].includes(option.name),
-);
 const apiRequest = { baseURL: 'https://api.mrscraper.com', url: '/' };
 // Documented defaults sent with every page request; an entry under Options overrides timeout and
 // maxAge. Results are always saved, so saveResult is a fixed field.
@@ -70,7 +65,6 @@ export const scraperApiDescription: INodeProperties[] = [
 						method: 'GET',
 						qs: { action: 'brand-scraping', bundle: 'none' },
 					},
-					send: { preSend: [prepareBrandRequest] },
 				},
 			},
 			{
@@ -250,7 +244,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		name: 'warmStart',
 		type: 'boolean',
 		default: false,
-		displayOptions: { show: { resource, operation: warmStartOperations } },
+		displayOptions: { show: { resource, operation: loadingOperations } },
 		description:
 			"Whether to open the site's home page first to warm the session before loading the page",
 		routing: { send: { type: 'query', property: 'warmStart' } },
@@ -263,14 +257,5 @@ export const scraperApiDescription: INodeProperties[] = [
 		default: {},
 		displayOptions: { show: { resource, operation: pageOperations } },
 		options: scraperOptions,
-	},
-	{
-		displayName: 'Options',
-		name: 'options',
-		type: 'collection',
-		placeholder: 'Add Option',
-		default: {},
-		displayOptions: { show: { resource, operation: ['scrapeBrand'] } },
-		options: brandOptions,
 	},
 ];
