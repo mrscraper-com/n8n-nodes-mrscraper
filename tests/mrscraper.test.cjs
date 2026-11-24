@@ -285,3 +285,16 @@ test('HTML and Markdown omit action and expose a boolean screenshot toggle', asy
 		}
 	}
 });
+
+test('Geo Code is a main field for every page operation', () => {
+	for (const name of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson']) {
+		const values = parameters({ operation: name });
+		assert.equal(values.geoCode, '');
+		assert.deepEqual(field('geoCode', values).routing.send, { type: 'query', property: 'geoCode' });
+		assert.equal(
+			field('options', values).options.some((p) => p.name === 'geoCode'),
+			false,
+		);
+	}
+	assert.equal(field('geoCode', parameters({ operation: 'scrapeBrand' })), undefined);
+});

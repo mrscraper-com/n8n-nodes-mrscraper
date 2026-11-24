@@ -11,15 +11,6 @@ export const scraperOptions: INodeProperties[] = [
 		routing: { send: { type: 'query', property: 'blockResources' } },
 	},
 	{
-		displayName: 'Geo Code',
-		name: 'geoCode',
-		type: 'string',
-		default: '',
-		placeholder: 'e.g. us',
-		description: 'Two-letter code of the country to load the page from, such as us or gb',
-		routing: { send: { type: 'query', property: 'geoCode' } },
-	},
-	{
 		displayName: 'Max Retries',
 		name: 'maxRetries',
 		type: 'number',

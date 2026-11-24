@@ -35,19 +35,19 @@ Page inputs are query parameters. JSON extraction switches to POST when the enco
 
 These controls apply to Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape JSON, with the operation-specific exceptions below. Add optional controls under **Options > Add Option**.
 
-| Control           | Default / behavior                                                                                               |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
-| URL               | Required absolute HTTP or HTTPS URL                                                                              |
-| Browser Rendering | None leaves the parameter out. True sends true; False sends false. Available for HTML, Markdown, JSON. |
-| Warm Start        | False; available for HTML, Markdown, JSON                                                                        |
-| Block Resources   | False; available for HTML, Markdown, JSON                                                                        |
-| Timeout           | 300 seconds, range 1–330. The HTTP transport allows 30 additional seconds.                                       |
-| Wait for Selector | Optional, up to 500 characters                                                                                   |
-| Geo Code          | Optional two-letter country code, normalized to lowercase                                                        |
-| Max Age           | 0 milliseconds, maximum 604800000 (seven days). Cached requests cost the same tokens as the original scrape.     |
-| Max Retries       | Omitted for unlimited retries. Add this option to set a nonnegative integer; zero disables retries.              |
+| Control           | Default / behavior                                                                                           |
+| ----------------- | ------------------------------------------------------------------------------------------------------------ |
+| URL               | Required absolute HTTP or HTTPS URL                                                                          |
+| Browser Rendering | None leaves the parameter out. True sends true; False sends false. Available for HTML, Markdown, JSON.       |
+| Warm Start        | False; available for HTML, Markdown, JSON                                                                    |
+| Block Resources   | False; available for HTML, Markdown, JSON                                                                    |
+| Timeout           | 300 seconds, range 1–330. The HTTP transport allows 30 additional seconds.                                   |
+| Wait for Selector | Optional, up to 500 characters                                                                               |
+| Geo Code          | Optional two-letter country code, normalized to lowercase                                                    |
+| Max Age           | 0 milliseconds, maximum 604800000 (seven days). Cached requests cost the same tokens as the original scrape. |
+| Max Retries       | Omitted for unlimited retries. Add this option to set a nonnegative integer; zero disables retries.          |
 
-**Warm Start** is a main field. **Block Resources**, **Timeout**, **Wait for Selector**, **Geo Code**, **Max Age**, **Max Retries**, and **Screenshot** are optional controls. Adding **Max Retries** inserts `3`; change it to the limit you need or remove it for unlimited retries.
+**Warm Start** and **Geo Code** are main fields. **Block Resources**, **Timeout**, **Wait for Selector**, **Max Age**, **Max Retries**, and **Screenshot** are optional controls. Adding **Max Retries** inserts `3`; change it to the limit you need or remove it for unlimited retries.
 
 HTML and Markdown do not expose or forward an `action` parameter. Scrape Brand and Web Search keep their fixed action values.
 

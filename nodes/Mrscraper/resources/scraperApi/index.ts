@@ -195,6 +195,16 @@ export const scraperApiDescription: INodeProperties[] = [
 		routing: { send: { type: 'query', property: 'warmStart' } },
 	},
 	{
+		displayName: 'Geo Code',
+		name: 'geoCode',
+		type: 'string',
+		default: '',
+		placeholder: 'e.g. us',
+		displayOptions: { show: { resource, operation: pageOperations } },
+		description: 'Two-letter code of the country to load the page from, such as us or gb',
+		routing: { send: { type: 'query', property: 'geoCode' } },
+	},
+	{
 		displayName: 'Options',
 		name: 'options',
 		type: 'collection',
