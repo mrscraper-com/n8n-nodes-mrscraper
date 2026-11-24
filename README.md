@@ -54,7 +54,7 @@ Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape JSON share the followin
 | URL      | `url`      | String | Required       | Absolute HTTP or HTTPS URL of the page to process.                                              |
 | Geo Code | `geoCode`  | String | Blank; omitted | Two-letter country code to load the page from, sent in lowercase. For example, `ID` sends `id`. |
 
-**Geo Code is a regular field outside Options.** Leaving it blank uses the API's default location. The CLI reference describes that default as the United States.
+**Geo Code is a regular field outside Options.** Leaving it blank uses the API's default location. The default location is the United States.
 
 ### Options
 
@@ -89,7 +89,22 @@ Select **Resource > Scraper API** for the five operations below. All use `https:
 
 Retrieve the raw HTML of a page. Browser rendering is optional.
 
-**Inputs:** URL, Geo Code, the shared page options, and loading controls above. **Options > Screenshot** is an on/off toggle, default `false`, sent as the boolean `screenshot`. There is no Action input.
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field             | Location           | HTTP field         | Type                | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ------------------ | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`              | String              | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Browser Rendering | Main configuration | `browserRendering` | True / False / None | None                    | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start        | Main configuration | `warmStart`        | Boolean toggle      | Off (`false`)           | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code          | Main configuration | `geoCode`          | String              | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources   | Options            | `blockResources`   | Boolean toggle      | Off (`false`)           | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout           | Options            | `timeout`          | Integer             | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector`  | String              | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`           | Integer             | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`       | Integer             | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Screenshot        | Options            | `screenshot`       | Boolean toggle      | Off (`false`)           | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
 
 The request uses GET with `html=true`, `markdown=false`, and `saveResult=true`. Browser Rendering follows your selected True, False, or None value.
 
@@ -120,7 +135,22 @@ Use `{{ $json.html }}` in a following node, or connect an **HTML** node to extra
 
 Retrieve a page as clean Markdown. Browser rendering is optional.
 
-**Inputs:** URL, Geo Code, the shared page options, and loading controls. **Options > Screenshot** is an on/off toggle, default `false`, sent as the boolean `screenshot`. There is no Action input.
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field             | Location           | HTTP field         | Type                | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ------------------ | ------------------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`              | String              | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Browser Rendering | Main configuration | `browserRendering` | True / False / None | None                    | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start        | Main configuration | `warmStart`        | Boolean toggle      | Off (`false`)           | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code          | Main configuration | `geoCode`          | String              | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources   | Options            | `blockResources`   | Boolean toggle      | Off (`false`)           | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout           | Options            | `timeout`          | Integer             | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector`  | String              | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`           | Integer             | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`       | Integer             | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Screenshot        | Options            | `screenshot`       | Boolean toggle      | Off (`false`)           | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
 
 The request uses GET with `markdown=true`, `html=false`, and `saveResult=true`.
 
@@ -140,7 +170,19 @@ Use `{{ $json.markdown }}` in a following node. The complete upstream body is re
 
 Capture a Base64 PNG screenshot of the full page, first viewport, or custom viewport. Browser rendering is always enabled.
 
-**Inputs:** URL, Geo Code, the shared page options, and **Screenshot Mode** in the main configuration.
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field             | Location           | HTTP field        | Type    | Default                 | Description                                                                                                                                                                                                                                                    |
+| ----------------- | ------------------ | ----------------- | ------- | ----------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL               | Main configuration | `url`             | String  | Required                | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Screenshot Mode   | Main configuration | `screenshot`      | String  | `full`                  | Area to capture: `full` for the entire scroll height, `top` for the first viewport, or `WIDTHxHEIGHT[-ZOOM]`. Width and height must be 100–3840 pixels; optional zoom must be 25–300 percent, default 100. Examples: `1280x800`, `1920x1080-75`.               |
+| Geo Code          | Main configuration | `geoCode`         | String  | Blank; omitted          | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Timeout           | Options            | `timeout`         | Integer | `300` seconds           | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector | Options            | `waitForSelector` | String  | Blank; omitted          | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age           | Options            | `maxAge`          | Integer | `0` milliseconds        | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries       | Options            | `maxRetries`      | Integer | Omitted; `3` when added | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
 
 | Screenshot Mode | Meaning                                                                   |
 | --------------- | ------------------------------------------------------------------------- |
@@ -168,7 +210,15 @@ Read `{{ $json.screenshot }}`. This is Base64 text, not an n8n binary attachment
 
 Extract a website's colors, typography, logos, and social links as JSON.
 
-**Input:** URL only. Shared page and loading controls are not available.
+**Configuration details**
+
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field | Location           | HTTP field | Type   | Default  | Description                                                                       |
+| ----- | ------------------ | ---------- | ------ | -------- | --------------------------------------------------------------------------------- |
+| URL   | Main configuration | `url`      | String | Required | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`. |
+
+Only URL is accepted. Shared page and loading controls are not available.
 
 The request uses GET with `action=brand-scraping`, `bundle=none`, and the URL. The action is fixed and is not an input field.
 
@@ -201,14 +251,25 @@ Use `{{ $json.data.brand }}` for brand details and `{{ $json.data.job_id }}` for
 
 Extract structured JSON from a page using a natural-language prompt. Append a JSON schema to shape the output.
 
-**Inputs:** URL, Geo Code, shared page options, loading controls, and these extraction fields:
+**Configuration details**
 
-| Field                  | Location           | HTTP field           | Type    | Default                                     | Description                                                                       |
-| ---------------------- | ------------------ | -------------------- | ------- | ------------------------------------------- | --------------------------------------------------------------------------------- |
-| Prompt                 | Main configuration | `prompt`             | String  | `Extract all data as complete as possible.` | Instructions describing the data to extract.                                      |
-| Expected Output Schema | Main configuration | Appended to `prompt` | JSON    | Empty                                       | Optional valid JSON appended as `Json Schema:` followed by the serialized schema. |
-| Return HTML            | Options            | `html`               | Boolean | `true`                                      | Include the page HTML in the response.                                            |
-| Screenshot             | Options            | `screenshot`         | Boolean | `false`                                     | Include a Base64 screenshot in the response.                                      |
+Fields marked **Main configuration** appear directly in the node. Fields marked **Options** are added through **Options > Add Option**. Defaults describe what this n8n node sends.
+
+| Field                  | Location           | HTTP field           | Type                | Default                                     | Description                                                                                                                                                                                                                                                    |
+| ---------------------- | ------------------ | -------------------- | ------------------- | ------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| URL                    | Main configuration | `url`                | String              | Required                                    | Absolute HTTP or HTTPS URL of the page to process, such as `https://example.com`.                                                                                                                                                                              |
+| Prompt                 | Main configuration | `prompt`             | String              | `Extract all data as complete as possible.` | Non-empty instructions describing the data to extract. For example, `Extract the product name, price, and availability.` The result follows the requested data and schema.                                                                                     |
+| Expected Output Schema | Main configuration | Appended to `prompt` | JSON                | Empty                                       | Optional valid JSON describing the expected output. The node appends `Json Schema:` and the serialized schema to Prompt; it does not send a separate schema parameter. Invalid JSON fails before the request.                                                  |
+| Browser Rendering      | Main configuration | `browserRendering`   | True / False / None | None                                        | Whether to load the page in a browser: True always does and False never does. None leaves the HTTP field out, so the API loads the page without a browser first and switches to a browser if the request is blocked.                                           |
+| Warm Start             | Main configuration | `warmStart`          | Boolean toggle      | Off (`false`)                               | Whether to open the site’s home page first to warm the session before loading the target URL.                                                                                                                                                                  |
+| Geo Code               | Main configuration | `geoCode`            | String              | Blank; omitted                              | Two-letter country code to load the page from, sent in lowercase. For example, `US`, `GB`, or `ID` becomes `us`, `gb`, or `id`. Leave blank to use the API default location.                                                                                   |
+| Block Resources        | Options            | `blockResources`     | Boolean toggle      | Off (`false`)                               | Whether to block images, fonts, and stylesheets while loading the page. This can affect the appearance of captured screenshots.                                                                                                                                |
+| Timeout                | Options            | `timeout`            | Integer             | `300` seconds                               | Maximum seconds to wait for the scrape, from 1 to 330. The HTTP request allows 30 additional seconds: a value of `120` gives the transport 150 seconds.                                                                                                        |
+| Wait for Selector      | Options            | `waitForSelector`    | String              | Blank; omitted                              | CSS selector or text to wait for on the page before returning the result, up to 500 characters. For example, `.product-list` waits for the product list. Leave blank to omit it.                                                                               |
+| Max Age                | Options            | `maxAge`             | Integer             | `0` milliseconds                            | Return a cached result of the same request when it is newer than this age. Range: 0–604800000 milliseconds (seven days). `0` always scrapes fresh; `86400000` accepts results up to one day old. A cached result costs the same tokens as the original scrape. |
+| Max Retries            | Options            | `maxRetries`         | Integer             | Omitted; `3` when added                     | Maximum retries, as a nonnegative integer. Leave the option absent for no limit. Adding it inserts `3`; change that value as needed. `0` disables retries.                                                                                                     |
+| Return HTML            | Options            | `html`               | Boolean toggle      | On (`true`)                                 | Whether to include the page HTML alongside extracted JSON. Turn off to send `false` when only extracted data is needed.                                                                                                                                        |
+| Screenshot             | Options            | `screenshot`         | Boolean toggle      | Off (`false`)                               | Whether to include a Base64 screenshot in the response. On sends `true`; off sends `false`. This is a toggle, not a screenshot-area input. Browser Rendering follows its selected setting.                                                                     |
 
 The request sends `agent=general` and `saveResult=true`. It uses GET unless the encoded URL exceeds 8,000 characters, when it switches to POST with only `url`, `prompt`, and `agent` in the body. Page controls remain in the query.
 
@@ -256,7 +317,7 @@ Select **Resource > Discovery** and **Operation > Web Search**.
 | Country           | `country`    | String  | Blank; omitted | Two-letter country code to search from, sent in lowercase.         |
 | Number of Results | `numResults` | Integer | `10`           | Request 10–100 results. Fewer results may be returned.             |
 
-The request uses GET `https://api.mrscraper.com/` with fixed `action=websearch`. Country is omitted when blank; the CLI reference describes the API default as the United States. The transport timeout is fixed at 120 seconds.
+The request uses GET `https://api.mrscraper.com/` with fixed `action=websearch`. Country is omitted when blank; the API default is the United States. The transport timeout is fixed at 120 seconds.
 
 **Example:** set **Search Query** to `site:example.com documentation`, **Country** to `id`, and **Number of Results** to `20`.
 
