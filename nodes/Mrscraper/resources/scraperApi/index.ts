@@ -172,7 +172,7 @@ export const scraperApiDescription: INodeProperties[] = [
 		name: 'browserRendering',
 		type: 'options',
 		options: [
-			{ name: 'None (Omitted)', value: 'none' },
+			{ name: 'None', value: 'none' },
 			{ name: 'True', value: 'true' },
 			{ name: 'False', value: 'false' },
 		],

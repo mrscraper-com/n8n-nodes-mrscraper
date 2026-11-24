@@ -38,7 +38,7 @@ These controls apply to Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape
 | Control           | Default / behavior                                                                                               |
 | ----------------- | ---------------------------------------------------------------------------------------------------------------- |
 | URL               | Required absolute HTTP or HTTPS URL                                                                              |
-| Browser Rendering | None (Omitted) leaves the parameter out. True sends true; False sends false. Available for HTML, Markdown, JSON. |
+| Browser Rendering | None leaves the parameter out. True sends true; False sends false. Available for HTML, Markdown, JSON. |
 | Warm Start        | False; available for HTML, Markdown, JSON                                                                        |
 | Block Resources   | False; available for HTML, Markdown, JSON                                                                        |
 | Timeout           | 300 seconds, range 1–330. The HTTP transport allows 30 additional seconds.                                       |
@@ -81,7 +81,7 @@ The following objects show the query parameters sent upstream. They are not JSON
 
 ### Scrape HTML with browserRendering omitted
 
-Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Rendering** on **None (Omitted)**:
+Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Rendering** on **None**:
 
 ```json
 {
@@ -97,7 +97,7 @@ Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Renderi
 }
 ```
 
-None (Omitted) leaves `browserRendering` out of the request. Optional fields such as `geoCode`, `waitForSelector`, and `maxRetries` are omitted until configured.
+None leaves `browserRendering` out of the request. Optional fields such as `geoCode`, `waitForSelector`, and `maxRetries` are omitted until configured.
 
 ### Extract product data
 
@@ -149,7 +149,7 @@ HTML and Markdown are wrapped in `html` and `markdown` output fields. Account, B
 
 ## Migration
 
-Reconfigure existing nodes after upgrading: legacy proxy and scraping options have been removed. Browser Rendering now defaults to None (Omitted). Web Search and ordinary JSON extraction now use GET. Results are always saved. Screenshot requests no longer request HTML.
+Reconfigure existing nodes after upgrading: legacy proxy and scraping options have been removed. Browser Rendering now defaults to None. Web Search and ordinary JSON extraction now use GET. Results are always saved. Screenshot requests no longer request HTML.
 
 The previous Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs resources are unavailable; rebuild those workflows with the supported operations.
 
