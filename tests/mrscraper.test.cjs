@@ -214,7 +214,6 @@ test('Scrape HTML maps every documented option to its query field', async () => 
 		browserRendering: false,
 		warmStart: true,
 		options: {
-			action: ' analytics ',
 			blockResources: true,
 			geoCode: ' GB ',
 			maxAge: 3600000,
@@ -237,7 +236,6 @@ test('Scrape HTML maps every documented option to its query field', async () => 
 		['screenshot', '1920x1080-75'],
 		['browserRendering', 'true'],
 		['warmStart', 'true'],
-		['action', 'analytics'],
 		['geoCode', 'gb'],
 		['maxRetries', '0'],
 		['waitForSelector', '.ready'],
@@ -355,7 +353,7 @@ test('Scrape Markdown sends markdown=true with html=false and screenshot=false',
 		operation: 'scrapeMarkdown',
 		url: PAGE,
 		browserRendering: false,
-		options: { blockResources: true, action: 'docs', geoCode: 'ID' },
+		options: { blockResources: true, geoCode: 'ID' },
 	});
 	assert.deepEqual(withOptions.query, [
 		['markdown', 'true'],
@@ -368,7 +366,6 @@ test('Scrape Markdown sends markdown=true with html=false and screenshot=false',
 		['url', PAGE],
 		['browserRendering', 'false'],
 		['warmStart', 'false'],
-		['action', 'docs'],
 		['geoCode', 'id'],
 	]);
 	const [markdownOutput] = operation('scrapeMarkdown').routing.output.postReceive;
@@ -472,7 +469,6 @@ test('Options appear only for the operations the reference lists them for', () =
 			.map((option) => option.name);
 	};
 	assert.deepEqual(shown('scrapeHtml'), [
-		'action',
 		'blockResources',
 		'geoCode',
 		'maxAge',
@@ -661,6 +657,7 @@ test('removed fields are gone: no token query parameter, Save Result, or Token C
 		'waitUntil',
 		'saveResult',
 		'tokenCap',
+		'action',
 	]) {
 		assert.equal(names.has(removed), false, removed);
 	}

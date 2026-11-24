@@ -68,7 +68,6 @@ curl 'https://api.mrscraper.com/?html=true&markdown=false&timeout=300&saveResult
 
 **Options** also offers settings that are sent only when you add them:
 
-- **Action** (HTML and Markdown) routes the request to a scraper action or flags it for analytics. The action must exist for the target site; an unknown action fails with HTTP 400.
 - **Geo Code** is the two-letter country to load the page from. Leave it out to load the page from the United States.
 - **Max Retries** limits retries. Leave it out for no limit.
 - **Wait for Selector** waits for a CSS selector or text, up to 500 characters. It needs a rendered page, so do not combine it with Browser Rendering set to **Disabled**.

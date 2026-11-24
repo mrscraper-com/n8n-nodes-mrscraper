@@ -5,23 +5,6 @@ import type { INodeProperties } from 'n8n-workflow';
 // saved (saveResult=true) and no token cap is sent.
 export const scraperOptions: INodeProperties[] = [
 	{
-		displayName: 'Action',
-		name: 'action',
-		type: 'string',
-		default: '',
-		placeholder: 'e.g. product-page',
-		displayOptions: { show: { '/operation': ['scrapeHtml', 'scrapeMarkdown'] } },
-		description:
-			'Scraper action that routes the request or flags it, useful for separating analytics per domain. The action must exist for the target site.',
-		routing: {
-			send: {
-				type: 'query',
-				property: 'action',
-				value: '={{ String($value).trim() || undefined }}',
-			},
-		},
-	},
-	{
 		displayName: 'Block Resources',
 		name: 'blockResources',
 		type: 'boolean',
