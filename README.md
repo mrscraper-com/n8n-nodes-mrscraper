@@ -35,20 +35,21 @@ Page inputs are query parameters. JSON extraction switches to POST when the enco
 
 These controls apply to Scrape HTML, Scrape Markdown, Get Screenshot, and Scrape JSON, with the operation-specific exceptions below. Add optional controls under **Options > Add Option**.
 
-| Control           | Default / behavior                                                                                                                                               |
-| ----------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| URL               | Required absolute HTTP or HTTPS URL                                                                                                                              |
-| Browser Rendering | Automatic: omit the parameter so the service can switch to a browser when blocked. Enabled sends true; Disabled sends false. Available for HTML, Markdown, JSON. |
-| Warm Start        | False; available for HTML, Markdown, JSON                                                                                                                        |
-| Block Resources   | False; available for HTML, Markdown, JSON                                                                                                                        |
-| Timeout           | 300 seconds, range 1–330. The HTTP transport allows 30 additional seconds.                                                                                       |
-| Wait for Selector | Optional, up to 500 characters                                                                                                                                   |
-| Geo Code          | Optional two-letter country code, normalized to lowercase                                                                                                        |
-| Max Age           | 0 milliseconds, maximum 604800000 (seven days). Cached requests cost the same tokens as the original scrape.                                                     |
-| Max Retries       | Omitted for unlimited retries. Add this option to set a nonnegative integer; zero disables retries.                                                              |
-| Action            | Optional routing action or analytics label; HTML and Markdown only                                                                                               |
+| Control           | Default / behavior                                                                                               |
+| ----------------- | ---------------------------------------------------------------------------------------------------------------- |
+| URL               | Required absolute HTTP or HTTPS URL                                                                              |
+| Browser Rendering | None (Omitted) leaves the parameter out. True sends true; False sends false. Available for HTML, Markdown, JSON. |
+| Warm Start        | False; available for HTML, Markdown, JSON                                                                        |
+| Block Resources   | False; available for HTML, Markdown, JSON                                                                        |
+| Timeout           | 300 seconds, range 1–330. The HTTP transport allows 30 additional seconds.                                       |
+| Wait for Selector | Optional, up to 500 characters                                                                                   |
+| Geo Code          | Optional two-letter country code, normalized to lowercase                                                        |
+| Max Age           | 0 milliseconds, maximum 604800000 (seven days). Cached requests cost the same tokens as the original scrape.     |
+| Max Retries       | Omitted for unlimited retries. Add this option to set a nonnegative integer; zero disables retries.              |
 
-**Warm Start** is a main field. **Block Resources**, **Timeout**, **Wait for Selector**, **Geo Code**, **Max Age**, **Max Retries**, and **Action** are optional controls. Adding **Max Retries** inserts `3`; change it to the limit you need or remove it for unlimited retries.
+**Warm Start** is a main field. **Block Resources**, **Timeout**, **Wait for Selector**, **Geo Code**, **Max Age**, **Max Retries**, and **Screenshot** are optional controls. Adding **Max Retries** inserts `3`; change it to the limit you need or remove it for unlimited retries.
+
+HTML and Markdown do not expose or forward an `action` parameter. Scrape Brand and Web Search keep their fixed action values.
 
 Every page request sends `saveResult=true`; this is not a user option. `proxy`, `proxyCountry`, `super`, `returnCookie`, `tokenCap`, and `waitUntil` are not exposed or forwarded.
 
@@ -56,7 +57,7 @@ Every page request sends `saveResult=true`; this is not a user option. `proxy`, 
 
 **Get Screenshot > Screenshot Mode** accepts `full`, `top`, or `WIDTHxHEIGHT[-ZOOM]`, such as `1280x800` or `1920x1080-75`. Dimensions must be 100–3840 pixels and zoom 25–300 percent. Browser rendering is always enabled. This operation has no Warm Start or Block Resources control.
 
-To capture a screenshot with HTML, add **Options > Screenshot Area**. The same formats apply, and browser rendering is forced on. The screenshot is returned by the API as Base64; inspect the output before mapping it to another node.
+For HTML and Markdown, add **Options > Screenshot** and use the on/off toggle. It sends `screenshot=true` or `screenshot=false` (default false). Browser Rendering follows your selected value. The screenshot is returned by the API as Base64; inspect the output before mapping it to another node.
 
 ### JSON extraction
 
@@ -78,9 +79,9 @@ Scrape Brand is retained with its existing action, bundle, and URL query. It doe
 
 The following objects show the query parameters sent upstream. They are not JSON request bodies. Authentication comes from your saved credential.
 
-### Scrape HTML with automatic browser selection
+### Scrape HTML with browserRendering omitted
 
-Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Rendering** on **Automatic**:
+Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Rendering** on **None (Omitted)**:
 
 ```json
 {
@@ -96,7 +97,7 @@ Select **Scraper API > Scrape HTML**, enter the URL, and leave **Browser Renderi
 }
 ```
 
-Automatic leaves `browserRendering` out of the request. Optional fields such as `geoCode`, `waitForSelector`, and `maxRetries` are omitted until configured.
+None (Omitted) leaves `browserRendering` out of the request. Optional fields such as `geoCode`, `waitForSelector`, and `maxRetries` are omitted until configured.
 
 ### Extract product data
 
@@ -141,14 +142,14 @@ HTML and Markdown are wrapped in `html` and `markdown` output fields. Account, B
 | ---------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
 | Old Proxy or Proxy Country fields still appear | Restart the local development server and reload the editor. Confirm n8n is loading this local package rather than another installed copy. |
 | Authentication fails                           | Check the selected MrScraper API credential and token.                                                                                    |
-| Dynamic content is missing                     | Set Browser Rendering to Enabled and optionally add Wait for Selector.                                                                    |
+| Dynamic content is missing                     | Set Browser Rendering to True and optionally add Wait for Selector.                                                                       |
 | Expected Output Schema is rejected             | Enter valid JSON with double quotes and no trailing commas.                                                                               |
 | A request waits too long                       | Set Timeout (1–330 seconds) and Max Retries. Transport allows an additional 30 seconds.                                                   |
 | Screenshot settings are rejected               | Use full, top, or a supported viewport such as 1280x800 or 1920x1080-75.                                                                  |
 
 ## Migration
 
-Reconfigure existing nodes after upgrading: legacy proxy and scraping options have been removed. Browser Rendering now defaults to Automatic. Web Search and ordinary JSON extraction now use GET. Results are always saved. Screenshot requests no longer request HTML.
+Reconfigure existing nodes after upgrading: legacy proxy and scraping options have been removed. Browser Rendering now defaults to None (Omitted). Web Search and ordinary JSON extraction now use GET. Results are always saved. Screenshot requests no longer request HTML.
 
 The previous Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs resources are unavailable; rebuild those workflows with the supported operations.
 

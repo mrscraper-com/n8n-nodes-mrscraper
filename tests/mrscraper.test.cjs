@@ -123,7 +123,7 @@ const pageRequest = (operationName, extra = {}, values = {}) =>
 test('page requests match SDK defaults and drop legacy query fields', async () => {
 	for (const name of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson']) {
 		const result = await pageRequest(name, {
-			browserRendering: 'auto',
+			browserRendering: 'none',
 			screenshot: name === 'getScreenshot' ? 'full' : false,
 			proxy: 'secret',
 			proxyCountry: 'us',
@@ -158,7 +158,7 @@ test('page requests match SDK defaults and drop legacy query fields', async () =
 			properties.some((p) => p.name === key),
 			false,
 		);
-	assert.equal(parameters({ operation: 'scrapeHtml' }).browserRendering, 'auto');
+	assert.equal(parameters({ operation: 'scrapeHtml' }).browserRendering, 'none');
 });
 
 test('JSON uses GET and falls back to POST with only url, prompt, agent in body', async () => {
@@ -181,12 +181,12 @@ test('JSON uses GET and falls back to POST with only url, prompt, agent in body'
 
 test('page controls validate SDK limits and preserve false and zero', async () => {
 	const result = await pageRequest('scrapeHtml', {
-		screenshot: '1920x1080-75',
+		screenshot: true,
 		browserRendering: false,
 		maxRetries: 0,
 		geoCode: 'GB',
 	});
-	assert.equal(result.qs.browserRendering, true);
+	assert.equal(result.qs.browserRendering, false);
 	assert.equal(result.qs.maxRetries, 0);
 	assert.equal(result.qs.geoCode, 'gb');
 	for (const extra of [
@@ -247,4 +247,41 @@ test('search preparation trims input, omits country, and validates SDK limits', 
 		{ numResults: 9 },
 	])
 		await assert.rejects(() => run(values));
+});
+
+test('HTML and Markdown omit action and expose a boolean screenshot toggle', async () => {
+	for (const name of ['scrapeHtml', 'scrapeMarkdown']) {
+		const values = parameters({ operation: name });
+		const options = field('options', values).options;
+		assert.equal(
+			options.some((p) => p.name === 'action' || p.name === 'screenshotArea'),
+			false,
+		);
+		const screenshot = options.find((p) => p.name === 'screenshot');
+		assert.equal(screenshot.type, 'boolean');
+		assert.equal(screenshot.default, false);
+		assert.equal(
+			NodeHelpers.displayParameter({}, screenshot, { typeVersion: 3 }, description, values),
+			true,
+		);
+		assert.deepEqual(
+			field('browserRendering', values).options.map((p) => p.value),
+			['none', 'true', 'false'],
+		);
+		for (const capture of [true, false]) {
+			for (const browser of ['none', 'true', 'false']) {
+				const result = await pageRequest(name, {
+					action: 'legacy-action',
+					screenshot: capture,
+					browserRendering: browser,
+				});
+				assert.equal(result.qs.action, undefined);
+				assert.equal(result.qs.screenshot, capture);
+				assert.equal(
+					result.qs.browserRendering,
+					browser === 'none' ? undefined : browser === 'true',
+				);
+			}
+		}
+	}
 });

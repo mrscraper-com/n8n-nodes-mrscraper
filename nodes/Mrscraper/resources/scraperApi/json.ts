@@ -13,7 +13,6 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 		'warmStart',
 		'blockResources',
 		'waitForSelector',
-		'action',
 		'geoCode',
 		'maxAge',
 		'maxRetries',
@@ -47,7 +46,7 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 	integer('timeout', 1, 330);
 	integer('maxAge', 0, 604800000);
 	integer('maxRetries', 0);
-	if (qs.browserRendering === 'auto') delete qs.browserRendering;
+	if (qs.browserRendering === 'none' || qs.browserRendering === 'auto') delete qs.browserRendering;
 	else if (qs.browserRendering === 'true' || qs.browserRendering === 'false')
 		qs.browserRendering = qs.browserRendering === 'true';
 	if (operation !== 'getScreenshot') {
@@ -57,7 +56,7 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 		delete qs.warmStart;
 		delete qs.blockResources;
 	}
-	for (const name of ['waitForSelector', 'action', 'geoCode']) {
+	for (const name of ['waitForSelector', 'geoCode']) {
 		if (qs[name] === undefined) continue;
 		qs[name] = String(qs[name]).trim();
 		if (!qs[name]) delete qs[name];
@@ -69,7 +68,6 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 		qs.geoCode = String(qs.geoCode).toLowerCase();
 	}
 	if (operation === 'scrapeJson') {
-		delete qs.action;
 		let prompt = this.getNodeParameter('prompt') as string;
 		if (!prompt.trim()) fail('Prompt must be a non-empty string');
 		const outputSchema = this.getNodeParameter('outputSchema', '') as string | IDataObject;
@@ -84,7 +82,7 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 		}
 		qs.prompt = prompt;
 		qs.agent = 'general';
-	} else if (qs.screenshot !== false) {
+	} else if (operation === 'getScreenshot') {
 		const capture = String(qs.screenshot);
 		const match = /^(\d{3,4})x(\d{3,4})(?:-(\d{2,3}))?$/.exec(capture);
 		if (
@@ -102,6 +100,8 @@ export const preparePageRequest: PreSendAction = async function (requestOptions)
 			fail('Screenshot must be full, top, or WIDTHxHEIGHT[-ZOOM] (100–3840 pixels, 25–300% zoom)');
 		qs.browserRendering = true;
 	}
+	if (operation !== 'getScreenshot' && typeof qs.screenshot !== 'boolean')
+		fail('Screenshot must be true or false');
 	requestOptions.timeout = (Number(qs.timeout) + 30) * 1000;
 	requestOptions.method = 'GET';
 	delete requestOptions.body;

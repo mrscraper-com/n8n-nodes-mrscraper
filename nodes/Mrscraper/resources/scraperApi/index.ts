@@ -172,16 +172,15 @@ export const scraperApiDescription: INodeProperties[] = [
 		name: 'browserRendering',
 		type: 'options',
 		options: [
-			{ name: 'Automatic', value: 'auto' },
-			{ name: 'Enabled', value: 'true' },
-			{ name: 'Disabled', value: 'false' },
+			{ name: 'None (Omitted)', value: 'none' },
+			{ name: 'True', value: 'true' },
+			{ name: 'False', value: 'false' },
 		],
-		default: 'auto',
+		default: 'none',
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
 		},
-		description:
-			'Automatic omits the parameter so the service can switch to a browser when blocked; enabled always renders and disabled never renders',
+		description: 'Send true or false, or choose none to omit browserRendering from the request',
 		routing: { send: { type: 'query', property: 'browserRendering' } },
 	},
 	{
