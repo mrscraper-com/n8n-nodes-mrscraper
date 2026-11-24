@@ -4,3 +4,5 @@ dist/
 # Use npm only (CI runs `npm ci`). Ignore other package managers' lockfiles.
 pnpm-lock.yaml
 yarn.lock
+# Live API test results contain response data; keep them local.
+test-results/
