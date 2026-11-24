@@ -1,6 +1,6 @@
 import type { INodeProperties, PostReceiveAction } from 'n8n-workflow';
 import { scraperOptions } from './options';
-import { prepareJsonRequest } from './json';
+import { preparePageRequest } from './json';
 
 const resource = ['scraperApi'];
 const pageOperations = ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson'];
@@ -26,13 +26,14 @@ export const scraperApiDescription: INodeProperties[] = [
 				name: 'Get Screenshot',
 				value: 'getScreenshot',
 				action: 'Get a screenshot',
-				description: 'Capture a screenshot of the full page or only the visible area at the top',
+				description: 'Capture a full page, top viewport, or custom viewport screenshot',
 				routing: {
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', browserRendering: true, html: true },
+						qs: { browserRendering: true, html: false, markdown: false },
 					},
+					send: { preSend: [preparePageRequest] },
 				},
 			},
 			{
@@ -58,11 +59,12 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', html: true },
+						qs: { html: true, markdown: false, screenshot: false },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/html' },
 					},
+					send: { preSend: [preparePageRequest] },
 					output: { postReceive: [htmlOutput] },
 				},
 			},
@@ -74,11 +76,10 @@ export const scraperApiDescription: INodeProperties[] = [
 				routing: {
 					request: {
 						...apiRequest,
-						method: 'POST',
-						body: { agent: 'general' },
-						qs: { token: '={{$credentials.apiToken}}' },
+						method: 'GET',
+						qs: { agent: 'general', html: true, screenshot: false },
 					},
-					send: { preSend: [prepareJsonRequest] },
+					send: { preSend: [preparePageRequest] },
 				},
 			},
 			{
@@ -90,11 +91,12 @@ export const scraperApiDescription: INodeProperties[] = [
 					request: {
 						...apiRequest,
 						method: 'GET',
-						qs: { token: '={{$credentials.apiToken}}', markdown: true, html: false },
+						qs: { markdown: true, html: false, screenshot: false },
 						json: false,
 						encoding: 'text',
 						headers: { Accept: 'text/markdown' },
 					},
+					send: { preSend: [preparePageRequest] },
 					output: { postReceive: [markdownOutput] },
 				},
 			},
@@ -126,21 +128,21 @@ export const scraperApiDescription: INodeProperties[] = [
 		placeholder: 'https://example.com',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
 		description: 'Full URL of the page to extract data from, including the https:// prefix',
-		routing: { send: { type: 'body', property: 'url' } },
+		routing: { send: { type: 'query', property: 'url' } },
 	},
 	{
 		displayName: 'Prompt',
 		name: 'prompt',
 		type: 'string',
 		typeOptions: { rows: 4 },
-		default: 'Extract all available data as completely as possible.',
+		default: 'Extract all data as complete as possible.',
 		required: true,
 		placeholder: 'Extract the product name, price, and availability',
 		displayOptions: { show: { resource, operation: ['scrapeJson'] } },
 		description: 'Describe the data you want to extract from the page',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'prompt',
 			},
 		},
@@ -159,15 +161,7 @@ export const scraperApiDescription: INodeProperties[] = [
 	{
 		displayName: 'Screenshot Mode',
 		name: 'screenshotMode',
-		type: 'options',
-		options: [
-			{ name: 'Full', value: 'full', description: 'Capture the entire scrollable page' },
-			{
-				name: 'Top',
-				value: 'top',
-				description: 'Capture only the visible area at the top of the page',
-			},
-		],
+		type: 'string',
 		default: 'full',
 		displayOptions: { show: { resource, operation: ['getScreenshot'] } },
 		description: 'Area of the page to capture',
@@ -176,12 +170,18 @@ export const scraperApiDescription: INodeProperties[] = [
 	{
 		displayName: 'Browser Rendering',
 		name: 'browserRendering',
-		type: 'boolean',
-		default: false,
+		type: 'options',
+		options: [
+			{ name: 'Automatic', value: 'auto' },
+			{ name: 'Enabled', value: 'true' },
+			{ name: 'Disabled', value: 'false' },
+		],
+		default: 'auto',
 		displayOptions: {
 			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
 		},
-		description: 'Whether to render the page in a real browser so that JavaScript content loads',
+		description:
+			'Automatic omits the parameter so the service can switch to a browser when blocked; enabled always renders and disabled never renders',
 		routing: { send: { type: 'query', property: 'browserRendering' } },
 	},
 	{
@@ -190,29 +190,10 @@ export const scraperApiDescription: INodeProperties[] = [
 		type: 'boolean',
 		default: false,
 		displayOptions: {
-			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot'] },
+			show: { resource, operation: ['scrapeHtml', 'scrapeMarkdown', 'scrapeJson'] },
 		},
 		description: 'Whether to use a warm start for more reliable scraping',
 		routing: { send: { type: 'query', property: 'warmStart' } },
-	},
-	{
-		displayName: 'Super',
-		name: 'super',
-		type: 'boolean',
-		default: false,
-		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Whether to route the request through a real device for more reliable scraping',
-		routing: { send: { type: 'query', property: 'super' } },
-	},
-	{
-		displayName: 'Proxy Country',
-		name: 'proxyCountry',
-		type: 'string',
-		default: 'us',
-		placeholder: 'e.g. us',
-		displayOptions: { show: { resource, operation: pageOperations } },
-		description: 'Two-letter country code of the proxy server, such as us or gb',
-		routing: { send: { type: 'query', property: 'proxyCountry' } },
 	},
 	{
 		displayName: 'Options',

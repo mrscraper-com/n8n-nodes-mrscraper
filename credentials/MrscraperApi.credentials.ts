@@ -31,6 +31,7 @@ export class MrscraperApi implements ICredentialType {
 		type: 'generic',
 		properties: {
 			headers: {
+				Authorization: '=Bearer {{$credentials.apiToken}}',
 				'x-api-token': '={{$credentials.apiToken}}',
 			},
 		},
@@ -38,8 +39,8 @@ export class MrscraperApi implements ICredentialType {
 
 	test: ICredentialTestRequest = {
 		request: {
-			baseURL: 'https://api.mrscraper.com',
-			url: '/subscription-accounts',
+			baseURL: 'https://api.app.mrscraper.com',
+			url: '/api/v1/subscription-accounts',
 		},
 	};
 

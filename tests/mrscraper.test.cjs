@@ -78,37 +78,6 @@ test('Account keeps the existing Get Account Info request and header auth', () =
 	);
 });
 
-test('Web Search matches the supplied POST contract and defaults', () => {
-	const values = NodeHelpers.getNodeParameters(
-		description.properties,
-		{ resource: 'discovery', operation: 'webSearch' },
-		true,
-		false,
-		{ typeVersion: 3 },
-		description,
-	);
-	assert.deepEqual(values, {
-		resource: 'discovery',
-		operation: 'webSearch',
-		query: '',
-		country: 'us',
-		numResults: 10,
-	});
-	const search = operations('discovery').options[0];
-	assert.deepEqual(search.routing.request, {
-		method: 'POST',
-		baseURL: 'https://api.mrscraper.com',
-		url: '/',
-	});
-	assert.deepEqual(search.routing.send, { type: 'body', property: 'action', value: 'websearch' });
-	for (const name of ['query', 'country', 'numResults']) {
-		assert.deepEqual(field(name, values).routing.send, { type: 'body', property: name });
-	}
-	// The API rejects numResults below 10 with HTTP 400.
-	assert.equal(field('numResults', values).typeOptions.minValue, 10);
-	assert.equal(description.requestDefaults.headers['Content-Type'], 'application/json');
-});
-
 test('HTML and Markdown use GET, query URLs, and preserve raw text in valid n8n items', async () => {
 	for (const [name, outputKey, body] of [
 		['scrapeHtml', 'html', '<h1>Example & test</h1>'],
@@ -129,120 +98,6 @@ test('HTML and Markdown use GET, query URLs, and preserve raw text in valid n8n 
 	assert.equal(operation('scrapeMarkdown').routing.request.qs.html, false);
 });
 
-test('screenshot requests force browser rendering and support full or top', () => {
-	const values = parameters({ operation: 'getScreenshot' });
-	assert.equal(values.screenshotMode, 'full');
-	assert.equal('browserRendering' in values, false);
-	assert.equal(operation('getScreenshot').routing.request.qs.browserRendering, true);
-	assert.equal(operation('getScreenshot').routing.request.method, 'GET');
-	assert.deepEqual(
-		field('screenshotMode', values).options.map((p) => p.value),
-		['full', 'top'],
-	);
-	assert.deepEqual(field('screenshotMode', values).routing.send, {
-		type: 'query',
-		property: 'screenshot',
-	});
-});
-
-test('page operations include the documented token query parameter from the credential', () => {
-	for (const name of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson']) {
-		assert.equal(operation(name).routing.request.qs.token, '={{$credentials.apiToken}}');
-	}
-	assert.equal(operation('scrapeBrand').routing.request.qs.token, undefined);
-	assert.equal(operations('discovery').options[0].routing.request.qs, undefined);
-});
-
-test('JSON extraction keeps long prompts in a POST body and validates schemas before sending', async () => {
-	const values = parameters({ operation: 'scrapeJson' });
-	const route = operation('scrapeJson').routing.request;
-	assert.equal(route.method, 'POST');
-	assert.equal(route.baseURL, 'https://api.mrscraper.com');
-	assert.deepEqual(route.body, { agent: 'general' });
-	assert.deepEqual(field('url', values).routing.send, { type: 'body', property: 'url' });
-	const prompt = field('prompt', values).routing.send;
-	assert.equal(prompt.type, 'body');
-	assert.equal(prompt.property, 'prompt');
-	const longPrompt = 'Extract the product name. '.repeat(500);
-	const prepare = operation('scrapeJson').routing.send.preSend[0];
-	const request = {
-		...route,
-		body: { ...route.body, url: 'https://example.com', prompt: longPrompt },
-	};
-	assert.equal(
-		(await prepare.call(context({ ...values, prompt: longPrompt }), structuredClone(request))).body
-			.prompt,
-		longPrompt,
-	);
-	for (const outputSchema of ['{"name":"string"}', { name: 'string' }]) {
-		assert.equal(
-			(
-				await prepare.call(
-					context({ ...values, prompt: 'Extract name', outputSchema }),
-					structuredClone(request),
-				)
-			).body.prompt,
-			'Extract name\n\nJson Schema:\n{"name":"string"}',
-		);
-	}
-	await assert.rejects(
-		() => prepare.call(context({ ...values, outputSchema: '{invalid' }), structuredClone(request)),
-		/Expected Output Schema must be valid JSON/,
-	);
-});
-
-test('scraper options preserve zero and false values and hide unsupported controls', () => {
-	const values = parameters({
-		operation: 'scrapeJson',
-		options: { maxRetries: 0, saveResult: false, waitUntil: 'networkidle2' },
-	});
-	assert.equal(values.options.maxRetries, 0);
-	assert.equal(values.options.saveResult, false);
-	assert.equal(values.options.waitUntil, 'networkidle2');
-	const options = field('options', values).options;
-	for (const name of ['proxyCountry', 'super', 'warmStart']) {
-		assert.equal(
-			options.some((p) => p.name === name),
-			false,
-			`${name} is a top-level field`,
-		);
-	}
-	assert.deepEqual(options.find((p) => p.name === 'maxRetries').routing.send, {
-		type: 'query',
-		property: 'maxRetries',
-	});
-	for (const name of ['blockResources', 'proxy', 'returnCookie', 'waitForSelector']) {
-		assert.equal(
-			NodeHelpers.displayParameter(
-				values.options,
-				options.find((p) => p.name === name),
-				{ typeVersion: 3 },
-				description,
-				values,
-			),
-			false,
-		);
-	}
-});
-
-test('Warm Start, Super, and Proxy Country are top-level query fields with off-by-default toggles', () => {
-	for (const operationName of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot']) {
-		const values = parameters({ operation: operationName });
-		assert.equal(values.warmStart, false);
-		assert.equal(values.super, false);
-		assert.equal(values.proxyCountry, 'us');
-		for (const name of ['warmStart', 'super', 'proxyCountry']) {
-			assert.deepEqual(field(name, values).routing.send, { type: 'query', property: name });
-		}
-	}
-	const json = parameters({ operation: 'scrapeJson' });
-	assert.equal('warmStart' in json, false, 'Warm Start is only for HTML, Markdown, and Screenshot');
-	assert.equal(json.super, false);
-	assert.equal(json.proxyCountry, 'us');
-	const brand = parameters({ operation: 'scrapeBrand' });
-	for (const name of ['warmStart', 'super', 'proxyCountry']) assert.equal(name in brand, false);
-});
-
 test('Scrape Brand is a GET with action, bundle, and url in the query and no body', () => {
 	const values = parameters({ operation: 'scrapeBrand', url: 'https://books.toscrape.com/' });
 	assert.deepEqual(Object.keys(values).sort(), ['operation', 'resource', 'url']);
@@ -256,4 +111,140 @@ test('Scrape Brand is a GET with action, bundle, and url in the query and no bod
 	assert.equal(route.send, undefined);
 	assert.equal(route.output, undefined);
 	assert.deepEqual(field('url', values).routing.send, { type: 'query', property: 'url' });
+});
+
+const prepare = operation('scrapeJson').routing.send.preSend[0];
+const pageRequest = (operationName, extra = {}, values = {}) =>
+	prepare.call(context({ operation: operationName, prompt: 'Extract names', ...values }), {
+		method: 'GET',
+		qs: { ...operation(operationName).routing.request.qs, url: 'https://example.com', ...extra },
+	});
+
+test('page requests match SDK defaults and drop legacy query fields', async () => {
+	for (const name of ['scrapeHtml', 'scrapeMarkdown', 'getScreenshot', 'scrapeJson']) {
+		const result = await pageRequest(name, {
+			browserRendering: 'auto',
+			screenshot: name === 'getScreenshot' ? 'full' : false,
+			proxy: 'secret',
+			proxyCountry: 'us',
+			super: true,
+			token: 'secret',
+			tokenCap: 30,
+			waitUntil: 'load',
+		});
+		assert.equal(result.method, 'GET');
+		assert.equal(result.timeout, 330000);
+		assert.equal(result.qs.saveResult, true);
+		assert.equal(result.qs.maxAge, 0);
+		assert.equal(result.qs.timeout, 300);
+		for (const key of ['proxy', 'proxyCountry', 'super', 'token', 'tokenCap', 'waitUntil'])
+			assert.equal(key in result.qs, false);
+		assert.equal(result.qs.browserRendering, name === 'getScreenshot' ? true : undefined);
+	}
+	const properties = [
+		...description.properties,
+		...field('options', parameters({ operation: 'scrapeHtml' })).options,
+	];
+	for (const key of [
+		'proxy',
+		'proxyCountry',
+		'super',
+		'returnCookie',
+		'saveResult',
+		'tokenCap',
+		'waitUntil',
+	])
+		assert.equal(
+			properties.some((p) => p.name === key),
+			false,
+		);
+	assert.equal(parameters({ operation: 'scrapeHtml' }).browserRendering, 'auto');
+});
+
+test('JSON uses GET and falls back to POST with only url, prompt, agent in body', async () => {
+	const short = await pageRequest('scrapeJson', {}, { outputSchema: '{"name":"string"}' });
+	assert.equal(short.method, 'GET');
+	assert.equal(short.body, undefined);
+	assert.equal(short.qs.prompt, 'Extract names\n\nJson Schema:\n{"name":"string"}');
+	const prompt = 'Extract '.repeat(1500);
+	const long = await pageRequest('scrapeJson', { timeout: 120 }, { prompt });
+	assert.equal(long.method, 'POST');
+	assert.deepEqual(long.body, { url: 'https://example.com', prompt, agent: 'general' });
+	assert.equal(long.qs.prompt, undefined);
+	assert.equal(long.qs.timeout, 120);
+	assert.equal(long.timeout, 150000);
+	await assert.rejects(
+		() => pageRequest('scrapeJson', {}, { outputSchema: '{invalid' }),
+		/valid JSON/,
+	);
+});
+
+test('page controls validate SDK limits and preserve false and zero', async () => {
+	const result = await pageRequest('scrapeHtml', {
+		screenshot: '1920x1080-75',
+		browserRendering: false,
+		maxRetries: 0,
+		geoCode: 'GB',
+	});
+	assert.equal(result.qs.browserRendering, true);
+	assert.equal(result.qs.maxRetries, 0);
+	assert.equal(result.qs.geoCode, 'gb');
+	for (const extra of [
+		{ timeout: 331 },
+		{ maxAge: 604800001 },
+		{ maxRetries: -1 },
+		{ geoCode: 'USA' },
+		{ waitForSelector: 'x'.repeat(501) },
+		{ screenshot: '99x800' },
+		{ url: 'file:///tmp/example' },
+	]) {
+		await assert.rejects(() => pageRequest('scrapeHtml', extra));
+	}
+	const screenshot = await pageRequest('getScreenshot', { screenshot: 'top' });
+	assert.equal(screenshot.qs.html, false);
+	assert.equal(screenshot.qs.markdown, false);
+	assert.equal('warmStart' in screenshot.qs, false);
+});
+
+test('search uses GET query parameters and credentials use both SDK auth headers', () => {
+	const route = operations('discovery').options[0].routing;
+	assert.equal(route.request.method, 'GET');
+	assert.equal(route.send.type, 'query');
+	for (const name of ['query', 'country', 'numResults']) {
+		assert.equal(
+			field(name, { resource: 'discovery', operation: 'webSearch' }).routing.send.type,
+			'query',
+		);
+	}
+	assert.equal(field('country', { resource: 'discovery', operation: 'webSearch' }).default, '');
+	assert.equal(
+		field('numResults', { resource: 'discovery', operation: 'webSearch' }).typeOptions.maxValue,
+		100,
+	);
+	assert.equal(
+		new MrscraperApi().authenticate.properties.headers.Authorization,
+		'=Bearer {{$credentials.apiToken}}',
+	);
+	assert.equal(new MrscraperApi().test.request.baseURL, 'https://api.app.mrscraper.com');
+});
+
+test('search preparation trims input, omits country, and validates SDK limits', async () => {
+	const prepareSearch = operations('discovery').options[0].routing.send.preSend[0];
+	const run = (values) =>
+		prepareSearch.call(context({ query: '  example  ', numResults: 10, ...values }), {
+			qs: { token: 'legacy' },
+			body: { query: 'old' },
+		});
+	const result = await run({});
+	assert.deepEqual(result.qs, { action: 'websearch', query: 'example', numResults: 10 });
+	assert.equal(result.body, undefined);
+	assert.equal((await run({ country: 'GB' })).qs.country, 'gb');
+	for (const values of [
+		{ query: '' },
+		{ query: 'x'.repeat(1001) },
+		{ country: 'USA' },
+		{ numResults: 101 },
+		{ numResults: 9 },
+	])
+		await assert.rejects(() => run(values));
 });

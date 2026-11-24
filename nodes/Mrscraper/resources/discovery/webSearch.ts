@@ -19,7 +19,7 @@ export const webSearchDescription: INodeProperties[] = [
 		description: 'Keywords or a question to search for, such as "best hotels in New York"',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'query',
 			},
 		},
@@ -28,17 +28,17 @@ export const webSearchDescription: INodeProperties[] = [
 		displayName: 'Country',
 		name: 'country',
 		type: 'string',
-		default: 'us',
+		default: '',
 		placeholder: 'e.g. us',
-		required: true,
 		displayOptions: {
 			show: showOnlyForWebSearch,
 		},
 		description: 'Two-letter country code for localized results, such as us or gb',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'country',
+				value: '={{ $value ? $value.toLowerCase() : undefined }}',
 			},
 		},
 	},
@@ -50,6 +50,7 @@ export const webSearchDescription: INodeProperties[] = [
 		required: true,
 		typeOptions: {
 			minValue: 10,
+			maxValue: 100,
 			numberPrecision: 0,
 		},
 		displayOptions: {
@@ -58,7 +59,7 @@ export const webSearchDescription: INodeProperties[] = [
 		description: 'Number of search results to return, with a minimum of 10',
 		routing: {
 			send: {
-				type: 'body',
+				type: 'query',
 				property: 'numResults',
 			},
 		},

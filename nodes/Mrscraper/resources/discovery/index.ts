@@ -1,4 +1,5 @@
 import type { INodeProperties } from 'n8n-workflow';
+import { prepareSearchRequest } from './search';
 import { webSearchDescription } from './webSearch';
 
 export const discoveryDescription: INodeProperties[] = [
@@ -17,11 +18,17 @@ export const discoveryDescription: INodeProperties[] = [
 					'Search the web and return matching pages with their URLs, titles, and descriptions',
 				routing: {
 					request: {
-						method: 'POST',
+						method: 'GET',
 						baseURL: 'https://api.mrscraper.com',
 						url: '/',
+						timeout: 120000,
 					},
-					send: { type: 'body', property: 'action', value: 'websearch' },
+					send: {
+						type: 'query',
+						property: 'action',
+						value: 'websearch',
+						preSend: [prepareSearchRequest],
+					},
 				},
 			},
 		],
