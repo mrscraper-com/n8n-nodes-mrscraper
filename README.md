@@ -123,31 +123,6 @@ The response includes colors, typography, logos, social links, and other brand d
 
 Select **Discovery > Web Search**, enter the query `e-menessaptieka.lv linkedin`, leave Country empty, and keep the default Number of Results (`10`) to send the example request above.
 
-## Upgrading from 5.0
-
-Version 5.1 sends only the parameters in the MrScraper API reference:
-
-- **Super**, **Proxy Country**, and the **Proxy**, **Return Cookie**, **Wait Until**, **Save Result**, and **Token Cap** options are removed, and requests no longer repeat the token as a `token` query parameter. Results are always saved to your account, and no token cap is sent.
-- **Browser Rendering** now offers Auto, Enabled, and Disabled. Workflows saved with it on or off keep that choice; workflows that left it at the old default now use Auto.
-- **Get Screenshot**'s **Screenshot Mode** is now **Screenshot**, with **Full Page** (the default), **Top of Page**, and the new **Custom Viewport**. Saved Full and Top choices are kept.
-- Scrape HTML also sends `markdown=false`, Scrape Markdown sends `html=false` and `screenshot=false`, and Get Screenshot sends `html=false` and `markdown=false`. **Web Search** sends Country only when you enter one.
-- New: **Screenshot** in Scrape HTML, and the **Action** and **Max Age** options. Scrape JSON also accepts **Warm Start**, **Block Resources**, and **Wait for Selector**. Timeout accepts up to 330 seconds.
-
-Check workflows that used a removed field before activating them.
-
-## Upgrading from 4.x
-
-This release replaces the previous resources. Only Account, Scraper API, and Discovery remain. Extraction, Results, Scraper Creation, Scraper Runs, and Crawl Website URLs have been removed, so workflows that use them must be rebuilt with a new MrScraper node:
-
-| Previous selection                  | New selection                                                 |
-| ----------------------------------- | ------------------------------------------------------------- |
-| Account > Get Account Info          | Account > Get Account Info                                    |
-| Discovery > Web Search              | Discovery > Web Search                                        |
-| Extraction > Fetch Rendered HTML    | Scraper API > Scrape HTML, Scrape Markdown, or Get Screenshot |
-| Extraction > Extract Page by Prompt | Scraper API > Scrape JSON                                     |
-
-The scraper creation, listing, crawl, run, and result operations have no replacement in this node. Test migrated workflows before activating them.
-
 ## Development
 
 Requires Node.js 22 or newer and npm.
