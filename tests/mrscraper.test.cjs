@@ -56,7 +56,7 @@ test('the node exposes exactly three resources and only the requested operations
 	);
 	assert.deepEqual(
 		operations('account').options.map((p) => p.name),
-		['Get Account Info'],
+		['Get Status'],
 	);
 	assert.equal(resource().default, 'scraperApi');
 	assert.equal(
@@ -66,7 +66,7 @@ test('the node exposes exactly three resources and only the requested operations
 	);
 });
 
-test('Account keeps the existing Get Account Info request and header auth', () => {
+test('Account keeps the existing Get Status request and header auth', () => {
 	assert.equal(description.requestDefaults.baseURL, 'https://api.app.mrscraper.com');
 	assert.deepEqual(operations('account').options[0].routing.request, {
 		method: 'GET',
